@@ -6,6 +6,7 @@ import Register from '@/views/Register.vue';
 import GroupView from '@/views/GroupView.vue';
 import UserView from '@/views/UserView.vue';
 import Home from '@/views/Home.vue';
+import Dashboard from '@/views/Dashboard.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -25,6 +26,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'UserView',
     component: UserView,
     meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
+    meta: { requiresAuth: true },
   },
   {
     path: '/login',

@@ -24,6 +24,7 @@ export default defineComponent({
       { title: 'Tela inicial', route: '/home', admin: false },
       { title: 'Grupos', route: '/groups', admin: true },
       { title: 'Usuários', route: '/users', admin: true },
+      { title: 'Dashboard', route: '/dashboard', admin: false },
     ];
 
     const filteredMenuItems = computed(() => {
