@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { useAuth } from '@/composables/auth';
+
 import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import GroupView from '@/views/GroupView.vue';
 import UserView from '@/views/UserView.vue';
 import Home from '@/views/Home.vue';
-import { useAuth } from '@/composables/auth';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -48,29 +49,24 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const authToken = localStorage.getItem('authToken');
+router.beforeEach(async (to, from, next) => {
+  const { fetchUser, user, isAuthenticated } = useAuth();
+  await fetchUser();
+
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
-  const { user } = useAuth();
 
-  if (requiresAuth && !authToken) {
+  if (requiresAuth && !isAuthenticated.value) {
     return next({ name: 'Login' });
   }
 
-  if (requiresGuest && authToken) {
+  if (requiresGuest && isAuthenticated.value) {
     return next({ name: 'Home' });
   }
 
-  if (requiresAdmin) {
-    try {
-      if (!user.value || !user.value.admin) {
-        return next({ name: 'Home' });
-      }
-    } catch (error) {
-      return next({ name: 'Home' });
-    }
+  if (requiresAdmin && (!user.value || !user.value.admin)) {
+    return next({ name: 'Home' });
   }
 
   next();

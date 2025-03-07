@@ -41,6 +41,12 @@ import { useTheme } from 'vuetify';
 
 export default defineComponent({
   name: 'TopMenu',
+  props: {
+    user: {
+      type: Object,
+      required: true,
+    },
+  },
   setup() {
     const { isAuthenticated, logout } = useAuth();
     const router = useRouter();

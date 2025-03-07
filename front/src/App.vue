@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <TopMenu v-if="isAuthenticated" />
+    <TopMenu v-if="isAuthenticated" :user/>
     <SideMenu v-if="isAuthenticated" :user/>
     <v-main>
       <router-view />
