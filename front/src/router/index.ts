@@ -3,15 +3,29 @@ import { useAuth } from '@/composables/auth';
 
 import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
+import Home from '@/views/Home.vue';
 import GroupView from '@/views/GroupView.vue';
 import UserView from '@/views/UserView.vue';
-import Home from '@/views/Home.vue';
+import OrdersView from '@/views/OrdersView.vue';
+import OrderView from '@/views/OrderView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
     component: Home,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/orders',
+    name: 'OrdersView',
+    component: OrdersView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/order/:id',
+    name: 'OrderView',
+    component: OrderView,
     meta: { requiresAuth: true },
   },
   {
