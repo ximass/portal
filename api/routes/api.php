@@ -7,7 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderPartController;
+use App\Http\Controllers\SetController;
+use App\Http\Controllers\SetPartController;
 use App\Http\Controllers\ProcessController;
 
 Route::get('/user', function (Request $request) {
@@ -21,6 +22,8 @@ Route::apiResource('/users', UserController::class);
 Route::apiResource('/orders', OrderController::class);
 Route::apiResource('/orders/{order}/order_parts', OrderPartController::class);
 Route::apiResource('processes', ProcessController::class);
+Route::apiResource('sets', SetController::class);
+Route::apiResource('sets/{set}/parts', SetPartController::class);
 
 ##POST##
 Route::middleware('web')->group(function () {
@@ -29,4 +32,4 @@ Route::middleware('web')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::post('/upload-order-part', [OrderPartController::class, 'upload']);
+Route::post('/upload-set-part', [SetPartController::class, 'upload']);

@@ -11,8 +11,8 @@ class Order extends Model
 
     protected $fillable = ['final_value'];
 
-    public function orderParts()
+    public function sets()
     {
-        return $this->hasMany(OrderPart::class);
+        return $this->hasMany(Set::class);
     }
 }

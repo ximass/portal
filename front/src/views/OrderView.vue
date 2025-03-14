@@ -6,34 +6,51 @@
         <v-form ref="formRef">
           <v-row>
             <v-col cols="4" md="4" sm="12">
-              <v-text-field label="Valor final" placeholder="Digite o valor do valor final" v-model="form.final_value" />
+              <v-text-field
+                label="Valor final"
+                placeholder="Digite o valor final"
+                v-model="form.final_value"
+              />
             </v-col>
           </v-row>
         </v-form>
       </v-card-text>
     </v-card>
 
-    <v-card v-if="!isNew">
-      <v-card-title>Peças</v-card-title>
+    <!-- Botão para criar novos sets -->
+    <v-row class="justify-end pa-4 mb-2">
+      <v-btn color="secondary" @click="createSet">Adicionar Conjunto</v-btn>
+    </v-row>
+
+    <!-- Listagem de conjuntos -->
+    <v-card v-for="(setItem, setIndex) in sets" :key="setItem.id" class="mb-4">
+      <v-card-title>
+        {{ setItem.name || 'Conjunto ' + (setIndex + 1) }}
+      </v-card-title>
       <v-card-text>
         <v-file-input
-          v-model="fileList"
+          v-model="setItem.fileList"
           multiple
           clearable
           label="Selecione arquivos"
           show-size
           counter
         />
-        <div class="images-container">
+        <div class="setParts-container">
           <v-row class="d-flex flex-row" dense>
             <v-col
-              v-for="(image, revIndex) in images.slice().reverse()"
-              :key="revIndex"
+              v-for="(part, partIndex) in setItem.setParts.slice().reverse()"
+              :key="partIndex"
               cols="auto"
               class="pa-2"
             >
               <div class="image-preview">
-                <v-img :src="image.url" width="150" height="150" contain>
+                <v-img
+                  :src="part.content"
+                  width="150"
+                  height="150"
+                  contain
+                >
                   <template #error>
                     <div
                       style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background-color:#f0f0f0"
@@ -42,10 +59,14 @@
                     </div>
                   </template>
                 </v-img>
-                <div class="counter">{{ revIndex + 1 }}</div>
+                <div class="counter">{{ partIndex + 1 }}</div>
                 <div class="overlay">
-                  <span class="overlay-text">{{ image.name }}</span>
-                  <v-icon color="white" class="delete-icon" @click="deleteImage(images.length - 1 - revIndex)">
+                  <span class="overlay-text">{{ part.title }}</span>
+                  <v-icon
+                    color="white"
+                    class="delete-icon"
+                    @click="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)"
+                  >
                     mdi-delete
                   </v-icon>
                 </div>
@@ -56,7 +77,7 @@
       </v-card-text>
     </v-card>
 
-    <v-row style="display:flex; justify-content:end; padding: 16px;">
+    <v-row class="justify-end pa-4">
       <v-btn color="primary" @click="saveOrder">Salvar</v-btn>
     </v-row>
   </v-container>
@@ -65,6 +86,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useToast } from '@/composables/useToast';
 import axios from 'axios';
 
 export default defineComponent({
@@ -73,16 +95,35 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const isNew = ref(route.params.id === 'new');
+    const { showToast } = useToast();
 
-    const form = ref({
-      final_value: '',
-    });
+    const form = ref({ final_value: '' });
+    const sets = ref<Array<{
+      id?: number;
+      name?: string;
+      setParts: { title: string; content: string }[];
+      fileList: File[] | null;
+    }>>([]);
 
     onMounted(async () => {
       if (!isNew.value && route.params.id) {
         try {
           const { data } = await axios.get(`/api/orders/${route.params.id}`);
+
           form.value.final_value = data.final_value;
+
+          if (data.sets && data.sets.length) {
+            sets.value = data.sets.map((s: any) => ({
+              ...s,
+              fileList: null,
+              setParts: [],
+            }));
+
+            for (const set of sets.value) {
+              const { data } = await axios.get(`/api/sets/${set.id}/parts`);
+              set.setParts = data;
+            }
+          }
         } catch (error) {
           console.error(error);
         }
@@ -92,60 +133,92 @@ export default defineComponent({
     const saveOrder = async () => {
       try {
         if (isNew.value) {
-          await axios.post('/api/orders', { final_value: form.value.final_value });
+          const { data } = await axios.post('/api/orders', {
+            final_value: form.value.final_value,
+          });
+
+          router.push({ name: 'Orders', params: { id: data.id } });
         } else {
-          await axios.put(`/api/orders/${route.params.id}`, { final_value: form.value.final_value });
+          await axios.put(`/api/orders/${route.params.id}`, {
+            final_value: form.value.final_value,
+          });
         }
 
-        router.push({ name: 'OrdersView' });
+        showToast('Pedido salvo com sucesso.', 'success');
       } catch (error) {
-        console.error(error);
+        showToast('Erro ao salvar pedido: ' + error, 'error');
       }
     };
 
-    const images = ref<{ name: string; url: string }[]>([]);
-    const fileList = ref<File[] | null>(null);
+    const createSet = async () => {
+      if (isNew.value) {
+        showToast('Crie o pedido antes de adicionar conjuntos.', 'warning');
+        return;
+      }
+      try {
+        const { data } = await axios.post('/api/sets', {
+          name: 'Novo conjunto',
+          order_id: route.params.id,
+        });
+        sets.value.push({
+          ...data,
+          fileList: null,
+          setParts: [],
+        });
+      } catch (error) {
+        showToast('Erro ao criar conjunto: ' + error, 'error');
+      }
+    };
 
-    const handleFileUpload = async () => {
-      const files = fileList.value;
-      if (files && files.length) {
+    watch(
+      () => sets.value.map((s) => s.fileList),
+      (newValues, oldValues) => {
+        newValues.forEach((files, index) => {
+          if (files && files.length) handleFileUpload(index);
+        });
+      },
+      { deep: true }
+    );
+
+    const handleFileUpload = async (setIndex: number) => {
+      const currentSet = sets.value[setIndex];
+      const files = currentSet.fileList;
+
+      if (files && files.length && currentSet.id) {
         for (const file of files) {
           const formData = new FormData();
+
           formData.append('file', file);
+          formData.append('set_id', currentSet.id!.toString());
+
           try {
-            const response = await axios.post('/api/upload-order-part', formData, {
+            const response = await axios.post('/api/upload-set-part', formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
             });
-            images.value.push({
-              name: file.name,
-              url: response.data.file_path,
+
+            currentSet.setParts.push({
+              title: response.data.title,
+              content: response.data.content,
             });
           } catch (error) {
             console.error('File upload error:', error);
           }
         }
       }
-      fileList.value = null;
+      currentSet.fileList = null;
     };
 
-    const deleteImage = (index: number) => {
-      images.value.splice(index, 1);
+    const deletePart = (setIndex: number, partIndex: number) => {
+      sets.value[setIndex].setParts.splice(partIndex, 1);
     };
-
-    watch(fileList, (newFiles) => {
-      if (newFiles && newFiles.length) {
-        handleFileUpload();
-      }
-    });
 
     return {
       isNew,
       form,
-      images,
-      fileList,
-      handleFileUpload,
-      deleteImage,
+      sets,
       saveOrder,
+      createSet,
+      deletePart,
     };
   },
 });
@@ -193,16 +266,16 @@ export default defineComponent({
   cursor: pointer;
 }
 
-.images-container {
+.setParts-container {
   max-height: calc(150px * 3 + 16px);
   overflow-y: auto;
   padding: 8px;
 }
 
-.images-container::-webkit-scrollbar {
+.setParts-container::-webkit-scrollbar {
   width: 8px;
 }
-.images-container::-webkit-scrollbar-thumb {
+.setParts-container::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.4);
   border-radius: 4px;
 }

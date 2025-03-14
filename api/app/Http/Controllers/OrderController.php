@@ -9,7 +9,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-        return response()->json(Order::with('orderParts')->get());
+        return response()->json(Order::with('sets')->get());
     }
 
     public function store(Request $request)
@@ -25,7 +25,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        return response()->json($order->load('orderParts'));
+        return response()->json($order->load('sets'));
     }
 
     public function update(Request $request, Order $order)
