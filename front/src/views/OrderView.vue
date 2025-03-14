@@ -46,7 +46,7 @@
             >
               <div class="image-preview">
                 <v-img
-                  :src="part.content"
+                  :src="getPartImageUrl(part.content)"
                   width="150"
                   height="150"
                   contain
@@ -121,6 +121,7 @@ export default defineComponent({
 
             for (const set of sets.value) {
               const { data } = await axios.get(`/api/sets/${set.id}/parts`);
+              console.log(data);
               set.setParts = data;
             }
           }
@@ -212,6 +213,11 @@ export default defineComponent({
       sets.value[setIndex].setParts.splice(partIndex, 1);
     };
 
+    const getPartImageUrl = (content: string) => {
+      const baseUrl = import.meta.env.VITE_API_URL
+      return `${baseUrl}${content}`
+    }
+
     return {
       isNew,
       form,
@@ -219,6 +225,7 @@ export default defineComponent({
       saveOrder,
       createSet,
       deletePart,
+      getPartImageUrl
     };
   },
 });
