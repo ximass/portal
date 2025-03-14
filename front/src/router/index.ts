@@ -6,6 +6,8 @@ import Register from '@/views/Register.vue';
 import GroupView from '@/views/GroupView.vue';
 import UserView from '@/views/UserView.vue';
 import Home from '@/views/Home.vue';
+import ProcessView from '@/views/ProcessView.vue';
+import ProcessesView from '@/views/ProcessesView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -13,6 +15,18 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: Home,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/processes',
+    name: 'ProcessesView',
+    component: ProcessesView,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/processes/:id',
+    name: 'ProcessView',
+    component: ProcessView,
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/groups',
