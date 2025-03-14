@@ -56,6 +56,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+import { useToast } from '@/composables/useToast';
 
 export default defineComponent({
   name: 'ProcessView',
@@ -67,6 +68,8 @@ export default defineComponent({
     const isFormValid = ref(false);
     const form = ref({ title: '', content: '', value_per_minute: null, fixed_value: null });
 
+    const { showToast } = useToast();
+
     onMounted(async () => {
       if (!isNew.value) {
         const { data } = await axios.get(`/api/processes/${route.params.id}`);
@@ -75,17 +78,21 @@ export default defineComponent({
     });
 
     const saveProcess = async () => {
-      const validation = await processForm.value.validate();
+      try {
+        const validation = await processForm.value.validate();
 
-      if (!validation.valid) return;
+        if (!validation.valid) return;
 
-      if (isNew.value) {
-        await axios.post('/api/processes', form.value);
-      } else {
-        await axios.put(`/api/processes/${route.params.id}`, form.value);
+        if (isNew.value) {
+          await axios.post('/api/processes', form.value);
+        } else {
+          await axios.put(`/api/processes/${route.params.id}`, form.value);
+        }
+
+        router.push({ name: 'ProcessesView' });
+      } catch (error) {
+        showToast('Erro ao salvar processo', 'error');
       }
-
-      router.push({ name: 'ProcessesView' });
     };
 
     const goBack = () => router.push({ name: 'ProcessesView' });

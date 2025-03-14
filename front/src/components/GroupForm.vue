@@ -87,6 +87,7 @@ export default defineComponent({
         }
       } catch (error) {
         const errorMsg = error.response?.data?.message || 'Erro ao buscar usuários';
+
         showToast(errorMsg);
       } finally {
         loadingUsers.value = false;
@@ -110,6 +111,7 @@ export default defineComponent({
           close();
         } catch (error) {
           const errorMsg = error.response?.data?.message || 'Erro ao salvar grupo';
+          
           showToast(errorMsg);
         }
       }

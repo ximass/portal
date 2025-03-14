@@ -36,6 +36,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import router from '@/router';
+import { useToast } from '@/composables/useToast';
 
 export default defineComponent({
   name: 'ProcessesView',
@@ -46,6 +47,8 @@ export default defineComponent({
       { title: 'Título', value: 'title' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
+
+    const { showToast } = useToast();
 
     const fetchProcesses = async () => {
       const { data } = await axios.get('/api/processes');
@@ -61,13 +64,19 @@ export default defineComponent({
     };
 
     const deleteProcess = async (id: number) => {
-      const confirmed = window.confirm('Deseja realmente excluir este processo?');
-      if (!confirmed) {
-        return;
+      try {
+        const confirmed = window.confirm('Deseja realmente excluir este processo?');
+
+        if (!confirmed) {
+          return;
+        }
+        
+        await axios.delete(`/api/processes/${id}`);
+        fetchProcesses();
       }
-      
-      await axios.delete(`/api/processes/${id}`);
-      fetchProcesses();
+      catch (error) {
+        showToast('Erro ao excluir processo', 'error');
+      }
     };
 
     onMounted(() => fetchProcesses());
