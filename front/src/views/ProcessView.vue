@@ -7,7 +7,7 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
-                label="Título"
+                label="Nome"
                 v-model="form.title"
                 required
                 :rules="[v => !!v || 'Campo obrigatório']"

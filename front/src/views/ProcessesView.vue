@@ -43,8 +43,11 @@ export default defineComponent({
   setup() {
     const processes = ref([]);
     const headers = [
-      { title: 'ID', value: 'id' },
-      { title: 'Título', value: 'title' },
+      { title: 'Código', value: 'id' },
+      { title: 'Nome', value: 'title' },
+      { title: 'Observações', value: 'content' },
+      { title: 'Valor por minuto', value: 'value_per_minute' },
+      { title: 'Valor fixo', value: 'fixed_value' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 
