@@ -1,6 +1,6 @@
 <template>
   <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4">
+    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
       <h2>Processos</h2>
       <v-btn color="primary" @click="openForm">Novo</v-btn>
     </v-row>

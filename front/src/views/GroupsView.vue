@@ -51,7 +51,7 @@ import GroupForm from '@/components/GroupForm.vue';
 import { useToast } from '@/composables/useToast';
 
 export default defineComponent({
-  name: 'GroupView',
+  name: 'GroupsView',
   components: { GroupForm },
   setup() {
     const groups = ref<Array<any>>([]);
