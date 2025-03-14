@@ -51,7 +51,7 @@ import GroupForm from '@/components/GroupForm.vue';
 import { useToast } from '@/composables/useToast';
 
 export default defineComponent({
-  name: 'GroupView',
+  name: 'GroupsView',
   components: { GroupForm },
   setup() {
     const groups = ref<Array<any>>([]);
@@ -83,6 +83,12 @@ export default defineComponent({
 
     const deleteGroup = async (groupId: number) => {
       try {
+        const confirmed = window.confirm('Deseja realmente excluir este grupo?');
+
+        if (!confirmed) {
+          return;
+        }
+
         await axios.delete(`/api/groups/${groupId}`);
         fetchGroups();
       } catch (error) {

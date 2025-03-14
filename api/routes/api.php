@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderPartController;
+use App\Http\Controllers\ProcessController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -19,6 +20,7 @@ Route::apiResource('/groups', GroupController::class);
 Route::apiResource('/users', UserController::class);
 Route::apiResource('/orders', OrderController::class);
 Route::apiResource('/orders/{order}/order_parts', OrderPartController::class);
+Route::apiResource('processes', ProcessController::class);
 
 ##POST##
 Route::middleware('web')->group(function () {

@@ -4,10 +4,12 @@ import { useAuth } from '@/composables/auth';
 import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import Home from '@/views/Home.vue';
-import GroupView from '@/views/GroupView.vue';
-import UserView from '@/views/UserView.vue';
 import OrdersView from '@/views/OrdersView.vue';
 import OrderView from '@/views/OrderView.vue';
+import GroupsView from '@/views/GroupsView.vue';
+import UsersView from '@/views/UsersView.vue';
+import ProcessView from '@/views/ProcessView.vue';
+import ProcessesView from '@/views/ProcessesView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -29,15 +31,27 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/processes',
+    name: 'ProcessesView',
+    component: ProcessesView,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/processes/:id',
+    name: 'ProcessView',
+    component: ProcessView,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
     path: '/groups',
-    name: 'GroupView',
-    component: GroupView,
+    name: 'GroupsView',
+    component: GroupsView,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/users',
-    name: 'UserView',
-    component: UserView,
+    name: 'UsersView',
+    component: UsersView,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

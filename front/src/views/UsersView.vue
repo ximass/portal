@@ -36,7 +36,7 @@ import UserForm from '@/components/UserForm.vue';
 import { useToast } from '@/composables/useToast';
 
 export default defineComponent({
-    name: 'UserView',
+    name: 'UsersView',
     components: { UserForm },
     setup() {
         const users = ref<Array<{ id: number; name: string; email: string; admin: boolean }>>([]);
