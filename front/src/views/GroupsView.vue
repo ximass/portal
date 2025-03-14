@@ -83,6 +83,12 @@ export default defineComponent({
 
     const deleteGroup = async (groupId: number) => {
       try {
+        const confirmed = window.confirm('Deseja realmente excluir este grupo?');
+
+        if (!confirmed) {
+          return;
+        }
+
         await axios.delete(`/api/groups/${groupId}`);
         fetchGroups();
       } catch (error) {
