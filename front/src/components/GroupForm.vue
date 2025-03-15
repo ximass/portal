@@ -95,7 +95,9 @@ export default defineComponent({
     };
 
     const submitForm = async () => {
-      if (form.value?.validate()) {
+      const validation = await form.value?.validate();
+
+      if (validation.valid) {
         try {
           const payload = {
             name: group.value.name,

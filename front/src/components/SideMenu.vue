@@ -22,7 +22,8 @@ export default defineComponent({
   setup(props) {
     const menuItems = [
       { title: 'Tela inicial', route: '/home', admin: false },
-      { title: 'Processos', route: '/processes', admin: true },
+      { title: 'Processos', route: '/processes', admin: false },
+      { title: 'Clientes', route: '/customers', admin: false },
       { title: 'Grupos', route: '/groups', admin: true },
       { title: 'Usuários', route: '/users', admin: true },
     ];
