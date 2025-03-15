@@ -10,6 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SetController;
 use App\Http\Controllers\SetPartController;
 use App\Http\Controllers\ProcessController;
+use App\Http\Controllers\CustomerController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -21,9 +22,10 @@ Route::apiResource('/groups', GroupController::class);
 Route::apiResource('/users', UserController::class);
 Route::apiResource('/orders', OrderController::class);
 Route::apiResource('/orders/{order}/order_parts', OrderPartController::class);
-Route::apiResource('processes', ProcessController::class);
-Route::apiResource('sets', SetController::class);
-Route::apiResource('sets/{set}/parts', SetPartController::class);
+Route::apiResource('/sets', SetController::class);
+Route::apiResource('/sets/{set}/parts', SetPartController::class);
+Route::apiResource('/processes', ProcessController::class);
+Route::apiResource('/customers', CustomerController::class);
 
 ##POST##
 Route::middleware('web')->group(function () {
