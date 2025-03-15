@@ -44,38 +44,57 @@
               cols="auto"
               class="pa-2"
             >
-              <div class="image-preview">
-                <v-img
-                  :src="getPartImageUrl(part.content)"
-                  width="150"
-                  height="150"
-                  contain
-                >
-                  <template #error>
-                    <div
-                      style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background-color:#f0f0f0"
-                    >
-                      <v-icon large color="grey lighten-1">mdi-file</v-icon>
-                    </div>
-                  </template>
-                </v-img>
-                <div class="counter">{{ partIndex + 1 }}</div>
-                <div class="overlay">
-                  <span class="overlay-text">{{ part.title }}</span>
-                  <v-icon
-                    color="white"
-                    class="delete-icon"
-                    @click="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)"
+            <div
+              setPart
+              class="image-preview"
+            >
+              <v-img
+                :src="getPartImageUrl(part.content)"
+                width="150"
+                height="150"
+                contain
+              >
+                <template #error>
+                  <div
+                    style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background-color:#f0f0f0"
                   >
-                    mdi-delete
-                  </v-icon>
-                </div>
+                    <v-icon large color="grey lighten-1">mdi-file</v-icon>
+                  </div>
+                </template>
+              </v-img>
+              <div class="counter">{{ partIndex + 1 }}</div>
+              <div class="overlay">
+                <span class="overlay-text">{{ part.title }}</span>
+                <v-menu offset-y>
+                  <template #activator="{ props }">
+                    <v-btn variant="plain" :ripple="false" v-bind="props">
+                      <v-icon color="white" class="delete-icon">mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item @click.stop="openPartModal(part)">
+                      <v-list-item-title>Visualizar</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click.stop="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)">
+                      <v-list-item-title>Excluir</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
               </div>
+            </div>
             </v-col>
           </v-row>
         </div>
       </v-card-text>
     </v-card>
+
+    <PartForm
+      v-if="selectedPart"
+      :part="selectedPart"
+      :show="showPartModal"
+      :getPartImageUrl="getPartImageUrl"
+      @close="closePartModal"
+    />
 
     <v-row class="justify-end pa-4">
       <v-btn color="primary" @click="saveOrder">Salvar</v-btn>
@@ -88,22 +107,40 @@ import { defineComponent, ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 import axios from 'axios';
+import PartForm from '@/components/PartForm.vue';
 
 export default defineComponent({
   name: 'Orders',
+  components: {
+    PartForm
+  },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const isNew = ref(route.params.id === 'new');
+
     const { showToast } = useToast();
 
     const form = ref({ final_value: '' });
     const sets = ref<Array<{
       id?: number;
       name?: string;
-      setParts: { title: string; content: string }[];
+      setParts: { id: string, set_id: string, title: string; content: string }[];
       fileList: File[] | null;
     }>>([]);
+
+    const showPartModal = ref(false);
+    const selectedPart = ref(null);
+
+    const openPartModal = (part: any) => {
+      selectedPart.value = part;
+      showPartModal.value = true;
+    };
+
+    const closePartModal = () => {
+      selectedPart.value = null;
+      showPartModal.value = false;
+    };
 
     onMounted(async () => {
       if (!isNew.value && route.params.id) {
@@ -126,7 +163,7 @@ export default defineComponent({
             }
           }
         } catch (error) {
-          console.error(error);
+          showToast('Erro ao carregar pedido: ' + error, 'error');
         }
       }
     });
@@ -198,11 +235,13 @@ export default defineComponent({
             });
 
             currentSet.setParts.push({
+              id: response.data.id,
+              set_id: response.data.set_id,
               title: response.data.title,
               content: response.data.content,
             });
           } catch (error) {
-            console.error('File upload error:', error);
+            showToast('Erro ao fazer upload de arquivo: ' + error, 'error');
           }
         }
       }
@@ -210,7 +249,18 @@ export default defineComponent({
     };
 
     const deletePart = (setIndex: number, partIndex: number) => {
-      sets.value[setIndex].setParts.splice(partIndex, 1);
+      try
+      {
+        const part = sets.value[setIndex].setParts[partIndex];
+  
+        if (part.id) {
+          axios.delete(`/api/sets/${part.set_id}/parts/${part.id}`);
+          sets.value[setIndex].setParts.splice(partIndex, 1);
+        }
+      }
+      catch (error) {
+        showToast('Erro ao excluir peça: ' + error, 'error');
+      }
     };
 
     const getPartImageUrl = (content: string) => {
@@ -225,7 +275,11 @@ export default defineComponent({
       saveOrder,
       createSet,
       deletePart,
-      getPartImageUrl
+      getPartImageUrl,
+      openPartModal,
+      closePartModal,
+      showPartModal,
+      selectedPart,
     };
   },
 });
