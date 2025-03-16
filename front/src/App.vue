@@ -5,7 +5,7 @@
     <v-main>
       <router-view />
     </v-main>
-    <v-snackbar v-model="isToastVisible" timeout="3000" color="error">
+    <v-snackbar v-model="isToastVisible" timeout="3000" :color="toastColor">
       {{ toastMessage }}
     </v-snackbar>
   </v-app>
@@ -27,7 +27,7 @@ export default defineComponent({
   },
   setup() {
     const { fetchUser, isAuthenticated, user } = useAuth();
-    const { isToastVisible, toastMessage } = useToast();
+    const { isToastVisible, toastMessage, toastColor } = useToast();
 
     fetchUser();
 
@@ -35,6 +35,7 @@ export default defineComponent({
       isAuthenticated,
       isToastVisible,
       toastMessage,
+      toastColor,
       user
     };
   },

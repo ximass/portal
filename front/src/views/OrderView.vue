@@ -36,7 +36,21 @@
     <!-- Listagem de conjuntos -->
     <v-card v-for="(setItem, setIndex) in sets" :key="setItem.id" class="mb-4">
       <v-card-title>
-        {{ setItem.name || 'Conjunto ' + (setIndex + 1) }}
+        <v-row class="d-flex flex-row">
+          <v-col cols="4">
+            <v-text-field
+              v-model="setItem.name"
+              variant="underlined"
+              placeholder="Digite o nome do conjunto"
+              @change="updateSetName(setIndex)"
+            />
+          </v-col>
+          <v-col cols="8" class="d-flex justify-end align-center">
+              <v-btn color="error" @click="deleteSet(setIndex)">
+                Excluir
+              </v-btn>
+          </v-col>
+        </v-row>
       </v-card-title>
       <v-card-text>
         <v-file-input
@@ -179,7 +193,7 @@ export default defineComponent({
 
             for (const set of sets.value) {
               const { data } = await axios.get(`/api/sets/${set.id}/parts`);
-              console.log(data);
+
               set.setParts = data;
             }
           }
@@ -228,6 +242,38 @@ export default defineComponent({
         });
       } catch (error) {
         showToast('Erro ao criar conjunto: ' + error, 'error');
+      }
+    };
+
+    const deleteSet = async (setIndex: number) => {
+      try {
+        const set = sets.value[setIndex];
+
+        if (set.id) {
+          await axios.delete(`/api/sets/${set.id}`);
+          
+          sets.value.splice(setIndex, 1);
+        }
+
+        showToast('Conjunto excluído com sucesso.', 'success');
+      } catch (error) {
+        showToast('Erro ao excluir conjunto: ' + error, 'error');
+      }
+    };
+
+    const updateSetName = async (setIndex: number) => {
+      try {
+        const set = sets.value[setIndex];
+
+        if (set.id) {
+          await axios.put(`/api/sets/${set.id}`, {
+            name: set.name,
+          });
+        }
+
+        showToast('Nome do conjunto atualizado com sucesso.', 'success');
+      } catch (error) {
+        showToast('Erro ao atualizar nome do conjunto: ' + error, 'error');
       }
     };
 
@@ -298,6 +344,8 @@ export default defineComponent({
       sets,
       saveOrder,
       createSet,
+      deleteSet,
+      updateSetName,
       deletePart,
       getPartImageUrl,
       openPartModal,
