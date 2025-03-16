@@ -63,9 +63,8 @@ export default defineComponent({
     const fetchGroups = async () => {
       try {
         const response = await axios.get('/api/groups');
+        
         groups.value = response.data;
-
-        console.log(groups.value);
       } catch (error) {
         showToast('Erro ao buscar grupos');
       }

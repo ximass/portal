@@ -1,15 +1,43 @@
 <template>
-  <v-navigation-drawer app>
-    <v-list>
-      <v-list-item v-for="(item, index) in filteredMenuItems" :key="index" @click="$router.push(item.route)">
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
+  <v-navigation-drawer 
+    app 
+    v-model="drawerOpen"
+    :rail="rail"
+    permanent
+    @click="rail = false"
+  >
+    <v-list-item
+      :prepend-avatar="props.user?.avatar || 'mdi-account'"
+      :title="props.user?.name || 'Usuário'"
+      nav
+    >
+      <template v-slot:append>
+        <v-btn
+          icon="mdi-chevron-left"
+          variant="text"
+          @click.stop="rail = !rail"
+        ></v-btn>
+      </template>
+    </v-list-item>
+
+    <v-divider></v-divider>
+
+    <v-list density="compact" nav>
+      <v-list-item 
+        v-for="item in filteredMenuItems" 
+        :key="item.title" 
+        :prepend-icon="item.icon" 
+        :title="item.title" 
+        :value="item.route"
+        @click="$router.push(item.route)"
+      >
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
 
 export default defineComponent({
   name: 'SideMenu',
@@ -18,15 +46,21 @@ export default defineComponent({
       type: Object,
       required: true,
     },
+    drawerOpen: {
+      type: Boolean,
+      required: true
+    }
   },
   setup(props) {
+    const rail = ref(true);
+
     const menuItems = [
-      { title: 'Tela inicial', route: '/home', admin: false },
-      { title: 'Pedidos', route: '/orders', admin: false },
-      { title: 'Processos', route: '/processes', admin: false },
-      { title: 'Clientes', route: '/customers', admin: false },
-      { title: 'Grupos', route: '/groups', admin: true },
-      { title: 'Usuários', route: '/users', admin: true },
+      { title: 'Tela inicial', route: '/home', admin: false, icon: 'mdi-home' },
+      { title: 'Pedidos', route: '/orders', admin: false, icon: 'mdi-cart' },
+      { title: 'Processos', route: '/processes', admin: false, icon: 'mdi-cogs' },
+      { title: 'Clientes', route: '/customers', admin: false, icon: 'mdi-account-multiple' },
+      { title: 'Grupos', route: '/groups', admin: true, icon: 'mdi-account-group' },
+      { title: 'Usuários', route: '/users', admin: true, icon: 'mdi-account' },
     ];
 
     const filteredMenuItems = computed(() => {
@@ -38,7 +72,11 @@ export default defineComponent({
       });
     });
 
-    return { filteredMenuItems };
+    return { 
+      filteredMenuItems,
+      rail,
+      props
+    };
   },
 });
 </script>

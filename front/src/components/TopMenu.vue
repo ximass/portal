@@ -1,12 +1,13 @@
 <template>
-  <v-app-bar app fixed>
+  <v-app-bar app :color="isDark ? 'secundary' : 'white'" :dark="isDark">
+    <v-app-bar-nav-icon @click="toggleDrawer" />
     <v-toolbar-title>Portal</v-toolbar-title>
-    <v-spacer></v-spacer>
+    <v-spacer />
     <v-menu v-model="menu" offset-y>
       <template #activator="{ props }">
         <v-btn icon v-bind="props">
           <v-avatar>
-            <v-icon>mdi-account</v-icon>
+            <v-icon>mdi-dots-vertical</v-icon>
           </v-avatar>
         </v-btn>
       </template>
@@ -24,7 +25,7 @@
               <v-list-item-title>Modo escuro</v-list-item-title>
             </v-col>
             <v-col style="margin-top: -15px;">
-                <v-switch v-model="isDark" @change="toggleDarkMode"></v-switch>
+              <v-switch v-model="isDark" @change="toggleDarkMode"></v-switch>
             </v-col>
           </v-row>
         </v-list-item>
@@ -41,18 +42,23 @@ import { useTheme } from 'vuetify';
 
 export default defineComponent({
   name: 'TopMenu',
+  emits: ['toggleDrawer'],
   props: {
     user: {
       type: Object,
       required: true,
     },
   },
-  setup() {
+  setup(_props, { emit }) {
     const { isAuthenticated, logout } = useAuth();
     const router = useRouter();
     const menu = ref(false);
     const theme = useTheme();
     const isDark = ref(theme.global.name.value === 'dark');
+
+    const toggleDrawer = () => {
+      emit('toggleDrawer');
+    };
 
     const onLogout = () => {
       logout();
@@ -70,13 +76,11 @@ export default defineComponent({
         theme.global.name.value = 'light';
         localStorage.setItem('theme', 'light');
       }
-
       document.documentElement.setAttribute('data-theme', theme.global.name.value);
     };
 
     onMounted(() => {
       const savedTheme = localStorage.getItem('theme');
-
       if (savedTheme) {
         theme.global.name.value = savedTheme;
         isDark.value = savedTheme === 'dark';
@@ -90,10 +94,8 @@ export default defineComponent({
       menu,
       isDark,
       toggleDarkMode,
+      toggleDrawer,
     };
   },
 });
 </script>
-
-<style scoped>
-</style>
