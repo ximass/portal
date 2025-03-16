@@ -14,11 +14,12 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'final_value' => 'required|numeric',
+            'customer_id' => 'nullable|integer'
         ]);
 
-        $order = Order::create($request->only('final_value'));
+        $order = Order::create($validated);
 
         return response()->json($order, 201);
     }
@@ -30,11 +31,12 @@ class OrderController extends Controller
 
     public function update(Request $request, Order $order)
     {
-        $request->validate([
+        $validated = $request->validate([
             'final_value' => 'sometimes|required|numeric',
+            'customer_id' => 'nullable|integer'
         ]);
 
-        $order->update($request->only('final_value'));
+        $order->update($validated);
 
         return response()->json($order);
     }

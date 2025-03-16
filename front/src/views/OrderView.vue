@@ -12,6 +12,17 @@
                 v-model="form.final_value"
               />
             </v-col>
+
+            <v-col cols="4" md="4" sm="12">
+              <v-select
+                label="Cliente"
+                v-model="form.customer_id"
+                :items="customers"
+                item-value="id"
+                item-title="name"
+                clearable
+              />
+            </v-col>
           </v-row>
         </v-form>
       </v-card-text>
@@ -118,10 +129,11 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const isNew = ref(route.params.id === 'new');
+    const customers = ref<any[]>([]);
 
     const { showToast } = useToast();
 
-    const form = ref({ final_value: '' });
+    const form = ref({ customer_id: '', final_value: '' });
     const sets = ref<Array<{
       id?: number;
       name?: string;
@@ -143,10 +155,19 @@ export default defineComponent({
     };
 
     onMounted(async () => {
+      try {
+        const { data } = await axios.get('/api/customers');
+
+        customers.value = data;
+      } catch (error) {
+        showToast('Erro ao carregar clientes', 'error');
+      }
+
       if (!isNew.value && route.params.id) {
         try {
           const { data } = await axios.get(`/api/orders/${route.params.id}`);
 
+          form.value.customer_id = data.customer_id;
           form.value.final_value = data.final_value;
 
           if (data.sets && data.sets.length) {
@@ -172,12 +193,14 @@ export default defineComponent({
       try {
         if (isNew.value) {
           const { data } = await axios.post('/api/orders', {
-            final_value: form.value.final_value,
+            customer_id: form.value.customer_id,
+            final_value: form.value.final_value
           });
 
           router.push({ name: 'Orders', params: { id: data.id } });
         } else {
           await axios.put(`/api/orders/${route.params.id}`, {
+            customer_id: form.value.customer_id,
             final_value: form.value.final_value,
           });
         }
@@ -271,6 +294,7 @@ export default defineComponent({
     return {
       isNew,
       form,
+      customers,
       sets,
       saveOrder,
       createSet,
