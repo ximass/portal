@@ -92,8 +92,8 @@
                 <span class="overlay-text">{{ part.title }}</span>
                 <v-menu offset-y>
                   <template #activator="{ props }">
-                    <v-btn variant="plain" :ripple="false" v-bind="props">
-                      <v-icon color="white" class="delete-icon">mdi-dots-vertical</v-icon>
+                    <v-btn variant="plain" :ripple="false" v-bind="props" class="part-actions">
+                      <v-icon color="white">mdi-dots-vertical</v-icon>
                     </v-btn>
                   </template>
                   <v-list>
@@ -394,8 +394,11 @@ export default defineComponent({
 .overlay-text {
   font-size: 12px;
   color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.delete-icon {
+.part-actions {
   cursor: pointer;
 }
 
