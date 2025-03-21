@@ -11,6 +11,11 @@ use App\Http\Controllers\SetController;
 use App\Http\Controllers\SetPartController;
 use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderPartController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\SheetController;
+use App\Http\Controllers\BarController;
+use App\Http\Controllers\ComponentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -25,6 +30,10 @@ Route::apiResource('/orders/{order}/order_parts', OrderPartController::class);
 Route::apiResource('/sets', SetController::class);
 Route::apiResource('/sets/{set}/parts', SetPartController::class);
 Route::apiResource('/processes', ProcessController::class);
+Route::apiResource('/materials', MaterialController::class);
+Route::apiResource('/sheets', SheetController::class);
+Route::apiResource('/bars', BarController::class);
+Route::apiResource('/components', ComponentController::class);
 Route::apiResource('/customers', CustomerController::class);
 
 ##POST##

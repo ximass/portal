@@ -11,6 +11,8 @@ import UsersView from '@/views/UsersView.vue';
 import ProcessView from '@/views/ProcessView.vue';
 import ProcessesView from '@/views/ProcessesView.vue';
 import CustomersView from '@/views/CustomersView.vue';
+import MaterialsView from '@/views/MaterialsView.vue';
+import MaterialView from '@/components/MaterialView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,6 +32,18 @@ const routes: Array<RouteRecordRaw> = [
     name: 'OrderView',
     component: OrderView,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/materials',
+    name: 'MaterialsView',
+    component: MaterialsView,
+    meta: { requiresAuth: true, requiresAdmin: false },
+  },
+  {
+    path: '/material/:id',
+    name: 'MaterialView',
+    component: MaterialView,
+    meta: { requiresAuth: true, requiresAdmin: false },
   },
   {
     path: '/processes',
