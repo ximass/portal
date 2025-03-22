@@ -4,19 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bar extends Model
+class StockTransaction extends Model
 {
-    protected $table = 'bars';
-
-    protected $primaryKey = 'material_id';
-    public $incrementing = false;
-
     protected $fillable = [
         'material_id',
-        'diameter',
-        'length',
-        'specific_weight',
-        'price_per_gram',
+        'transaction_date',
+        'operation',
+        'quantity',
+        'obs'
     ];
 
     public function material()

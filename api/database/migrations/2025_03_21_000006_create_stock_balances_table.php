@@ -7,13 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('sheets', function (Blueprint $table) {
+        Schema::create('stock_balances', function (Blueprint $table) {
             $table->unsignedBigInteger('material_id')->primary();
-            $table->decimal('thickness', 5, 2);
-            $table->decimal('width', 5, 2);
-            $table->decimal('length', 5, 2);
-            $table->decimal('specific_weight', 10, 4);
-            $table->decimal('price_per_gram', 10, 4);
+            $table->decimal('balance', 10, 3)->default(0);
             $table->timestamps();
 
             $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');
@@ -22,6 +18,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('sheets');
+        Schema::dropIfExists('stock_balances');
     }
 };

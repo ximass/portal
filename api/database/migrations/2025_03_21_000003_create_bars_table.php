@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('material_id')->primary();
             $table->decimal('diameter', 5, 2);
             $table->decimal('length', 5, 2);
+            $table->decimal('specific_weight', 10, 4);
             $table->decimal('price_per_gram', 10, 4);
             $table->timestamps();
 

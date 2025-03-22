@@ -4,20 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Sheet extends Model
+class StockBalance extends Model
 {
-    protected $table = 'sheets';
-
     protected $primaryKey = 'material_id';
     public $incrementing = false;
 
     protected $fillable = [
         'material_id',
-        'thickness',
-        'width',
-        'length',
-        'specific_weight',
-        'price_per_gram',
+        'balance'
     ];
 
     public function material()

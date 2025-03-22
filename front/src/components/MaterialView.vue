@@ -47,19 +47,25 @@
                 <v-text-field label="Comprimento" v-model="form.sheet.length" type="number" required />
               </v-col>
               <v-col cols="3">
+                <v-text-field label="Peso específico" v-model="form.sheet.specific_weight" type="number" required />
+              </v-col>
+              <v-col cols="3">
                 <v-text-field label="Preço por grama" v-model="form.sheet.price_per_gram" type="number" required />
               </v-col>
             </v-row>
           </template>
           <template v-else-if="form.type === 'bar'">
             <v-row>
-              <v-col cols="4">
+              <v-col cols="3">
                 <v-text-field label="Diâmetro" v-model="form.bar.diameter" type="number" required />
               </v-col>
-              <v-col cols="4">
+              <v-col cols="3">
                 <v-text-field label="Comprimento" v-model="form.bar.length" type="number" required />
               </v-col>
-              <v-col cols="4">
+              <v-col cols="3">
+                <v-text-field label="Peso específico" v-model="form.bar.specific_weight" type="number" required />
+              </v-col>
+              <v-col cols="3">
                 <v-text-field label="Preço por grama" v-model="form.bar.price_per_gram" type="number" required />
               </v-col>
             </v-row>
@@ -108,11 +114,13 @@ export default defineComponent({
         thickness: null as number | null,
         width: null as number | null,
         length: null as number | null,
+        specific_weight: null as number | null,
         price_per_gram: null as number | null,
       },
       bar: {
         diameter: null as number | null,
         length: null as number | null,
+        specific_weight: null as number | null,
         price_per_gram: null as number | null,
       },
       component: {
@@ -175,6 +183,7 @@ export default defineComponent({
             thickness: form.sheet.thickness,
             width: form.sheet.width,
             length: form.sheet.length,
+            specific_weight: form.sheet.specific_weight,
             price_per_gram: form.sheet.price_per_gram,
           });
         } else if (form.type === 'bar') {
@@ -182,6 +191,7 @@ export default defineComponent({
             material_id: materialId,
             diameter: form.bar.diameter,
             length: form.bar.length,
+            specific_weight: form.bar.specific_weight,
             price_per_gram: form.bar.price_per_gram,
           });
         } else if (form.type === 'component') {

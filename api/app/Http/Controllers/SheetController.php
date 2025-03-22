@@ -15,11 +15,12 @@ class SheetController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'material_id'    => 'required|exists:materials,id',
-            'thickness'      => 'required|numeric',
-            'width'          => 'required|numeric',
-            'length'         => 'required|numeric',
-            'price_per_gram' => 'required|numeric',
+            'material_id'     => 'required|exists:materials,id',
+            'thickness'       => 'required|numeric',
+            'width'           => 'required|numeric',
+            'length'          => 'required|numeric',
+            'specific_weight' => 'required|numeric',
+            'price_per_gram'  => 'required|numeric',
         ]);
 
         $sheet = Sheet::create($data);
@@ -38,10 +39,11 @@ class SheetController extends Controller
     {
         $sheet = Sheet::findOrFail($materialId);
         $data = $request->validate([
-            'thickness'      => 'sometimes|required|numeric',
-            'width'          => 'sometimes|required|numeric',
-            'length'         => 'sometimes|required|numeric',
-            'price_per_gram' => 'sometimes|required|numeric',
+            'thickness'       => 'sometimes|required|numeric',
+            'width'           => 'sometimes|required|numeric',
+            'length'          => 'sometimes|required|numeric',
+            'specific_weight' => 'sometimes|required|numeric',
+            'price_per_gram'  => 'sometimes|required|numeric',
         ]);
 
         $sheet->update($data);
