@@ -17,12 +17,21 @@ use App\Http\Controllers\SheetController;
 use App\Http\Controllers\BarController;
 use App\Http\Controllers\ComponentController;
 
+#GET#
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 Route::get('/users/search', [UserController::class, 'search']);
+Route::get('/materials/types', [MaterialController::class, 'getMaterialsType']);
 
+#POST#
+Route::post('/upload-set-part', [SetPartController::class, 'upload']);
+
+#PUT#
+// Route::put('/sets/{set}/parts/{}/', [SetPartController::class, 'upload']);
+
+#RESOURCES#
 Route::apiResource('/groups', GroupController::class);
 Route::apiResource('/users', UserController::class);
 Route::apiResource('/orders', OrderController::class);
@@ -36,11 +45,9 @@ Route::apiResource('/bars', BarController::class);
 Route::apiResource('/components', ComponentController::class);
 Route::apiResource('/customers', CustomerController::class);
 
-##POST##
+#LOGIN#
 Route::middleware('web')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/register', [AuthController::class, 'register']);
 });
-
-Route::post('/upload-set-part', [SetPartController::class, 'upload']);

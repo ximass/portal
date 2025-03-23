@@ -27,4 +27,9 @@ class Material extends Model
     {
         return $this->hasOne(Component::class, 'material_id');
     }
+
+    public function setParts()
+    {
+        return $this->hasMany(SetPart::class, 'material_id');
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
+        DB::statement('DROP TYPE IF EXISTS material_type');
         DB::statement("CREATE TYPE material_type AS ENUM ('sheet', 'bar', 'component')");
 
         Schema::create('materials', function (Blueprint $table) {

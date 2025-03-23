@@ -118,6 +118,7 @@
       :part="selectedPart"
       :show="showPartModal"
       :getPartImageUrl="getPartImageUrl"
+      @part-saved="updatePartInList"
       @close="closePartModal"
     />
 
@@ -157,6 +158,17 @@ export default defineComponent({
 
     const showPartModal = ref(false);
     const selectedPart = ref(null);
+
+    const updatePartInList = (updatedPart: any) => {
+      sets.value.forEach(set => {
+        const index = set.setParts.findIndex((part: any) => part.id === updatedPart.id);
+        if (index !== -1) {
+          set.setParts[index] = updatedPart;
+        }
+      });
+      
+      showToast('Peça atualizada com sucesso.', 'success');
+    };
 
     const openPartModal = (part: any) => {
       selectedPart.value = part;
@@ -347,6 +359,7 @@ export default defineComponent({
       deleteSet,
       updateSetName,
       deletePart,
+      updatePartInList,
       getPartImageUrl,
       openPartModal,
       closePartModal,

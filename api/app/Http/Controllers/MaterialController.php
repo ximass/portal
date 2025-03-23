@@ -7,9 +7,21 @@ use App\Models\Material;
 
 class MaterialController extends Controller
 {
-    public function index()
+    const TYPES = [
+        ['name' => 'Chapa', 'value' => 'sheet'],
+        ['name' => 'Barra', 'value' => 'bar'],
+        ['name' => 'Componente', 'value' => 'component'],
+    ];
+
+    public function index(Request $request)
     {
-        return response()->json(Material::all());
+        if ($request->has('type')) {
+            $materials = Material::where('type', $request->input('type'))->get();
+        } else {
+            $materials = Material::all();
+        }
+
+        return response()->json($materials);
     }
 
     public function store(Request $request)
@@ -46,5 +58,10 @@ class MaterialController extends Controller
         $material->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function getMaterialsType()
+    {
+        return response()->json(self::TYPES);
     }
 }
