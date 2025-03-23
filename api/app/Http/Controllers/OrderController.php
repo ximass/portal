@@ -17,8 +17,12 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'final_value' => 'required|numeric',
-            'customer_id' => 'nullable|integer'
+            'final_value'   => 'nullable|numeric',
+            'customer_id'   => 'nullable|integer',
+            'markup'        => 'nullable|numeric',
+            'delivery_type' => 'nullable|in:CIF,FOB',
+            'delivery_date' => 'nullable|date',
+            'payment_obs'   => 'nullable|string'
         ]);
 
         $order = Order::create($validated);
@@ -36,8 +40,12 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'final_value' => 'sometimes|required|numeric',
-            'customer_id' => 'nullable|integer'
+            'final_value'   => 'sometimes|required|numeric',
+            'customer_id'   => 'nullable|integer',
+            'markup'        => 'nullable|numeric',
+            'delivery_type' => 'nullable|in:CIF,FOB',
+            'delivery_date' => 'nullable|date',
+            'payment_obs'   => 'nullable|string'
         ]);
 
         $order->update($validated);

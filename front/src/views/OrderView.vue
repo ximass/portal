@@ -5,15 +5,7 @@
       <v-card-text>
         <v-form ref="formRef">
           <v-row>
-            <v-col cols="4" md="4" sm="12">
-              <v-text-field
-                label="Valor final"
-                placeholder="Digite o valor final"
-                v-model="form.final_value"
-              />
-            </v-col>
-
-            <v-col cols="4" md="4" sm="12">
+            <v-col cols="12" md="3" sm="12">
               <v-select
                 label="Cliente"
                 v-model="form.customer_id"
@@ -21,6 +13,42 @@
                 item-value="id"
                 item-title="name"
                 clearable
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-text-field
+                label="Markup"
+                placeholder="Digite o markup"
+                v-model="form.markup"
+                type="number"
+                step="0.001"
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-select
+                label="Tipo de entrega"
+                v-model="form.delivery_type"
+                :items="deliveryTypeOptions"
+                item-value="value"
+                item-text="title"
+                clearable
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-text-field
+                label="Data de entrega"
+                v-model="form.delivery_date"
+                type="datetime-local"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-textarea
+                label="Observação de pagamento"
+                placeholder="Digite a observação de pagamento"
+                v-model="form.payment_obs"
+                rows="3"
               />
             </v-col>
           </v-row>
@@ -148,7 +176,19 @@ export default defineComponent({
 
     const { showToast } = useToast();
 
-    const form = ref({ customer_id: '', final_value: '' });
+    const form = ref({
+      customer_id: '',
+      delivery_type: '',
+      markup: '',
+      delivery_date: '',
+      payment_obs: ''
+    });
+
+    const deliveryTypeOptions = ref([
+      { title: 'CIF', value: 'CIF' },
+      { title: 'FOB', value: 'FOB' }
+    ]);
+
     const sets = ref<Array<{
       id?: number;
       name?: string;
@@ -194,7 +234,10 @@ export default defineComponent({
           const { data } = await axios.get(`/api/orders/${route.params.id}`);
 
           form.value.customer_id = data.customer_id;
-          form.value.final_value = data.final_value;
+          form.value.delivery_type = data.delivery_type;
+          form.value.markup = data.markup;
+          form.value.delivery_date = data.delivery_date;
+          form.value.payment_obs = data.payment_obs;
 
           if (data.sets && data.sets.length) {
             sets.value = data.sets.map((s: any) => ({
@@ -220,14 +263,20 @@ export default defineComponent({
         if (isNew.value) {
           const { data } = await axios.post('/api/orders', {
             customer_id: form.value.customer_id,
-            final_value: form.value.final_value
+            delivery_type: form.value.delivery_type,
+            markup: form.value.markup,
+            delivery_date: form.value.delivery_date,
+            payment_obs: form.value.payment_obs
           });
 
           router.push({ name: 'Orders', params: { id: data.id } });
         } else {
           await axios.put(`/api/orders/${route.params.id}`, {
             customer_id: form.value.customer_id,
-            final_value: form.value.final_value,
+            delivery_type: form.value.delivery_type,
+            markup: form.value.markup,
+            delivery_date: form.value.delivery_date,
+            payment_obs: form.value.payment_obs
           });
         }
 
@@ -242,6 +291,7 @@ export default defineComponent({
         showToast('Crie o pedido antes de adicionar conjuntos.', 'warning');
         return;
       }
+
       try {
         const { data } = await axios.post('/api/sets', {
           name: 'Novo conjunto',
@@ -353,6 +403,7 @@ export default defineComponent({
       isNew,
       form,
       customers,
+      deliveryTypeOptions,
       sets,
       saveOrder,
       createSet,

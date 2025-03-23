@@ -11,7 +11,11 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id',
-        'final_value'
+        'final_value',
+        'delivery_type',
+        'markup',
+        'delivery_date',
+        'payment_obs',
     ];
 
     public function customer()
