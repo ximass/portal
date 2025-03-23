@@ -37,13 +37,13 @@
                 </v-col>
               </v-row>
               <v-row v-if="selectedMaterialObject && (selectedMaterialObject.value === 'sheet' || selectedMaterialObject.value === 'bar')">
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Largura" v-model="localPart.width" type="number" required />
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Comprimento" v-model="localPart.length" type="number" required />
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Perda" v-model="localPart.loss" type="number" required />
                 </v-col>
               </v-row>
@@ -53,29 +53,29 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Quantidade" v-model="localPart.quantity" type="number" required />
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required />
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required />
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required />
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto" v-model="localPart.net_gross_weight" type="number" required />
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required />
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="4">
+                <v-col cols="12" md="4" small="6">
                   <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required />
                 </v-col>
               </v-row>
@@ -96,7 +96,7 @@
 import { defineComponent, PropType, ref, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
-import type { Part, MaterialType } from '@/types';
+import type { Part, MaterialType, Material } from '@/types/types';
 
 export default defineComponent({
   name: 'PartForm',
@@ -116,11 +116,29 @@ export default defineComponent({
   },
   emits: ['part-saved', 'close'],
   setup(props, { emit }) {
-    const localPart = ref({ ...props.part });
+    const localPart = ref<Part>(props.part ? { ...props.part } : {
+      id: '',
+      set_id: '',
+      title: '',
+      content: '',
+      material_id: '',
+      quantity: 0,
+      unit_net_weight: 0,
+      unit_gross_weight: 0,
+      net_weight: 0,
+      net_gross_weight: 0,
+      unit_value: 0,
+      final_value: 0,
+      width: 0,
+      length: 0,
+      loss: 0,
+      markup: 0,
+    });
+
     const selectedMaterialType = ref<string | null>(null);
-    const selectedMaterial = ref<any>(null);
+    const selectedMaterial = ref<Material | null>(null);
     const materialsType = ref<MaterialType[]>([]);
-    const materials = ref<any[]>([]);
+    const materials = ref<Material[]>([]);
     const showExtraFields = ref(false);
     const isMaterialTypeDisabled = ref(false);
     const { showToast } = useToast();
@@ -134,10 +152,9 @@ export default defineComponent({
       }
     };
 
-    // Fetch materials by the selected type
+    // Buscar os materiais pelo tipo selecionado
     const fetchMaterialsByType = async () => {
       if (!selectedMaterialType.value) return;
-
       try {
         const { data } = await axios.get(`/api/materials?type=${selectedMaterialType.value}`);
         materials.value = data;
@@ -146,12 +163,11 @@ export default defineComponent({
       }
     };
 
-    // Fetch a material by id to retrieve its type information
+    // Buscar um material por ID para obter suas informações
     const fetchMaterialById = async (id: string) => {
       try {
         const { data } = await axios.get(`/api/materials/${id}`);
-
-        return data;
+        return data as Material;
       } catch (error) {
         showToast('Erro ao buscar o material', 'error');
         return null;
@@ -162,34 +178,31 @@ export default defineComponent({
       fetchMaterialsTypes();
     });
 
-    // Computed to get the selected material type object
+    // Computed para obter o objeto do tipo de material selecionado
     const selectedMaterialObject = computed(() => {
       return materialsType.value.find(m => m.value === selectedMaterialType.value);
     });
 
-    // Watch to load part data when props.part is updated
+    // Watch para carregar os dados da peça quando a prop for atualizada
     watch(
       () => props.part,
       (newVal) => {
         if (newVal) {
           localPart.value = { ...newVal };
-          
-          // Load material data if exists
-          if ((newVal as any).material_id) {
-            selectedMaterial.value = (newVal as any).material_id;
-            // Fetch the material by its id to obtain its type
-            fetchMaterialById(selectedMaterial.value).then(material => {
+          if (newVal.material_id) {
+            selectedMaterial.value = { id: Number(newVal.material_id), name: '', type: '' };
+            
+            fetchMaterialById(newVal.material_id).then(material => {
               if (material) {
                 selectedMaterialType.value = material.type;
                 isMaterialTypeDisabled.value = true;
                 showExtraFields.value = true;
-
                 fetchMaterialsByType();
+                selectedMaterial.value = material;
               }
             });
           } else {
             selectedMaterial.value = null;
-            // If material_id doesn't exist, allow material type to be chosen
             selectedMaterialType.value = (newVal as any).material_type || null;
             isMaterialTypeDisabled.value = false;
             showExtraFields.value = !!selectedMaterialType.value;
@@ -209,18 +222,14 @@ export default defineComponent({
       await fetchMaterialsByType();
     };
 
-    // Save part with form data.
     const savePart = async () => {
       if (!localPart.value.id || !localPart.value.set_id) return;
-
       try {
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, {
           ...localPart.value,
-          material_id: selectedMaterial.value,
+          material_id: selectedMaterial.value ? selectedMaterial.value.id : null,
           material_type: selectedMaterialType.value
         });
-        
-
         emit('part-saved', localPart.value);
         emit('close');
       } catch (error) {
