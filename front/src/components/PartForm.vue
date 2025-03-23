@@ -1,5 +1,6 @@
 <template>
-  <v-dialog :model-value="show" @update:model-value="(value) => { if (!value) closeDialog(); }" width="80vw" height="90vh">
+  <v-dialog :model-value="show" @update:model-value="(value) => { if (!value) closeDialog(); }" width="80vw"
+    height="90vh">
     <v-card>
       <v-card-title>
         <v-text-field variant="underlined" v-model="localPart.title" required />
@@ -14,39 +15,32 @@
             </v-responsive>
           </v-col>
           <!-- Right: Form panel -->
-          <v-col cols="6">
+          <v-col cols="6" class="dense-form">
             <!-- Card 1: Apenas Título e Material Selector -->
-            <v-card class="mb-4 pa-4">
-              <v-row dense>
-                <v-col cols="12">
-                  <v-select
-                    label="Tipo de material"
-                    :items="materialsType"
-                    item-title="name"
-                    item-value="value"
-                    v-model="selectedMaterialType"
-                    @update:modelValue="onMaterialTypeChange"
-                    :disabled="isMaterialTypeDisabled"
-                    required
-                    density="compact"
-                  />
-                </v-col>
-              </v-row>
-            </v-card>
-  
+            <v-row dense>
+              <v-col cols="12">
+                <v-select label="Tipo de material" :items="materialsType" item-title="name" item-value="value"
+                  v-model="selectedMaterialType" @update:modelValue="onMaterialTypeChange"
+                  :disabled="isMaterialTypeDisabled" required density="compact" />
+              </v-col>
+            </v-row>
+
             <!-- Card 2: Extra Fields liberados após seleção do material -->
             <v-card v-if="showExtraFields" class="pa-4">
               <v-row dense>
                 <v-col cols="12">
-                  <v-select label="Material" :items="materials" item-title="name" item-value="id" v-model="selectedMaterial" required density="compact"/>
+                  <v-select label="Material" :items="materials" item-title="name" item-value="id"
+                    v-model="selectedMaterial" required density="compact" />
                 </v-col>
               </v-row>
-              <v-row dense v-if="selectedMaterialObject && (selectedMaterialObject.value === 'sheet' || selectedMaterialObject.value === 'bar')">
+              <v-row dense
+                v-if="selectedMaterialObject && (selectedMaterialObject.value === 'sheet' || selectedMaterialObject.value === 'bar')">
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required density="compact" />
+                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required
+                    density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact" />
@@ -59,29 +53,36 @@
               </v-row>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Quantidade" v-model="localPart.quantity" type="number" required density="compact" />
+                  <v-text-field label="Quantidade" v-model="localPart.quantity" type="number" required
+                    density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required density="compact" />
+                  <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required
+                    density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required density="compact" />
-                </v-col>
-              </v-row>
-              <v-row dense>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required density="compact" />
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto" v-model="localPart.net_gross_weight" type="number" required density="compact" />
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required density="compact" />
+                  <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required
+                    density="compact" />
                 </v-col>
               </v-row>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required density="compact" />
+                  <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required
+                    density="compact" />
+                </v-col>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field label="Peso bruto" v-model="localPart.net_gross_weight" type="number" required
+                    density="compact" />
+                </v-col>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required
+                    density="compact" />
+                </v-col>
+              </v-row>
+              <v-row dense>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required
+                    density="compact" />
                 </v-col>
               </v-row>
             </v-card>
@@ -264,3 +265,9 @@ export default defineComponent({
   }
 });
 </script>
+
+<style>
+.dense-form .v-row {
+  margin-bottom: -20px !important;
+}
+</style>
