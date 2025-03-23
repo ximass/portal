@@ -17,66 +17,71 @@
           <v-col cols="6">
             <!-- Card 1: Apenas Título e Material Selector -->
             <v-card class="mb-4 pa-4">
-              <v-select
-                label="Tipo de material"
-                :items="materialsType"
-                item-title="name"
-                item-value="value"
-                v-model="selectedMaterialType"
-                @update:modelValue="onMaterialTypeChange"
-                :disabled="isMaterialTypeDisabled"
-                required
-              />
+              <v-row dense>
+                <v-col cols="12">
+                  <v-select
+                    label="Tipo de material"
+                    :items="materialsType"
+                    item-title="name"
+                    item-value="value"
+                    v-model="selectedMaterialType"
+                    @update:modelValue="onMaterialTypeChange"
+                    :disabled="isMaterialTypeDisabled"
+                    required
+                    density="compact"
+                  />
+                </v-col>
+              </v-row>
             </v-card>
   
             <!-- Card 2: Extra Fields liberados após seleção do material -->
             <v-card v-if="showExtraFields" class="pa-4">
-              <v-row>
+              <v-row dense>
                 <v-col cols="12">
-                  <v-select label="Material" :items="materials" item-title="name" item-value="id" v-model="selectedMaterial" required />
+                  <v-select label="Material" :items="materials" item-title="name" item-value="id" v-model="selectedMaterial" required density="compact"/>
                 </v-col>
               </v-row>
-              <v-row v-if="selectedMaterialObject && (selectedMaterialObject.value === 'sheet' || selectedMaterialObject.value === 'bar')">
+              <v-row dense v-if="selectedMaterialObject && (selectedMaterialObject.value === 'sheet' || selectedMaterialObject.value === 'bar')">
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Largura" v-model="localPart.width" type="number" required />
+                  <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required />
+                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Perda" v-model="localPart.loss" type="number" required />
+                  <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact" />
                 </v-col>
               </v-row>
-              <v-row v-else-if="selectedMaterialObject && selectedMaterialObject.value === 'component'">
+              <v-row dense v-else-if="selectedMaterialObject && selectedMaterialObject.value === 'component'">
                 <v-col cols="12">
-                  <v-text-field label="Markup" v-model="localPart.markup" type="number" required />
+                  <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact" />
                 </v-col>
               </v-row>
-              <v-row>
+              <v-row dense>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Quantidade" v-model="localPart.quantity" type="number" required />
+                  <v-text-field label="Quantidade" v-model="localPart.quantity" type="number" required density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required />
+                  <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required />
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required />
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto" v-model="localPart.net_gross_weight" type="number" required />
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required />
+                  <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required density="compact" />
                 </v-col>
               </v-row>
-              <v-row>
+              <v-row dense>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required />
+                  <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required density="compact" />
+                </v-col>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field label="Peso bruto" v-model="localPart.net_gross_weight" type="number" required density="compact" />
+                </v-col>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required density="compact" />
+                </v-col>
+              </v-row>
+              <v-row dense>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required density="compact" />
                 </v-col>
               </v-row>
             </v-card>
@@ -191,7 +196,7 @@ export default defineComponent({
           localPart.value = { ...newVal };
           if (newVal.material_id) {
             selectedMaterial.value = { id: Number(newVal.material_id), name: '', type: '' };
-            
+
             fetchMaterialById(newVal.material_id).then(material => {
               if (material) {
                 selectedMaterialType.value = material.type;
