@@ -58,8 +58,8 @@ class SetPartController extends Controller
             foreach ($processes as $process) {
                 if (isset($process['id'])) {
                     $syncData[$process['id']] = [
-                        'time' => $process['time'] ?? 0,
-                        'quantity' => intval($process['quantity']) ?? 0,
+                        'time' => $process['pivot']['time'] ?? $process['time'] ?? 0,
+                        'quantity' => intval($process['pivot']['quantity'] ?? $process['quantity'] ?? 0),
                     ];
                 }
             }
@@ -117,15 +117,14 @@ class SetPartController extends Controller
             foreach ($processes as $process) {
                 if (isset($process['id'])) {
                     $syncData[$process['id']] = [
-                        'time' => $process['time'] ?? 0,
-                        'quantity' => intval($process['quantity']) ?? 0,
+                        'time' => $process['pivot']['time'] ?? $process['time'] ?? 0,
+                        'quantity' => intval($process['pivot']['quantity'] ?? $process['quantity'] ?? 0),
                     ];
                 }
             }
 
             $setPart->processes()->sync($syncData);
         }
-
 
         return response()->json($setPart);
     }

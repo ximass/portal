@@ -249,7 +249,7 @@ export default defineComponent({
         emit('part-saved', localPart.value);
         emit('close');
       } catch (error) {
-        showToast('Erro ao salvar a peça', 'error');
+        showToast('Erro ao salvar a peça: ' + error, 'error');
       }
     };
 
