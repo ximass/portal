@@ -85,6 +85,9 @@
                     density="compact" />
                 </v-col>
               </v-row>
+
+              <ProcessMultiField v-model="localPart.processes" />
+
             </v-card>
           </v-col>
         </v-row>
@@ -102,10 +105,14 @@
 import { defineComponent, PropType, ref, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
-import type { Part, MaterialType, Material } from '@/types/types';
+import type { Part, MaterialType, Material, Process } from '@/types/types';
+import ProcessMultiField from '@/components/ProcessMultiField.vue';
 
 export default defineComponent({
   name: 'PartForm',
+  components: {
+    ProcessMultiField
+  },
   props: {
     show: {
       type: Boolean,
@@ -139,6 +146,7 @@ export default defineComponent({
       length: 0,
       loss: 0,
       markup: 0,
+      processes: []
     });
 
     const selectedMaterialType = ref<string | null>(null);
@@ -230,12 +238,14 @@ export default defineComponent({
 
     const savePart = async () => {
       if (!localPart.value.id || !localPart.value.set_id) return;
+
       try {
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, {
           ...localPart.value,
           material_id: selectedMaterial.value ? selectedMaterial.value.id : null,
           material_type: selectedMaterialType.value
         });
+
         emit('part-saved', localPart.value);
         emit('close');
       } catch (error) {
@@ -268,6 +278,6 @@ export default defineComponent({
 
 <style>
 .dense-form .v-row {
-  margin-bottom: -20px !important;
+  margin-bottom: -20px;
 }
 </style>

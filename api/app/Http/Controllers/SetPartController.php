@@ -11,7 +11,11 @@ class SetPartController extends Controller
 {
     public function index($setId)
     {
-        return response()->json(SetPart::where('set_id', $setId)->get());
+        return response()->json(
+            SetPart::where('set_id', $setId)
+            ->with('processes')
+            ->get()
+        );
     }
 
     public function store(Request $request, $setId)
@@ -46,6 +50,22 @@ class SetPartController extends Controller
             'final_value'      => $request->input('final_value'),
             'markup'           => $request->input('markup'),
         ]);
+
+        if ($request->has('processes')) {
+            $processes = $request->input('processes');
+            $syncData = [];
+
+            foreach ($processes as $process) {
+                if (isset($process['id'])) {
+                    $syncData[$process['id']] = [
+                        'time' => $process['time'] ?? 0,
+                        'quantity' => intval($process['quantity']) ?? 0,
+                    ];
+                }
+            }
+
+            $setPart->processes()->sync($syncData);
+        }
 
         return response()->json($setPart, 201);
     }
@@ -89,6 +109,23 @@ class SetPartController extends Controller
             'final_value',
             'markup'
         ));
+
+        if ($request->has('processes')) {
+            $processes = $request->input('processes');
+            $syncData = [];
+
+            foreach ($processes as $process) {
+                if (isset($process['id'])) {
+                    $syncData[$process['id']] = [
+                        'time' => $process['time'] ?? 0,
+                        'quantity' => intval($process['quantity']) ?? 0,
+                    ];
+                }
+            }
+
+            $setPart->processes()->sync($syncData);
+        }
+
 
         return response()->json($setPart);
     }

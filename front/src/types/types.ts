@@ -78,3 +78,9 @@ export interface Process {
   value_per_minute: number;
   fixed_value: number;
 }
+
+export interface ProcessSelection {
+  id: number | null;
+  time: number;
+  quantity: number;
+}
