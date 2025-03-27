@@ -1,13 +1,28 @@
 <template>
-  <v-container class="login-bg" fluid>
+  <v-container fluid>
     <v-row align="center" justify="center" style="height: 100vh;">
-      <v-col cols="12" sm="6" md="4" class="offset-form">
+      <v-col cols="12" sm="6" md="4">
         <v-card>
-          <v-card-title class="justify-center">Faça login</v-card-title>
+          <v-img src="/src/assets/images/logo_horizontal.png" contain height="100" class="mt-8"></v-img>
           <v-card-text>
-            <v-form @submit.prevent="loginHandler">
-              <v-text-field label="Email" v-model="email" type="email" required></v-text-field>
-              <v-text-field label="Senha" v-model="password" type="password" required></v-text-field>
+            <v-card-title class="justify-center">Faça login</v-card-title>
+            <v-form ref="form" v-model="isFormValid" @submit.prevent="loginHandler">
+              <v-text-field 
+                label="Email" 
+                v-model="email" 
+                type="email" 
+                required
+                :rules="[v => !!v || 'Email é obrigatório']"
+              >
+              </v-text-field>
+              <v-text-field 
+                label="Senha" 
+                v-model="password" 
+                type="password" 
+                required
+                :rules="[v => !!v || 'Senha é obrigatória']"
+              >
+              </v-text-field>
               <v-btn type="submit" color="primary" block>Entrar</v-btn>
             </v-form>
           </v-card-text>
@@ -29,6 +44,8 @@ import { useToast } from '@/composables/useToast';
 export default defineComponent({
   name: 'Login',
   setup() {
+    const form = ref();
+    const isFormValid = ref(false);
     const email = ref('');
     const password = ref('');
     const router = useRouter();
@@ -37,6 +54,10 @@ export default defineComponent({
 
     const loginHandler = async () => {
       try {
+        const validation = await form.value.validate();
+
+        if (!validation.valid) return;
+
         await login(email.value, password.value);
         router.push('/');
       } catch (err) {
@@ -44,19 +65,7 @@ export default defineComponent({
       }
     };
 
-    return { email, password, loginHandler };
+    return { form, isFormValid, email, password, loginHandler };
   },
 });
 </script>
-
-<style scoped>
-.login-bg {
-  background-image: url('@/assets/login-bg.jpg');
-  background-size: cover;
-  background-position: center;
-}
-
-.offset-form {
-  margin-left: 30%;
-}
-</style>

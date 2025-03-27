@@ -1,27 +1,31 @@
 <template>
   <v-container class="login-bg" fluid>
     <v-row align="center" justify="center" style="height: 100vh;">
-      <v-col cols="12" sm="6" md="4" class="offset-form">
+      <v-col cols="12" sm="6" md="4">
         <v-card>
-          <v-card-title class="justify-center">Registre-se</v-card-title>
+          <v-img src="/src/assets/images/logo_horizontal.png" contain height="100" class="mt-8"></v-img>
           <v-card-text>
-            <v-form @submit.prevent="register">
+            <v-card-title class="justify-center">Registre-se</v-card-title>
+            <v-form ref="form" v-model="isFormValid" @submit.prevent="register">
               <v-text-field
                 label="Nome"
                 v-model="name"
                 required
+                :rules="[v => !!v || 'Nome é obrigatório']"
               ></v-text-field>
               <v-text-field
                 label="Email"
                 v-model="email"
                 type="email"
                 required
+                :rules="[v => !!v || 'Email é obrigatório']"
               ></v-text-field>
               <v-text-field
                 label="Senha"
                 v-model="password"
                 type="password"
                 required
+                :rules="[v => !!v || 'Senha é obrigatória']"
               ></v-text-field>
               <v-text-field
                 label="Confirme a senha"
@@ -50,6 +54,8 @@ import { useToast } from '@/composables/useToast';
 export default defineComponent({
   name: 'Register',
   setup() {
+    const form = ref();
+    const isFormValid = ref(false);
     const name = ref('');
     const email = ref('');
     const password = ref('');
@@ -58,6 +64,15 @@ export default defineComponent({
     const { showToast } = useToast();
 
     const register = async () => {
+      const validation = await form.value.validate();
+
+      if (!validation.valid) return;
+
+      if (password.value !== password_confirmation.value) {
+        showToast('As senhas não coincidem');
+        return;
+      }
+
       try {
         await axios.get('/sanctum/csrf-cookie');
         await axios.post('/api/register', {
@@ -73,19 +88,7 @@ export default defineComponent({
       }
     };
 
-    return { name, email, password, password_confirmation, register };
+    return { form, isFormValid, name, email, password, password_confirmation, register };
   },
 });
 </script>
-
-<style scoped>
-.login-bg {
-  background-image: url('@/assets/login-bg.jpg');
-  background-size: cover;
-  background-position: center;
-}
-
-.offset-form {
-  margin-left: 30%;
-}
-</style>
