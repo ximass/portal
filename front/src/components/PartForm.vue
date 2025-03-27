@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch, computed, onMounted } from 'vue';
+import { defineComponent, PropType, ref, watch, computed, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
 import type { Part, MaterialType, Material, Process } from '@/types/types';
@@ -129,33 +129,41 @@ export default defineComponent({
   },
   emits: ['part-saved', 'close'],
   setup(props, { emit }) {
-    const localPart = ref<Part>(props.part ? { ...props.part } : {
-      id: '',
-      set_id: '',
-      title: '',
-      content: '',
-      material_id: '',
-      quantity: 0,
-      unit_net_weight: 0,
-      unit_gross_weight: 0,
-      net_weight: 0,
-      net_gross_weight: 0,
-      unit_value: 0,
-      final_value: 0,
-      width: 0,
-      length: 0,
-      loss: 0,
-      markup: 0,
-      processes: []
-    });
+    const { showToast } = useToast();
 
+    // Flag to avoid triggering material change during initialization.
+    const isInitialLoad = ref(true);
+
+    // Estado do formulário (inicializado com a peça ou com valores default)
+    const localPart = ref<Part>(
+      props.part ? { ...props.part } : {
+        id: '',
+        set_id: '',
+        title: '',
+        content: '',
+        material_id: '',
+        quantity: 0,
+        unit_net_weight: 0,
+        unit_gross_weight: 0,
+        net_weight: 0,
+        net_gross_weight: 0,
+        unit_value: 0,
+        final_value: 0,
+        width: 0,
+        length: 0,
+        loss: 0,
+        markup: 0,
+        processes: []
+      }
+    );
+
+    // O v-select de Material trabalha apenas com o id
+    const selectedMaterial = ref<number | null>(null);
     const selectedMaterialType = ref<string | null>(null);
-    const selectedMaterial = ref<Material | null>(null);
     const materialsType = ref<MaterialType[]>([]);
     const materials = ref<Material[]>([]);
     const showExtraFields = ref(false);
     const isMaterialTypeDisabled = ref(false);
-    const { showToast } = useToast();
 
     const fetchMaterialsTypes = async () => {
       try {
@@ -166,7 +174,6 @@ export default defineComponent({
       }
     };
 
-    // Buscar os materiais pelo tipo selecionado
     const fetchMaterialsByType = async () => {
       if (!selectedMaterialType.value) return;
       try {
@@ -177,8 +184,8 @@ export default defineComponent({
       }
     };
 
-    // Buscar um material por ID para obter suas informações
-    const fetchMaterialById = async (id: string) => {
+    // Busca o material completo dado seu id
+    const fetchMaterialById = async (id: string): Promise<Material | null> => {
       try {
         const { data } = await axios.get(`/api/materials/${id}`);
         return data as Material;
@@ -188,31 +195,51 @@ export default defineComponent({
       }
     };
 
+    // Preenche os campos do formulário conforme o material
+    const fillMaterialDetails = async (materialId: number) => {
+      const material = await fetchMaterialById(materialId.toString());
+
+      if (!material) return;
+      
+      if (material.type === 'sheet' && material.sheet) {
+        localPart.value.width = material.sheet.width;
+        localPart.value.length = material.sheet.length;
+      } else if (material.type === 'bar' && material.bar) {
+        localPart.value.width = material.bar.width;
+        localPart.value.length = material.bar.length;
+      } else if (material.type === 'component' && material.component) {
+        localPart.value.markup = material.component.markup;
+      }
+    };
+
     onMounted(() => {
       fetchMaterialsTypes();
     });
 
     // Computed para obter o objeto do tipo de material selecionado
-    const selectedMaterialObject = computed(() => {
-      return materialsType.value.find(m => m.value === selectedMaterialType.value);
-    });
+    const selectedMaterialObject = computed(() =>
+      materialsType.value.find(m => m.value === selectedMaterialType.value)
+    );
 
-    // Watch para carregar os dados da peça quando a prop for atualizada
+    // Watch que inicializa o formulário quando a prop é atualizada
     watch(
       () => props.part,
       (newVal) => {
         if (newVal) {
           localPart.value = { ...newVal };
           if (newVal.material_id) {
-            selectedMaterial.value = { id: Number(newVal.material_id), name: '', type: '' };
-
+            selectedMaterial.value = Number(newVal.material_id);
             fetchMaterialById(newVal.material_id).then(material => {
               if (material) {
                 selectedMaterialType.value = material.type;
                 isMaterialTypeDisabled.value = true;
                 showExtraFields.value = true;
                 fetchMaterialsByType();
-                selectedMaterial.value = material;
+                fillMaterialDetails(material.id);
+                // Após a atualização inicial, liberar o watcher para alterações futuras
+                nextTick(() => {
+                  isInitialLoad.value = false;
+                });
               }
             });
           } else {
@@ -220,32 +247,45 @@ export default defineComponent({
             selectedMaterialType.value = (newVal as any).material_type || null;
             isMaterialTypeDisabled.value = false;
             showExtraFields.value = !!selectedMaterialType.value;
-
             if (selectedMaterialType.value) {
               fetchMaterialsByType();
             }
+            nextTick(() => {
+              isInitialLoad.value = false;
+            });
           }
         }
       },
       { deep: true, immediate: true }
     );
 
-    const onMaterialTypeChange = async (val: string) => {
+    // Quando o usuário muda o material, preenche automaticamente os campos (apenas após a inicialização)
+    watch(selectedMaterial, (newVal) => {
+      if (isInitialLoad.value) return;
+
+      if (newVal) {
+        fillMaterialDetails(newVal);
+      }
+    });
+
+    const onMaterialTypeChange = async () => {
       if (!selectedMaterialType.value) return;
       showExtraFields.value = true;
+
       await fetchMaterialsByType();
+
+      // Limpa o material selecionado ao trocar o tipo
+      selectedMaterial.value = null;
     };
 
     const savePart = async () => {
       if (!localPart.value.id || !localPart.value.set_id) return;
-
       try {
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, {
           ...localPart.value,
-          material_id: selectedMaterial.value ? selectedMaterial.value.id : null,
+          material_id: selectedMaterial.value,
           material_type: selectedMaterialType.value
         });
-
         emit('part-saved', localPart.value);
         emit('close');
       } catch (error) {

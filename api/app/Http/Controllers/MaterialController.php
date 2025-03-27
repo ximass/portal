@@ -16,9 +16,11 @@ class MaterialController extends Controller
     public function index(Request $request)
     {
         if ($request->has('type')) {
-            $materials = Material::where('type', $request->input('type'))->get();
+            $materials = Material::where('type', $request->input('type'))
+                ->with(['sheet', 'bar', 'component'])
+                ->get();
         } else {
-            $materials = Material::all();
+            $materials = Material::with(['sheet', 'bar', 'component'])->get();
         }
 
         return response()->json($materials);

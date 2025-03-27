@@ -33,6 +33,8 @@ class SetPartController extends Controller
             'unit_value'       => 'sometimes|nullable|numeric',
             'final_value'      => 'sometimes|nullable|numeric',
             'markup'           => 'sometimes|nullable|numeric',
+            'width'            => 'sometimes|nullable|numeric',
+            'length'           => 'sometimes|nullable|numeric',
         ]);
 
         $setPart = SetPart::create([
@@ -49,6 +51,8 @@ class SetPartController extends Controller
             'unit_value'       => $request->input('unit_value'),
             'final_value'      => $request->input('final_value'),
             'markup'           => $request->input('markup'),
+            'width'            => $request->input('width'),
+            'length'           => $request->input('length'),
         ]);
 
         if ($request->has('processes')) {
@@ -92,6 +96,8 @@ class SetPartController extends Controller
             'unit_value'       => 'sometimes|nullable|numeric',
             'final_value'      => 'sometimes|nullable|numeric',
             'markup'           => 'sometimes|nullable|numeric',
+            'width'            => 'sometimes|nullable|numeric',
+            'length'           => 'sometimes|nullable|numeric',
         ]);
 
         $setPart = SetPart::where('set_id', $setId)->findOrFail($id);
@@ -107,7 +113,9 @@ class SetPartController extends Controller
             'gross_weight',
             'unit_value',
             'final_value',
-            'markup'
+            'markup',
+            'width',
+            'length',
         ));
 
         if ($request->has('processes')) {
