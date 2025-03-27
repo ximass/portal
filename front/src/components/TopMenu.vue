@@ -1,8 +1,10 @@
 <template>
   <v-app-bar app :color="isDark ? 'secundary' : 'white'" :dark="isDark">
     <v-app-bar-nav-icon @click="toggleDrawer" />
-    <v-toolbar-title>Portal</v-toolbar-title>
     <v-spacer />
+    <div class="logo-header">
+      <v-img src="/src/assets/images/logo_horizontal.png" alt="Logo" contain/>
+    </div>
     <v-menu v-model="menu" offset-y>
       <template #activator="{ props }">
         <v-btn icon v-bind="props">
@@ -35,6 +37,7 @@
 </template>
 
 <script lang="ts">
+import '@/assets/styles/global.css';
 import { defineComponent, ref, onMounted } from 'vue';
 import { useAuth } from '@/composables/auth';
 import { useRouter } from 'vue-router';
