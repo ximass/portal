@@ -9,9 +9,9 @@ return new class extends Migration {
     {
         Schema::create('sheets', function (Blueprint $table) {
             $table->unsignedBigInteger('material_id')->primary();
-            $table->decimal('thickness', 5, 2);
-            $table->decimal('width', 5, 2);
-            $table->decimal('length', 5, 2);
+            $table->decimal('thickness', 10, 2);
+            $table->decimal('width', 10, 2);
+            $table->decimal('length', 10, 2);
             $table->decimal('specific_weight', 10, 6);
             $table->decimal('price_kg', 10, 4);
             $table->timestamps();

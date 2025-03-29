@@ -269,7 +269,8 @@ export default defineComponent({
             payment_obs: form.value.payment_obs
           });
 
-          router.push({ name: 'Orders', params: { id: data.id } });
+          isNew.value = false;
+          router.push({ name: 'OrderView', params: { id: data.id } });
         } else {
           await axios.put(`/api/orders/${route.params.id}`, {
             customer_id: form.value.customer_id,

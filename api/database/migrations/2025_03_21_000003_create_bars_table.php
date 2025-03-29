@@ -9,8 +9,8 @@ return new class extends Migration {
     {
         Schema::create('bars', function (Blueprint $table) {
             $table->unsignedBigInteger('material_id')->primary();
-            $table->decimal('diameter', 5, 2);
-            $table->decimal('length', 5, 2);
+            $table->decimal('diameter', 10, 2);
+            $table->decimal('length', 10, 2);
             $table->decimal('specific_weight', 10, 6);
             $table->decimal('price_kg', 10, 4);
             $table->timestamps();

@@ -10,7 +10,7 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->decimal('final_value', 10, 2);
+            $table->decimal('final_value', 10, 2)->nullable();
             $table->timestamps();
         });
     }
