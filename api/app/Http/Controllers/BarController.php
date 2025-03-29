@@ -19,7 +19,7 @@ class BarController extends Controller
             'diameter'       => 'required|numeric',
             'length'         => 'required|numeric',
             'specific_weight' => 'required|numeric',
-            'price_per_gram' => 'required|numeric',
+            'price_kg' => 'required|numeric',
         ]);
 
         $bar = Bar::create($data);
@@ -41,7 +41,7 @@ class BarController extends Controller
             'diameter'       => 'sometimes|required|numeric',
             'length'         => 'sometimes|required|numeric',
             'specific_weight' => 'sometimes|required|numeric',
-            'price_per_gram' => 'sometimes|required|numeric',
+            'price_kg' => 'sometimes|required|numeric',
         ]);
 
         $bar->update($data);

@@ -47,7 +47,6 @@ export default defineComponent({
       { title: 'Nome', value: 'title' },
       { title: 'Observações', value: 'content' },
       { title: 'Valor por minuto', value: 'value_per_minute' },
-      { title: 'Valor fixo', value: 'fixed_value' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 

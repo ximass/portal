@@ -20,7 +20,7 @@ class SheetController extends Controller
             'width'           => 'required|numeric',
             'length'          => 'required|numeric',
             'specific_weight' => 'required|numeric',
-            'price_per_gram'  => 'required|numeric',
+            'price_kg'  => 'required|numeric',
         ]);
 
         $sheet = Sheet::create($data);
@@ -43,7 +43,7 @@ class SheetController extends Controller
             'width'           => 'sometimes|required|numeric',
             'length'          => 'sometimes|required|numeric',
             'specific_weight' => 'sometimes|required|numeric',
-            'price_per_gram'  => 'sometimes|required|numeric',
+            'price_kg'  => 'sometimes|required|numeric',
         ]);
 
         $sheet->update($data);

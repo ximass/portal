@@ -17,7 +17,7 @@ export interface Sheet extends BaseMaterial {
   width: number;
   length: number;
   specific_weight: number;
-  price_per_gram: number;
+  price_kg: number;
 }
 
 // Campos específicos de uma barra
@@ -26,7 +26,7 @@ export interface Bar extends BaseMaterial {
   diameter: number;
   length: number;
   specific_weight: number;
-  price_per_gram: number;
+  price_kg: number;
 }
 
 // Campos específicos de um componente
@@ -34,6 +34,7 @@ export interface Component extends BaseMaterial {
   type: 'component';
   specification: string;
   unit_value: number;
+  supplier: string;
 }
 
 // Material é uma união das interfaces específicas
@@ -76,7 +77,6 @@ export interface Process {
   title: string;
   content: string;
   value_per_minute: number;
-  fixed_value: number;
 }
 
 export interface ProcessSelection {

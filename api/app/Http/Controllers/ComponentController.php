@@ -18,6 +18,7 @@ class ComponentController extends Controller
             'material_id'   => 'required|exists:materials,id',
             'specification' => 'nullable|string',
             'unit_value'    => 'required|numeric',
+            'supplier'      => 'nullable|string',
         ]);
 
         $component = Component::create($data);
@@ -38,6 +39,7 @@ class ComponentController extends Controller
         $data = $request->validate([
             'specification' => 'sometimes|nullable|string',
             'unit_value'    => 'sometimes|required|numeric',
+            'supplier'      => 'sometimes|nullable|string',
         ]);
 
         $component->update($data);

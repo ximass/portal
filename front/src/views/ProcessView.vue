@@ -33,14 +33,6 @@
                 :rules="[v => !v || /^\d+(\.\d{1,10})?$/.test(v) || 'Máximo de 10 casas decimais']"
               />
             </v-col>
-            <v-col cols="6">
-              <v-text-field
-                type="number"
-                label="Valor fixo"
-                v-model="form.fixed_value"
-                :rules="[v => !v || /^\d+(\.\d{1,10})?$/.test(v) || 'Máximo de 10 casas decimais']"
-              />
-            </v-col>
           </v-row>
           <v-card-actions class="d-flex justify-end">
             <v-btn @click="goBack">Cancelar</v-btn>
@@ -66,7 +58,7 @@ export default defineComponent({
     const isNew = ref(route.params.id === 'new');
     const processForm = ref();
     const isFormValid = ref(false);
-    const form = ref({ title: '', content: '', value_per_minute: null, fixed_value: null });
+    const form = ref({ title: '', content: '', value_per_minute: null});
 
     const { showToast } = useToast();
 

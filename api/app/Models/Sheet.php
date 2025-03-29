@@ -11,13 +11,17 @@ class Sheet extends Model
     protected $primaryKey = 'material_id';
     public $incrementing = false;
 
+    // thickness, width and length are in mm
+    // specific_weight is in kg/m3
+    // price_kg is in BRL/kg
+
     protected $fillable = [
         'material_id',
         'thickness',
         'width',
         'length',
         'specific_weight',
-        'price_per_gram',
+        'price_kg',
     ];
 
     public function material()

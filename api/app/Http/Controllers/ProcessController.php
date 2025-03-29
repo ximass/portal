@@ -18,7 +18,6 @@ class ProcessController extends Controller
             'title' => 'required|string',
             'content' => 'required|string',
             'value_per_minute' => 'numeric|nullable',
-            'fixed_value' => 'numeric|nullable',
         ]);
         $process = Process::create($data);
 
@@ -36,7 +35,6 @@ class ProcessController extends Controller
             'title' => 'sometimes|required|string',
             'content' => 'sometimes|required|string',
             'value_per_minute' => 'numeric|nullable',
-            'fixed_value' => 'numeric|nullable',
         ]);
 
         $process->update($data);

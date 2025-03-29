@@ -16,6 +16,7 @@ class Component extends Model
         'name',
         'specification',
         'unit_value',
+        'supplier',
     ];
 
     public function material()

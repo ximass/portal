@@ -24,6 +24,7 @@
               v-model="form.type"
               :rules="[v => !!v || 'Tipo é obrigatório']"
               required
+              :disabled="isEdit"
             />
           </v-col>
         </v-row>
@@ -50,7 +51,7 @@
                 <v-text-field label="Peso específico" v-model="form.sheet.specific_weight" type="number" required />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Preço por grama" v-model="form.sheet.price_per_gram" type="number" required />
+                <v-text-field label="Preço por kilo" v-model="form.sheet.price_kg" type="number" required />
               </v-col>
             </v-row>
           </template>
@@ -66,7 +67,7 @@
                 <v-text-field label="Peso específico" v-model="form.bar.specific_weight" type="number" required />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Preço por grama" v-model="form.bar.price_per_gram" type="number" required />
+                <v-text-field label="Preço por kilo" v-model="form.bar.price_kg" type="number" required />
               </v-col>
             </v-row>
           </template>
@@ -75,8 +76,13 @@
               <v-col cols="12">
                 <v-textarea label="Especificações" v-model="form.component.specification" />
               </v-col>
-              <v-col cols="4">
+            </v-row>
+            <v-row>
+              <v-col cols="6">
                 <v-text-field label="Valor unitário" v-model="form.component.unit_value" type="number" required />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field label="Fornecedor" v-model="form.component.supplier" type="text" />
               </v-col>
             </v-row>
           </template>
@@ -115,17 +121,18 @@ export default defineComponent({
         width: null as number | null,
         length: null as number | null,
         specific_weight: null as number | null,
-        price_per_gram: null as number | null,
+        price_kg: null as number | null,
       },
       bar: {
         diameter: null as number | null,
         length: null as number | null,
         specific_weight: null as number | null,
-        price_per_gram: null as number | null,
+        price_kg: null as number | null,
       },
       component: {
         specification: '',
         unit_value: null as number | null,
+        supplier: '',
       }
     });
 
@@ -162,51 +169,53 @@ export default defineComponent({
 
     const submitForm = async () => {
       try {
-        let materialResponse;
-        if (isEdit.value) {
-          await axios.put(`/api/materials/${form.id}`, {
-            name: form.name,
-            type: form.type,
-          });
-          materialResponse = { id: form.id };
-        } else {
-          const res = await axios.post('/api/materials', {
-            name: form.name,
-            type: form.type,
-          });
-          materialResponse = res.data;
-        }
-        const materialId = materialResponse.id;
-        if (form.type === 'sheet') {
-          await axios.post('/api/sheets', {
-            material_id: materialId,
-            thickness: form.sheet.thickness,
-            width: form.sheet.width,
-            length: form.sheet.length,
-            specific_weight: form.sheet.specific_weight,
-            price_per_gram: form.sheet.price_per_gram,
-          });
-        } else if (form.type === 'bar') {
-          await axios.post('/api/bars', {
-            material_id: materialId,
-            diameter: form.bar.diameter,
-            length: form.bar.length,
-            specific_weight: form.bar.specific_weight,
-            price_per_gram: form.bar.price_per_gram,
-          });
-        } else if (form.type === 'component') {
-          await axios.post('/api/components', {
-            material_id: materialId,
-            specification: form.component.specification,
-            unit_value: form.component.unit_value,
-          });
-        }
+      const materialPayload = {
+        name: form.name,
+        type: form.type,
+      };
 
-        showToast('Material salvo com sucesso.', 'success');
+      const materialResponse = isEdit.value
+        ? await axios.put(`/api/materials/${form.id}`, materialPayload)
+        : await axios.post('/api/materials', materialPayload);
 
-        router.push({ name: 'MaterialsView' });
+      const materialId = isEdit.value ? form.id : materialResponse.data.id;
+
+      const typeSpecificPayload = {
+        sheet: {
+          material_id: materialId,
+          thickness: form.sheet.thickness,
+          width: form.sheet.width,
+          length: form.sheet.length,
+          specific_weight: form.sheet.specific_weight,
+          price_kg: form.sheet.price_kg,
+        },
+        bar: {
+          material_id: materialId,
+          diameter: form.bar.diameter,
+          length: form.bar.length,
+          specific_weight: form.bar.specific_weight,
+          price_kg: form.bar.price_kg,
+        },
+        component: {
+          material_id: materialId,
+          specification: form.component.specification,
+          unit_value: form.component.unit_value,
+          supplier: form.component.supplier,
+        },
+      };
+
+      if (form.type) {
+        const endpoint = `/api/${form.type}s/${isEdit.value ? materialId : ''}`;
+        const method = isEdit.value ? 'put' : 'post';
+
+        await axios[method](endpoint, typeSpecificPayload[form.type]);
+      }
+
+      showToast('Material salvo com sucesso.', 'success');
+
+      router.push({ name: 'MaterialsView' });
       } catch (error) {
-        showToast('Erro ao salvar material', 'error');
+      showToast('Erro ao salvar material', 'error');
       }
     };
 

@@ -12,7 +12,6 @@ return new class extends Migration {
             $table->string('title');
             $table->text('content');
             $table->decimal('value_per_minute', 10, 2)->nullable();
-            $table->decimal('fixed_value', 10, 2)->nullable();
             $table->timestamps();
         });
     }
