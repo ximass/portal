@@ -27,7 +27,8 @@ Route::get('/materials/types', [MaterialController::class, 'getMaterialsType']);
 
 #POST#
 Route::post('/upload-set-part', [SetPartController::class, 'upload']);
-Route::post('/set-parts/calculateProperties', [SetPartController::class, 'calculateProperties']);
+Route::post('/set-parts/calculateProperties', [SetPartController::class, 'calculatePartProperties']);
+Route::post('/set-parts/calculateProcessValue', [ProcessController::class, 'calculateProcessValue']);
 
 #PUT#
 // Route::put('/sets/{set}/parts/{}/', [SetPartController::class, 'upload']);

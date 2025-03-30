@@ -5,7 +5,7 @@
   </v-row>
   <div v-for="(proc, index) in internalProcesses" :key="index" class="mb-2">
     <v-row dense>
-      <v-col cols="4">
+      <v-col cols="3">
         <v-select
           label="Processo"
           :items="processOptions"
@@ -16,22 +16,32 @@
           density="compact"
         />
       </v-col>
-      <v-col cols="4">
+      <v-col cols="3">
+        <v-text-field
+          label="Valor por minuto"
+          :value="getValuePerMinute(proc.id)"
+          readonly
+          density="compact"
+          prefix="R$"
+        />
+      </v-col>
+      <v-col cols="2">
         <v-text-field
           label="Tempo"
           v-model="proc.time"
           type="number"
           required
           density="compact"
+          hint="Em minutos"
         />
       </v-col>
       <v-col cols="3">
         <v-text-field
-          label="Quantidade"
-          v-model="proc.quantity"
+          label="Valor final"
+          v-model="proc.final_value"
           type="number"
-          required
           density="compact"
+          prefix="R$"
         />
       </v-col>
       <v-col cols="1">
@@ -60,24 +70,30 @@ export default defineComponent({
   emits: ['update:modelValue'],
   setup(props, { emit }) {
     const { showToast } = useToast();
-    const processOptions = ref<Array<{ id: number; title: string }>>([]);
+    const processOptions = ref<Array<{ id: number; title: string; value_per_minute?: number }>>([]);
 
-    // Updated flattenProcesses to preserve time/quantity if they already exist,
-    // otherwise fall back to pivot values.
+    // Include final_value on each process object
     const flattenProcesses = (processes: any[]): ProcessSelection[] => {
       return processes.map(proc => ({
         id: proc.id || null,
-        time: proc.hasOwnProperty('time') ? proc.time : (proc.pivot && proc.pivot.time ? proc.pivot.time : 0),
-        quantity: proc.hasOwnProperty('quantity') ? proc.quantity : (proc.pivot && proc.pivot.quantity ? proc.pivot.quantity : 0),
+        time: proc.hasOwnProperty('time')
+          ? proc.time
+          : (proc.pivot && proc.pivot.time ? proc.pivot.time : 0),
+        final_value: proc.hasOwnProperty('final_value')
+          ? proc.final_value
+          : (proc.pivot && proc.pivot.final_value ? proc.pivot.final_value : 0)
       }));
     };
 
     const internalProcesses = ref<ProcessSelection[]>(flattenProcesses(props.modelValue));
 
+    console.log('internalProcesses', internalProcesses.value);
+
     const fetchProcessOptions = async () => {
       try {
         const { data } = await axios.get('/api/processes');
         processOptions.value = data;
+        console.log('processOptions', processOptions.value);
       } catch (error) {
         showToast({ message: 'Erro ao buscar processos: ' + error, type: 'error' });
       }
@@ -87,12 +103,21 @@ export default defineComponent({
       internalProcesses.value.push({
         id: null,
         time: 0,
-        quantity: 0,
+        final_value: 0
       });
     };
 
     const removeProcess = (index: number) => {
       internalProcesses.value.splice(index, 1);
+    };
+
+    // Returns the value_per_minute of the selected process
+    const getValuePerMinute = (id: number | null): number | string => {
+      if (!id) return '';
+
+      const found = processOptions.value.find(p => p.id === id);
+      
+      return found?.value_per_minute ?? '';
     };
 
     // Watch internalProcesses and emit changes only if there's a difference compared to the prop value.
@@ -115,6 +140,7 @@ export default defineComponent({
       processOptions,
       addProcess,
       removeProcess,
+      getValuePerMinute
     };
   }
 });

@@ -63,7 +63,7 @@ class SetPartController extends Controller
                 if (isset($process['id'])) {
                     $syncData[$process['id']] = [
                         'time' => $process['pivot']['time'] ?? $process['time'] ?? 0,
-                        'quantity' => intval($process['pivot']['quantity'] ?? $process['quantity'] ?? 0),
+                        'final_value' => $process['pivot']['final_value'] ?? $process['final_value'] ?? 0,
                     ];
                 }
             }
@@ -126,7 +126,7 @@ class SetPartController extends Controller
                 if (isset($process['id'])) {
                     $syncData[$process['id']] = [
                         'time' => $process['pivot']['time'] ?? $process['time'] ?? 0,
-                        'quantity' => intval($process['pivot']['quantity'] ?? $process['quantity'] ?? 0),
+                        'final_value' => $process['pivot']['final_value'] ?? $process['final_value'] ?? 0,
                     ];
                 }
             }
@@ -169,20 +169,37 @@ class SetPartController extends Controller
         return response()->json($setPart, 201);
     }
 
-    public function calculateProperties(Request $request)
+    public function calculatePartProperties(Request $request)
     {
         $part = (object) $request->input('part');
         $material = (object) $request->input('material');
 
+        try
+        {
+            return $this->calculateProperties($part, $material);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Calcula as propriedades de uma part com base no tipo de material.
+     *
+     * @param object $part Dados da part.
+     * @param object $material Dados do material, incluindo o tipo e suas propriedades específicas.
+     * @return array Array associativo com os campos calculados.
+     */
+    public static function calculateProperties(object $part, object $material): array
+    {
         if ($material->type === 'sheet') {
             return self::calculateSheetProperties($part, (object) $material->sheet);
         } elseif ($material->type === 'bar') {
-            return self::calculateBarProperties($part, (object) $material->bar);
+            return self::calculateBarProperties((array) $part, (object) $material->bar);
         } elseif ($material->type === 'component') {
-            return self::calculateComponentProperties($part, (object) $material->component);
+            return self::calculateComponentProperties((array) $part, (object) $material->component);
         }
 
-        return response()->json(['error' => 'Invalid material type'], 400);
+        throw new \InvalidArgumentException('Invalid material type');
     }
 
     /**
@@ -322,5 +339,44 @@ class SetPartController extends Controller
             'unit_value'        => round($unitValue, 2),
             'final_value'       => round($finalValue, 2),
         ];
+    }
+
+    public function calculatePartProcesses(Request $request)
+    {
+        try
+        {
+            $setPart = SetPart::findOrFail($request->input('set_id'));
+
+            return self::calculateProcesses($setPart);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Calcula os valores dos processos associados a uma SetPart.
+     *
+     * @param \App\Models\SetPart $setPart
+     * @return array Array de arrays, cada qual contendo 'process_id' e o 'final_value' calculado.
+     */
+    public static function calculateProcesses(\App\Models\SetPart $setPart): array
+    {
+        $result = [];
+
+        foreach ($setPart->processes as $process) {
+            $response = ProcessController::calculateValue($process, [
+                'time'     => $process->pivot->time ?? 0,
+                'quantity' => $setPart->quantity ?? 1
+            ]);
+
+            $finalValue = $response['value'];
+
+            $result[] = [
+                'process_id' => $process->id,
+                'final_value' => round($finalValue, 2),
+            ];
+        }
+
+        return $result;
     }
 }

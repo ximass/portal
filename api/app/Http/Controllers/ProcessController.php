@@ -48,4 +48,48 @@ class ProcessController extends Controller
         
         return response()->json(null, 204);
     }
+
+    /**
+     * Calculate the value based on the process and properties.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function calculateProcessValue(Request $request)
+    {
+        $data = $request->validate([
+            'process_id' => 'required|exists:processes,id',
+            'time'       => 'required|numeric',
+            'quantity'   => 'nullable|numeric',
+        ]);
+
+        $process = Process::find($data['process_id']);
+
+        if (!$process) {
+            return response()->json(['error' => 'Process not found'], 404);
+        }
+
+        $value = $this->calculateValue($process, $data);
+
+        return response()->json(['value' => $value]);
+    }
+
+
+    /**
+     * Calculate the value based on the process and properties.
+     *
+     * @param Process $process
+     * @param array $properties
+     * @return float
+     */
+    public function calculateValue(Process $process, $properties)
+    {
+        if (!isset($properties['quantity'])) {
+            $properties['quantity'] = 1;
+        }
+
+        $value = ($process->value_per_minute * $properties['time']) * $properties['quantity'];
+
+        return $value;
+    }
 }
