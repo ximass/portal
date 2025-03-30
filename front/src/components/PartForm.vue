@@ -71,7 +71,7 @@
                     density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto" v-model="localPart.net_gross_weight" type="number" required
+                  <v-text-field label="Peso bruto" v-model="localPart.gross_weight" type="number" required
                     density="compact" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
@@ -146,7 +146,7 @@ export default defineComponent({
         unit_net_weight: 0,
         unit_gross_weight: 0,
         net_weight: 0,
-        net_gross_weight: 0,
+        gross_weight: 0,
         unit_value: 0,
         final_value: 0,
         width: 0,
@@ -160,6 +160,7 @@ export default defineComponent({
     // O v-select de Material trabalha apenas com o id
     const selectedMaterial = ref<number | null>(null);
     const selectedMaterialType = ref<string | null>(null);
+    const currentMaterial = ref<Material | null>(null);
     const materialsType = ref<MaterialType[]>([]);
     const materials = ref<Material[]>([]);
     const showExtraFields = ref(false);
@@ -200,6 +201,8 @@ export default defineComponent({
       const material = await fetchMaterialById(materialId.toString());
 
       if (!material) return;
+
+      currentMaterial.value = material;
       
       if (material.type === 'sheet' && material.sheet) {
         localPart.value.width = material.sheet.width;
@@ -212,6 +215,29 @@ export default defineComponent({
       }
     };
 
+    const calculateProperties = async () => {
+      if (!currentMaterial.value) return;
+
+      try {
+        const { data } = await axios.post('/api/set-parts/calculateProperties', {
+          part: {
+            quantity: localPart.value.quantity,
+            loss: localPart.value.loss
+          },
+          material: currentMaterial.value
+        });
+
+        localPart.value.unit_net_weight = data.unit_net_weight;
+        localPart.value.net_weight = data.net_weight;
+        localPart.value.unit_gross_weight = data.unit_gross_weight;
+        localPart.value.gross_weight = data.gross_weight;
+        localPart.value.unit_value = data.unit_value;
+        localPart.value.final_value = data.final_value;
+      } catch (error) {
+        showToast('Erro ao calcular propriedades', 'error');
+      }
+    };
+
     onMounted(() => {
       fetchMaterialsTypes();
     });
@@ -219,6 +245,18 @@ export default defineComponent({
     // Computed para obter o objeto do tipo de material selecionado
     const selectedMaterialObject = computed(() =>
       materialsType.value.find(m => m.value === selectedMaterialType.value)
+    );
+
+    watch(
+      () => [
+          localPart.value.quantity,
+          localPart.value.unit_net_weight,
+          localPart.value.unit_gross_weight,
+          localPart.value.loss
+      ],
+      () => {
+        calculateProperties();
+      }
     );
 
     // Watch que inicializa o formulário quando a prop é atualizada
@@ -232,6 +270,7 @@ export default defineComponent({
             fetchMaterialById(newVal.material_id).then(material => {
               if (material) {
                 selectedMaterialType.value = material.type;
+                currentMaterial.value = material;
                 isMaterialTypeDisabled.value = true;
                 showExtraFields.value = true;
                 fetchMaterialsByType();

@@ -39,50 +39,116 @@
           <template v-if="form.type === 'sheet'">
             <v-row>
               <v-col cols="3">
-                <v-text-field label="Espessura" v-model="form.sheet.thickness" type="number" required />
+                <v-text-field 
+                  label="Espessura" 
+                  v-model="form.sheet.thickness" 
+                  type="number" 
+                  required 
+                  hint="Em mm" 
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Largura" v-model="form.sheet.width" type="number" required />
+                <v-text-field 
+                  label="Largura" 
+                  v-model="form.sheet.width" 
+                  type="number" 
+                  required 
+                  hint="Em mm"
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Comprimento" v-model="form.sheet.length" type="number" required />
+                <v-text-field 
+                  label="Comprimento" 
+                  v-model="form.sheet.length" 
+                  type="number" required  
+                  hint="Em mm"
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Peso específico" v-model="form.sheet.specific_weight" type="number" required />
+                <v-text-field 
+                  label="Peso específico" 
+                  v-model="form.sheet.specific_weight" 
+                  type="number" 
+                  required 
+                  hint="Em g/mm³"
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Preço por kilo" v-model="form.sheet.price_kg" type="number" required />
+                <v-text-field 
+                  label="Preço por kilo" 
+                  v-model="form.sheet.price_kg" 
+                  type="number" 
+                  required 
+                  hint="Em BRL/kg"
+                />
               </v-col>
             </v-row>
           </template>
           <template v-else-if="form.type === 'bar'">
             <v-row>
               <v-col cols="3">
-                <v-text-field label="Diâmetro" v-model="form.bar.diameter" type="number" required />
+                <v-text-field 
+                  label="Diâmetro" 
+                  v-model="form.bar.diameter" 
+                  type="number" 
+                  required  
+                  hint="Em mm"
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Comprimento" v-model="form.bar.length" type="number" required />
+                <v-text-field 
+                  label="Comprimento"
+                  v-model="form.bar.length" 
+                  type="number" 
+                  required 
+                  hint="Em mm"
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Peso específico" v-model="form.bar.specific_weight" type="number" required />
+                <v-text-field 
+                  label="Peso específico" 
+                  v-model="form.bar.specific_weight" 
+                  type="number" 
+                  required 
+                  hint="Em g/mm³"
+                />
               </v-col>
               <v-col cols="3">
-                <v-text-field label="Preço por kilo" v-model="form.bar.price_kg" type="number" required />
+                <v-text-field 
+                  label="Preço por kilo" 
+                  v-model="form.bar.price_kg" 
+                  type="number" 
+                  required 
+                  hint="Em BRL/kg"
+                />
               </v-col>
             </v-row>
           </template>
           <template v-else-if="form.type === 'component'">
             <v-row>
               <v-col cols="12">
-                <v-textarea label="Especificações" v-model="form.component.specification" />
+                <v-textarea 
+                  label="Especificações" 
+                  v-model="form.component.specification" 
+                />
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="6">
-                <v-text-field label="Valor unitário" v-model="form.component.unit_value" type="number" required />
+                <v-text-field 
+                  label="Valor unitário" 
+                  v-model="form.component.unit_value" 
+                  type="number"
+                  required 
+                  hint="Em BRL"
+                />
               </v-col>
               <v-col cols="6">
-                <v-text-field label="Fornecedor" v-model="form.component.supplier" type="text" />
+                <v-text-field 
+                  label="Fornecedor" 
+                  v-model="form.component.supplier" 
+                  type="text" 
+                />
               </v-col>
             </v-row>
           </template>
