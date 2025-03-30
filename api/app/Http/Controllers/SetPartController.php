@@ -200,42 +200,41 @@ class SetPartController extends Controller
      */
     public static function calculateSheetProperties(object $part, object $sheet): array
     {
-        // Converte medidas de mm para m
-        $widthInMeters     = $sheet->width / 1000;
-        $lengthInMeters    = $sheet->length / 1000;
+        // Converte medidas de mm para m e aplica arredondamento para width e length se necessário
+        $widthInMeters     = round($sheet->width / 1000, 2);
+        $lengthInMeters    = round($sheet->length / 1000, 2);
         $thicknessInMeters = $sheet->thickness / 1000;
-
+        
         // Peso específico de g/mm³ em kg/m³
         $specificWeight = $sheet->specific_weight * 1000 * 1000;
         
-        // Fator de perda (ex.: se perda for 5%, fator = 0.95)
-        $loss = isset($part->loss) ? $part->loss : 0;
+        // Fator de perda (ex.: se perda for 5%, fator = 0.95) e arredonda loss para 2 casas
+        $loss   = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor = (100 - $loss) / 100;
-
+        
         // Cálculo dos pesos unitários:
-        // volume (m³) * peso específico (kg/m³)
-        $unitNetWeight = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight * $factor;
+        $unitNetWeight   = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight * $factor;
         $unitGrossWeight = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight;
         
         $quantity = isset($part->quantity) ? $part->quantity : 0;
         
         // Pesos totais
-        $netWeight = $unitNetWeight * $quantity;
+        $netWeight   = $unitNetWeight * $quantity;
         $grossWeight = $unitGrossWeight * $quantity;
         
         // Valor unitário com base no peso unitário e preço por kg
-        $unitValue = $unitNetWeight * $sheet->price_kg;
+        $unitValue  = $unitNetWeight * $sheet->price_kg;
         
         // Valor final considerando a quantidade
         $finalValue = $quantity * $unitValue;
         
         return [
-            'unit_net_weight'   => $unitNetWeight,
-            'net_weight'        => $netWeight,
-            'unit_gross_weight' => $unitGrossWeight,
-            'gross_weight'      => $grossWeight,
-            'unit_value'        => $unitValue,
-            'final_value'       => $finalValue,
+            'unit_net_weight'   => round($unitNetWeight, 2),
+            'net_weight'        => round($netWeight, 2),
+            'unit_gross_weight' => round($unitGrossWeight, 2),
+            'gross_weight'      => round($grossWeight, 2),
+            'unit_value'        => round($unitValue, 2),
+            'final_value'       => round($finalValue, 2),
         ];
     }
 
@@ -257,34 +256,35 @@ class SetPartController extends Controller
         // Converter medidas: diâmetro e comprimento de mm para m
         $diameterInMeters = $bar->diameter / 1000;
         $lengthInMeters   = $bar->length / 1000;
-
-        // Peso específico de g/mm³ em kg/m³
-        $specificWeight = $sheet->specific_weight * 1000 * 1000;
         
-        // Cálculo da área da seção transversal: A = π * (raio)²
+        // Peso específico de g/mm³ em kg/m³
+        $specificWeight = $bar->specific_weight * 1000 * 1000;
+        
+        // Área da seção transversal: A = π * (raio)²
         $radius = $diameterInMeters / 2;
         $area = pi() * ($radius ** 2);
         
         // Peso unitário líquido = volume (área * comprimento) * peso específico
         $unitNetWeight = $area * $lengthInMeters * $specificWeight;
         
-        $loss = isset($part->loss) ? $part->loss : 0;
+        $loss   = isset($part['loss']) ? round($part['loss'], 2) : 0;
         $factor = (100 - $loss) / 100;
-        $quantity = isset($part->quantity) ? $part->quantity : 0;
+        $quantity = isset($part['quantity']) ? $part['quantity'] : 0;
         
-        $netWeight = $quantity * $unitNetWeight * $factor;
+        $netWeight       = $quantity * $unitNetWeight * $factor;
         $unitGrossWeight = $unitNetWeight;
-        $grossWeight = $netWeight;
-        $unitValue = $unitNetWeight * $bar->price_kg;
+        $grossWeight     = $netWeight;
+        
+        $unitValue  = $unitNetWeight * $bar->price_kg;
         $finalValue = $quantity * $unitValue;
         
         return [
-            'unit_net_weight'   => $unitNetWeight,
-            'net_weight'        => $netWeight,
-            'unit_gross_weight' => $unitGrossWeight,
-            'gross_weight'      => $grossWeight,
-            'unit_value'        => $unitValue,
-            'final_value'       => $finalValue,
+            'unit_net_weight'   => round($unitNetWeight, 2),
+            'net_weight'        => round($netWeight, 2),
+            'unit_gross_weight' => round($unitGrossWeight, 2),
+            'gross_weight'      => round($grossWeight, 2),
+            'unit_value'        => round($unitValue, 2),
+            'final_value'       => round($finalValue, 2),
         ];
     }
 
@@ -304,23 +304,23 @@ class SetPartController extends Controller
     public static function calculateComponentProperties(array $part, object $component): array
     {
         // Para component, os cálculos de peso não se aplicam; valores assumidos como zero
-        $unitNetWeight = 0;
-        $netWeight = 0;
+        $unitNetWeight   = 0;
+        $netWeight       = 0;
         $unitGrossWeight = 0;
-        $grossWeight = 0;
+        $grossWeight     = 0;
         
         // O valor unitário já está definido no componente
-        $unitValue = $component->unit_value;
-        $quantity = isset($part->quantity) ? $part->quantity : 0;
+        $unitValue  = $component->unit_value;
+        $quantity   = isset($part['quantity']) ? $part['quantity'] : 0;
         $finalValue = $quantity * $unitValue;
         
         return [
-            'unit_net_weight'   => $unitNetWeight,
-            'net_weight'        => $netWeight,
-            'unit_gross_weight' => $unitGrossWeight,
-            'gross_weight'      => $grossWeight,
-            'unit_value'        => $unitValue,
-            'final_value'       => $finalValue,
+            'unit_net_weight'   => round($unitNetWeight, 2),
+            'net_weight'        => round($netWeight, 2),
+            'unit_gross_weight' => round($unitGrossWeight, 2),
+            'gross_weight'      => round($grossWeight, 2),
+            'unit_value'        => round($unitValue, 2),
+            'final_value'       => round($finalValue, 2),
         ];
     }
 }

@@ -36,19 +36,22 @@
               <v-row dense
                 v-if="selectedMaterialObject && (selectedMaterialObject.value === 'sheet' || selectedMaterialObject.value === 'bar')">
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact" />
+                  <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact"
+                    @blur="localPart.width = roundValue(localPart.width, 2)" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required
-                    density="compact" />
+                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required density="compact"
+                    @blur="localPart.length = roundValue(localPart.length, 2)" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact" />
+                  <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact"
+                    @blur="localPart.loss = roundValue(localPart.loss, 2)" />
                 </v-col>
               </v-row>
               <v-row dense v-else-if="selectedMaterialObject && selectedMaterialObject.value === 'component'">
                 <v-col cols="12">
-                  <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact" />
+                  <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact"
+                    @blur="localPart.markup = roundValue(localPart.markup, 3)" />
                 </v-col>
               </v-row>
               <v-row dense>
@@ -58,31 +61,32 @@
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required
-                    density="compact" />
+                    density="compact" @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2)" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required
-                    density="compact" />
+                    density="compact"
+                    @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2)" />
                 </v-col>
               </v-row>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required
-                    density="compact" />
+                    density="compact" @blur="localPart.net_weight = roundValue(localPart.net_weight, 2)" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto" v-model="localPart.gross_weight" type="number" required
-                    density="compact" />
+                    density="compact" @blur="localPart.gross_weight = roundValue(localPart.gross_weight, 2)" />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required
-                    density="compact" />
+                    density="compact" @blur="localPart.unit_value = roundValue(localPart.unit_value, 2)" />
                 </v-col>
               </v-row>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required
-                    density="compact" />
+                    density="compact" @blur="localPart.final_value = roundValue(localPart.final_value, 2)" />
                 </v-col>
               </v-row>
 
@@ -166,6 +170,10 @@ export default defineComponent({
     const showExtraFields = ref(false);
     const isMaterialTypeDisabled = ref(false);
 
+    const roundValue = (value: number, decimals: number): number => {
+      return isNaN(value) ? 0 : Number(parseFloat(value.toString()).toFixed(decimals));
+    };
+
     const fetchMaterialsTypes = async () => {
       try {
         const { data } = await axios.get('/api/materials/types');
@@ -203,7 +211,7 @@ export default defineComponent({
       if (!material) return;
 
       currentMaterial.value = material;
-      
+
       if (material.type === 'sheet' && material.sheet) {
         localPart.value.width = material.sheet.width;
         localPart.value.length = material.sheet.length;
@@ -249,10 +257,10 @@ export default defineComponent({
 
     watch(
       () => [
-          localPart.value.quantity,
-          localPart.value.unit_net_weight,
-          localPart.value.unit_gross_weight,
-          localPart.value.loss
+        localPart.value.quantity,
+        localPart.value.unit_net_weight,
+        localPart.value.unit_gross_weight,
+        localPart.value.loss
       ],
       () => {
         calculateProperties();
@@ -349,7 +357,8 @@ export default defineComponent({
       savePart,
       onMaterialTypeChange,
       show: props.show,
-      getPartImageUrl: props.getPartImageUrl
+      getPartImageUrl: props.getPartImageUrl,
+      roundValue
     };
   }
 });
