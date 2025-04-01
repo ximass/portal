@@ -3,12 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\SetPart;
+use App\Models\Material;
+use App\Models\Sheet;
+use App\Models\Bar;
+use App\Models\Component;
+
+use App\Http\Controllers\ProcessController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SetPartController extends Controller
 {
+    const SET_PART_TYPES = [
+        'material' => 'Material',
+        'sheet'    => 'Sheet',
+        'bar'      => 'Bar',
+        'component'=> 'Component'
+    ];
+
     public function index($setId)
     {
         return response()->json(
@@ -23,7 +36,11 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'required|string|max:255',
             'content'          => 'required|string',
+            'type'             => 'sometimes|in:material,sheet,bar,component',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
+            'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
+            'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
+            'component_id'     => 'sometimes|nullable|integer|exists:components,id',
             'quantity'         => 'sometimes|nullable|integer',
             'loss'             => 'sometimes|nullable|numeric',
             'unit_net_weight'  => 'sometimes|nullable|numeric',
@@ -41,7 +58,11 @@ class SetPartController extends Controller
             'title'            => $request->title,
             'content'          => $request->content,
             'set_id'           => $setId,
+            'type'             => $request->input('type'),
             'material_id'      => $request->input('material_id'),
+            'sheet_id'         => $request->input('sheet_id'),
+            'bar_id'           => $request->input('bar_id'),
+            'component_id'     => $request->input('component_id'),
             'quantity'         => $request->input('quantity'),
             'loss'             => $request->input('loss'),
             'unit_net_weight'  => $request->input('unit_net_weight'),
@@ -86,7 +107,11 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'sometimes|required|string|max:255',
             'content'          => 'sometimes|required|string',
+            'type'             => 'sometimes|in:material,sheet,bar,component',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
+            'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
+            'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
+            'component_id'     => 'sometimes|nullable|integer|exists:components,id',
             'quantity'         => 'sometimes|nullable|integer',
             'loss'             => 'sometimes|nullable|numeric',
             'unit_net_weight'  => 'sometimes|nullable|numeric',
@@ -104,7 +129,11 @@ class SetPartController extends Controller
         $setPart->update($request->only(
             'title',
             'content',
+            'type',
             'material_id',
+            'sheet_id',
+            'bar_id',
+            'component_id',
             'quantity',
             'loss',
             'unit_net_weight',
@@ -169,14 +198,18 @@ class SetPartController extends Controller
         return response()->json($setPart, 201);
     }
 
+    public static function getPartTypes()
+    {
+        return response()->json(self::SET_PART_TYPES);
+    }
+
     public function calculatePartProperties(Request $request)
     {
         $part = (object) $request->input('part');
-        $material = (object) $request->input('material');
 
         try
         {
-            return $this->calculateProperties($part, $material);
+            return $this->calculateProperties($part);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -189,17 +222,24 @@ class SetPartController extends Controller
      * @param object $material Dados do material, incluindo o tipo e suas propriedades específicas.
      * @return array Array associativo com os campos calculados.
      */
-    public static function calculateProperties(object $part, object $material): array
+    public static function calculateProperties(object $part): array
     {
-        if ($material->type === 'sheet') {
-            return self::calculateSheetProperties($part, (object) $material->sheet);
-        } elseif ($material->type === 'bar') {
-            return self::calculateBarProperties((array) $part, (object) $material->bar);
-        } elseif ($material->type === 'component') {
-            return self::calculateComponentProperties((array) $part, (object) $material->component);
+        if ($part->type === 'material') {
+            return self::calculateMaterialProperties($part);
+        } elseif ($part->type === 'sheet') {
+            return self::calculateSheetProperties($part);
+        } elseif ($part->type === 'bar') {
+            return self::calculateBarProperties($part);
+        } elseif ($part->type === 'component') {
+            return self::calculateComponentProperties($part);
         }
 
         throw new \InvalidArgumentException('Invalid material type');
+    }
+
+    public static function calculateMaterialProperties(object $part)
+    {
+        return self::calculateSheetProperties($part, true);
     }
 
     /**
@@ -215,15 +255,25 @@ class SetPartController extends Controller
      *               - unit_value
      *               - final_value
      */
-    public static function calculateSheetProperties(object $part, object $sheet): array
+    public static function calculateSheetProperties(object $part, $onlyMaterial = false): array
     {
+        if ($onlyMaterial)
+        {
+            $material = Material::findOrFail($part->material_id);
+        }
+        else
+        {
+            $sheet = Sheet::findOrFail($part->sheet_id);
+            $material = $sheet->material;
+        }
+
         // Converte medidas de mm para m e aplica arredondamento para width e length se necessário
-        $widthInMeters     = round($sheet->width / 1000, 2);
-        $lengthInMeters    = round($sheet->length / 1000, 2);
-        $thicknessInMeters = $sheet->thickness / 1000;
+        $widthInMeters     = round($part->width / 1000, 2);
+        $lengthInMeters    = round($part->length / 1000, 2);
+        $thicknessInMeters = $material->thickness / 1000;
         
         // Peso específico de g/mm³ em kg/m³
-        $specificWeight = $sheet->specific_weight * 1000 * 1000;
+        $specificWeight = $material->specific_weight * 1000 * 1000;
         
         // Fator de perda (ex.: se perda for 5%, fator = 0.95) e arredonda loss para 2 casas
         $loss   = isset($part->loss) ? round($part->loss, 2) : 0;
@@ -240,7 +290,7 @@ class SetPartController extends Controller
         $grossWeight = $unitGrossWeight * $quantity;
         
         // Valor unitário com base no peso unitário e preço por kg
-        $unitValue  = $unitNetWeight * $sheet->price_kg;
+        $unitValue  = $unitNetWeight * $material->price_kg;
         
         // Valor final considerando a quantidade
         $finalValue = $quantity * $unitValue;
@@ -268,14 +318,17 @@ class SetPartController extends Controller
      *               - unit_value
      *               - final_value
      */
-    public static function calculateBarProperties(array $part, object $bar): array
+    public static function calculateBarProperties(object $part): array
     {
+        $bar = Bar::findOrFail($part->bar_id);
+        $material = $bar->material;
+
         // Converter medidas: diâmetro e comprimento de mm para m
-        $diameterInMeters = $bar->diameter / 1000;
-        $lengthInMeters   = $bar->length / 1000;
+        $diameterInMeters = $part->diameter / 1000;
+        $lengthInMeters   = $part->length / 1000;
         
         // Peso específico de g/mm³ em kg/m³
-        $specificWeight = $bar->specific_weight * 1000 * 1000;
+        $specificWeight = $material->specific_weight * 1000 * 1000;
         
         // Área da seção transversal: A = π * (raio)²
         $radius = $diameterInMeters / 2;
@@ -284,15 +337,15 @@ class SetPartController extends Controller
         // Peso unitário líquido = volume (área * comprimento) * peso específico
         $unitNetWeight = $area * $lengthInMeters * $specificWeight;
         
-        $loss   = isset($part['loss']) ? round($part['loss'], 2) : 0;
+        $loss   = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor = (100 - $loss) / 100;
-        $quantity = isset($part['quantity']) ? $part['quantity'] : 0;
+        $quantity = isset($part->quantity) ? $part->quantity : 0;
         
         $netWeight       = $quantity * $unitNetWeight * $factor;
         $unitGrossWeight = $unitNetWeight;
         $grossWeight     = $netWeight;
         
-        $unitValue  = $unitNetWeight * $bar->price_kg;
+        $unitValue  = $unitNetWeight * $material->price_kg;
         $finalValue = $quantity * $unitValue;
         
         return [
@@ -318,8 +371,10 @@ class SetPartController extends Controller
      *               - unit_value
      *               - final_value
      */
-    public static function calculateComponentProperties(array $part, object $component): array
+    public static function calculateComponentProperties(object $part): array
     {
+        $component = Component::findOrFail($part->component_id);
+
         // Para component, os cálculos de peso não se aplicam; valores assumidos como zero
         $unitNetWeight   = 0;
         $netWeight       = 0;
@@ -328,8 +383,9 @@ class SetPartController extends Controller
         
         // O valor unitário já está definido no componente
         $unitValue  = $component->unit_value;
-        $quantity   = isset($part['quantity']) ? $part['quantity'] : 0;
-        $finalValue = $quantity * $unitValue;
+        $quantity   = isset($part->quantity) ? $part->quantity : 0;
+        $markup     = isset($part->markup) ? $part->markup : 1;
+        $finalValue = $quantity * $unitValue * $markup;
         
         return [
             'unit_net_weight'   => round($unitNetWeight, 2),

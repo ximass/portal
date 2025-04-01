@@ -10,22 +10,19 @@ class Material extends Model
 
     protected $fillable = [
         'name',
-        'type',
+        'thickness',
+        'specific_weight',
+        'price_kg'
     ];
 
-    public function sheet()
+    public function sheets()
     {
-        return $this->hasOne(Sheet::class, 'material_id');
+        return $this->hasMany(Sheet::class, 'material_id');
     }
 
-    public function bar()
+    public function bars()
     {
-        return $this->hasOne(Bar::class, 'material_id');
-    }
-
-    public function component()
-    {
-        return $this->hasOne(Component::class, 'material_id');
+        return $this->hasMany(Bar::class, 'material_id');
     }
 
     public function setParts()

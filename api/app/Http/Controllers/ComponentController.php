@@ -15,7 +15,7 @@ class ComponentController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'material_id'   => 'required|exists:materials,id',
+            'name'          => 'required|string|max:100',
             'specification' => 'nullable|string',
             'unit_value'    => 'required|numeric',
             'supplier'      => 'nullable|string',
@@ -37,6 +37,7 @@ class ComponentController extends Controller
     {
         $component = Component::findOrFail($materialId);
         $data = $request->validate([
+            'name'          => 'sometimes|required|string|max:100',
             'specification' => 'sometimes|nullable|string',
             'unit_value'    => 'sometimes|required|numeric',
             'supplier'      => 'sometimes|nullable|string',

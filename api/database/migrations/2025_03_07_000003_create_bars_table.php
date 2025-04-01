@@ -8,13 +8,13 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('bars', function (Blueprint $table) {
-            $table->unsignedBigInteger('material_id')->primary();
+            $table->id();
+            $table->unsignedBigInteger('material_id');
+            $table->string('name', 255);
             $table->decimal('diameter', 10, 2);
             $table->decimal('length', 10, 2);
-            $table->decimal('specific_weight', 10, 6);
-            $table->decimal('price_kg', 10, 4);
             $table->timestamps();
-
+            
             $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');
         });
     }

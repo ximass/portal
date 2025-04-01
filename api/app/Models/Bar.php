@@ -8,19 +8,15 @@ class Bar extends Model
 {
     protected $table = 'bars';
 
-    protected $primaryKey = 'material_id';
-    public $incrementing = false;
-
     // diameter and length are in mm
     // specific_weight is in kg/m3
     // price_kg is in BRL/kg
 
     protected $fillable = [
         'material_id',
+        'name',
         'diameter',
-        'length',
-        'specific_weight',
-        'price_kg',
+        'length'
     ];
 
     public function material()

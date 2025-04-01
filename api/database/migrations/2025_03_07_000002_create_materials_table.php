@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
-        DB::statement('DROP TYPE IF EXISTS material_type');
-        DB::statement("CREATE TYPE material_type AS ENUM ('sheet', 'bar', 'component')");
-
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->enum('type', ['sheet', 'bar', 'component']);
+            $table->string('name', 255);
+            $table->decimal('thickness', 10, 2);
+            $table->decimal('specific_weight', 10, 6);
+            $table->decimal('price_kg', 10, 4);
             $table->timestamps();
         });
     }
@@ -22,7 +21,5 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('materials');
-        
-        DB::statement('DROP TYPE IF EXISTS material_type');
     }
 };

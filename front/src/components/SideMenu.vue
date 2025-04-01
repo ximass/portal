@@ -56,8 +56,11 @@ export default defineComponent({
 
     const menuItems = [
       { title: 'Tela inicial', route: '/home', admin: false, icon: 'mdi-home' },
-      { title: 'Pedidos', route: '/orders', admin: false, icon: 'mdi-cart' },
+      { title: 'Orçamentos', route: '/orders', admin: false, icon: 'mdi-checkbook' },
       { title: 'Materiais', route: '/materials', admin: false, icon: 'mdi-cube' },
+      { title: 'Chapas', route: '/sheets', admin: false, icon: 'mdi-animation-outline' },
+      { title: 'Barras', route: '/bars', admin: false, icon: 'mdi-color-helper' },
+      { title: 'Componentes', route: '/components', admin: false, icon: 'mdi-screw-lag' },
       { title: 'Processos', route: '/processes', admin: false, icon: 'mdi-cogs' },
       { title: 'Clientes', route: '/customers', admin: false, icon: 'mdi-account-multiple' },
       { title: 'Grupos', route: '/groups', admin: true, icon: 'mdi-account-group' },

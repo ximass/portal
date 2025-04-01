@@ -1,62 +1,64 @@
-export interface MaterialType {
+export interface SetPartType {
   name: string;
-  value: 'sheet' | 'bar' | 'component';
+  value: 'material' | 'sheet' | 'bar' | 'component';
 }
 
-// Define a interface base, compartilhada pelas variações
-export interface BaseMaterial {
+export interface Material {
   id: number;
   name: string;
-  type: 'sheet' | 'bar' | 'component';
+  thickness: number;
+  specific_weight: number;
+  price_kg: number;
 }
 
 // Campos específicos de uma chapa
-export interface Sheet extends BaseMaterial {
-  type: 'sheet';
-  thickness: number;
+export interface Sheet {
+  id: number;
+  name: string;
+  material_id: number;
   width: number;
   length: number;
-  specific_weight: number;
-  price_kg: number;
 }
 
 // Campos específicos de uma barra
-export interface Bar extends BaseMaterial {
-  type: 'bar';
+export interface Bar {
+  id: number;
+  name: string;
+  material_id: number;
   diameter: number;
   length: number;
-  specific_weight: number;
-  price_kg: number;
 }
 
 // Campos específicos de um componente
-export interface Component extends BaseMaterial {
-  type: 'component';
+export interface Component {
+  id: number;
+  name: string;
   specification: string;
   unit_value: number;
   supplier: string;
 }
 
-// Material é uma união das interfaces específicas
-export type Material = Sheet | Bar | Component;
-
 export interface Part {
-  id: string;
-  set_id: string;
+  id: number;
+  set_id: number;
+  type: SetPartType['value'];
+  material_id: number | null;
+  sheet_id: number | null;
+  bar_id: number | null;
+  component_id: number | null;
   title: string;
-  content: string;
-  material_id: string;
+  content: string | null;
   quantity: number;
   unit_net_weight: number;
   unit_gross_weight: number;
   net_weight: number;
-  net_gross_weight: number;
+  gross_weight: number;
   unit_value: number;
   final_value: number;
   width: number;
   length: number;
-  loss: number;
-  markup: number;
+  loss: number | null;
+  markup: number | null;
 }
 
 export interface User {

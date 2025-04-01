@@ -13,7 +13,11 @@ class SetPart extends Model
         'title',
         'content',
         'set_id',
+        'type',
         'material_id',
+        'sheet_id',
+        'bar_id',
+        'component_id',
         'quantity',
         'unit_net_weight',
         'net_weight',
@@ -38,7 +42,22 @@ class SetPart extends Model
 
     public function material()
     {
-        return $this->belongsTo(Material::class);
+        return $this->hasOne(Material::class);
+    }
+
+    public function sheet()
+    {
+        return $this->hasOne(Sheet::class);
+    }
+
+    public function bar()
+    {
+        return $this->hasOne(Bar::class);
+    }
+
+    public function component()
+    {
+        return $this->hasOne(Component::class);
     }
 
     public function processes()

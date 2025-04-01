@@ -1,5 +1,5 @@
 <template>
-  <v-row align="center" justify="space-between" class="mb-4 pa-4">
+  <v-row align="center" justify="space-between" class="mb-4 pa-4 mt-4">
     <h3 class="text-h6">Processos</h3>
     <v-btn small color="primary" @click="addProcess">Adicionar</v-btn>
   </v-row>
@@ -87,13 +87,10 @@ export default defineComponent({
 
     const internalProcesses = ref<ProcessSelection[]>(flattenProcesses(props.modelValue));
 
-    console.log('internalProcesses', internalProcesses.value);
-
     const fetchProcessOptions = async () => {
       try {
         const { data } = await axios.get('/api/processes');
         processOptions.value = data;
-        console.log('processOptions', processOptions.value);
       } catch (error) {
         showToast({ message: 'Erro ao buscar processos: ' + error, type: 'error' });
       }

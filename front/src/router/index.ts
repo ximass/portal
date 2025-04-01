@@ -12,7 +12,9 @@ import ProcessView from '@/views/ProcessView.vue';
 import ProcessesView from '@/views/ProcessesView.vue';
 import CustomersView from '@/views/CustomersView.vue';
 import MaterialsView from '@/views/MaterialsView.vue';
-import MaterialView from '@/components/MaterialView.vue';
+import SheetsView from '@/views/SheetsView.vue';
+import BarsView from '@/views/BarsView.vue';
+import ComponentsView from '@/views/ComponentsView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -40,9 +42,21 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true, requiresAdmin: false },
   },
   {
-    path: '/material/:id',
-    name: 'MaterialView',
-    component: MaterialView,
+    path: '/sheets',
+    name: 'SheetsView',
+    component: SheetsView,
+    meta: { requiresAuth: true, requiresAdmin: false },
+  },
+  {
+    path: '/bars',
+    name: 'BarsView',
+    component: BarsView,
+    meta: { requiresAuth: true, requiresAdmin: false },
+  },
+  {
+    path: '/components',
+    name: 'ComponentsView',
+    component: ComponentsView,
     meta: { requiresAuth: true, requiresAdmin: false },
   },
   {

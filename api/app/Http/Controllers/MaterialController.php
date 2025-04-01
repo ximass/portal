@@ -7,21 +7,9 @@ use App\Models\Material;
 
 class MaterialController extends Controller
 {
-    const TYPES = [
-        ['name' => 'Chapa', 'value' => 'sheet'],
-        ['name' => 'Barra', 'value' => 'bar'],
-        ['name' => 'Componente', 'value' => 'component'],
-    ];
-
     public function index(Request $request)
     {
-        if ($request->has('type')) {
-            $materials = Material::where('type', $request->input('type'))
-                ->with(['sheet', 'bar', 'component'])
-                ->get();
-        } else {
-            $materials = Material::with(['sheet', 'bar', 'component'])->get();
-        }
+        $materials = Material::all();
 
         return response()->json($materials);
     }
@@ -29,8 +17,10 @@ class MaterialController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:100',
-            'type' => 'required|in:sheet,bar,component',
+            'name'            => 'required|string|max:100',
+            'thickness'       => 'required|numeric',
+            'specific_weight' => 'required|numeric',
+            'price_kg'        => 'required|numeric'
         ]);
 
         $material = Material::create($data);
@@ -40,14 +30,16 @@ class MaterialController extends Controller
 
     public function show(Material $material)
     {
-        return response()->json($material->load(['sheet', 'bar', 'component']));
+        return response()->json($material->load(['sheets', 'bars']));
     }
 
     public function update(Request $request, Material $material)
     {
         $data = $request->validate([
-            'name' => 'sometimes|required|string|max:100',
-            'type' => 'sometimes|required|in:sheet,bar,component',
+            'name'            => 'sometimes|required|string|max:100',
+            'thickness'       => 'sometimes|required|numeric',
+            'specific_weight' => 'sometimes|required|numeric',
+            'price_kg'        => 'sometimes|required|numeric'
         ]);
 
         $material->update($data);
@@ -60,10 +52,5 @@ class MaterialController extends Controller
         $material->delete();
 
         return response()->json(null, 204);
-    }
-
-    public function getMaterialsType()
-    {
-        return response()->json(self::TYPES);
     }
 }
