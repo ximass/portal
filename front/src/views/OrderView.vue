@@ -138,6 +138,51 @@
       </v-card-text>
     </v-card>
 
+    <!-- Listagem de conjuntos com tabelas analíticas -->
+    <v-card>
+      <v-card-text v-for="set in sets" :key="set.id">
+        <v-card-title>{{ set.name }}</v-card-title>
+        <!-- Tabela de peças agrupadas por conjuntos -->
+        <v-data-table
+          :headers="setPartsHeaders"
+          :items="set.setParts"
+          item-value="id"
+          class="elevation-1"
+          hide-default-footer
+        >
+          <template #item.final_value="{ item }">
+            {{ item.unit_value * item.quantity }}
+          </template>
+          <template #item.net_weight="{ item }">
+            {{ item.unit_net_weight * item.quantity }}
+          </template>
+          <template #item.gross_weight="{ item }">
+            {{ item.unit_gross_weight * item.quantity }}
+          </template>
+          <template #body.append>
+            <tr>
+              <td colspan="1" class="text-right font-weight-bold">Total:</td>
+              <td class="font-weight-bold">
+                {{ set.setParts.reduce((sum, part) => sum + part.unit_value, 0) }}
+              </td>
+              <td class="font-weight-bold">
+                {{ set.setParts.reduce((sum, part) => sum + part.quantity, 0) }}
+              </td>
+              <td class="font-weight-bold">
+                {{ set.setParts.reduce((sum, part) => sum + (part.unit_value * part.quantity), 0) }}
+              </td>
+              <td class="font-weight-bold">
+                {{ set.setParts.reduce((sum, part) => sum + (part.unit_gross_weight * part.quantity), 0) }}
+              </td>
+              <td class="font-weight-bold">
+                {{ set.setParts.reduce((sum, part) => sum + (part.unit_net_weight * part.quantity), 0) }}
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-card-text>
+    </v-card>
+
     <PartForm
       v-if="selectedPart"
       :part="selectedPart"
@@ -190,6 +235,15 @@ export default defineComponent({
     const sets = ref<OrderSet[]>([]);
     const showPartModal = ref(false);
     const selectedPart = ref<Part | null>(null);
+    const setParts = ref<Part[]>([]);
+    const setPartsHeaders = [
+      { title: 'Peça', value: 'title', sortable: true},
+      { title: 'Valor unitário', value: 'unit_value', sortable: true },
+      { title: 'Quantidade', value: 'quantity', sortable: true },
+      { title: 'Valor total', value: 'final_value', sortable: true },
+      { title: 'Peso bruto', value: 'gross_weight', sortable: true },
+      { title: 'Peso líquido', value: 'net_weight', sortable: true },
+    ];
 
     const updatePartInList = (updatedPart: Part) => {
       sets.value.forEach((set) => {
@@ -386,6 +440,8 @@ export default defineComponent({
       closePartModal,
       showPartModal,
       selectedPart,
+      setParts,
+      setPartsHeaders,
     };
   },
 });

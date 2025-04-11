@@ -37,7 +37,6 @@ Route::post('/set-parts/calculateProcessValue', [ProcessController::class, 'calc
 Route::apiResource('/groups', GroupController::class);
 Route::apiResource('/users', UserController::class);
 Route::apiResource('/orders', OrderController::class);
-Route::apiResource('/orders/{order}/order_parts', OrderPartController::class);
 Route::apiResource('/sets', SetController::class);
 Route::apiResource('/sets/{set}/parts', SetPartController::class);
 Route::apiResource('/processes', ProcessController::class);
