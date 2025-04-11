@@ -63,7 +63,7 @@ class SetPart extends Model
     public function processes()
     {
         return $this->belongsToMany(Process::class, 'part_process')
-                    ->withPivot('time', 'quantity')
+                    ->withPivot('time', 'final_value')
                     ->withTimestamps();
     }
 }

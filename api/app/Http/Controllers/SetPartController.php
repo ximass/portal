@@ -7,6 +7,7 @@ use App\Models\Material;
 use App\Models\Sheet;
 use App\Models\Bar;
 use App\Models\Component;
+use App\Models\Process;
 
 use App\Http\Controllers\ProcessController;
 
@@ -83,8 +84,8 @@ class SetPartController extends Controller
             foreach ($processes as $process) {
                 if (isset($process['id'])) {
                     $syncData[$process['id']] = [
-                        'time' => $process['pivot']['time'] ?? $process['time'] ?? 0,
-                        'final_value' => $process['pivot']['final_value'] ?? $process['final_value'] ?? 0,
+                        'time' => $process['pivot']['time'] ?? 0,
+                        'final_value' => $process['pivot']['final_value'] ?? 0,
                     ];
                 }
             }
@@ -154,8 +155,8 @@ class SetPartController extends Controller
             foreach ($processes as $process) {
                 if (isset($process['id'])) {
                     $syncData[$process['id']] = [
-                        'time' => $process['pivot']['time'] ?? $process['time'] ?? 0,
-                        'final_value' => $process['pivot']['final_value'] ?? $process['final_value'] ?? 0,
+                        'time' => $process['pivot']['time'] ??  0,
+                        'final_value' => $process['pivot']['final_value'] ?? 0,
                     ];
                 }
             }
@@ -218,23 +219,25 @@ class SetPartController extends Controller
     /**
      * Calcula as propriedades de uma part com base no tipo de material.
      *
-     * @param object $part Dados da part.
+     * @param object $part
      * @param object $material Dados do material, incluindo o tipo e suas propriedades específicas.
-     * @return array Array associativo com os campos calculados.
+     * @return object
      */
-    public static function calculateProperties(object $part): array
+    public static function calculateProperties(object $part): object
     {
         if ($part->type === 'material') {
-            return self::calculateMaterialProperties($part);
+            $part = self::calculateMaterialProperties($part);
         } elseif ($part->type === 'sheet') {
-            return self::calculateSheetProperties($part);
+            $part = self::calculateSheetProperties($part);
         } elseif ($part->type === 'bar') {
-            return self::calculateBarProperties($part);
+            $part = self::calculateBarProperties($part);
         } elseif ($part->type === 'component') {
-            return self::calculateComponentProperties($part);
+            $part = self::calculateComponentProperties($part);
         }
 
-        throw new \InvalidArgumentException('Invalid material type');
+        $part = self::calculatePartProcesses($part);
+
+        return $part;
     }
 
     public static function calculateMaterialProperties(object $part)
@@ -245,17 +248,11 @@ class SetPartController extends Controller
     /**
      * Calcula as propriedades de uma part para material do tipo "sheet".
      *
-     * @param array $part Dados da part. Deve conter 'quantity' e 'loss' (percentual de perda)
+     * @param object $part
      * @param object $sheet Objeto com os dados do sheet: width, length, thickness, specific_weight, price_kg
-     * @return array Array associativo com os campos calculados:
-     *               - unit_net_weight
-     *               - net_weight
-     *               - unit_gross_weight
-     *               - gross_weight
-     *               - unit_value
-     *               - final_value
+     * @return object 
      */
-    public static function calculateSheetProperties(object $part, $onlyMaterial = false): array
+    public static function calculateSheetProperties(object $part, $onlyMaterial = false): object
     {
         if ($onlyMaterial)
         {
@@ -294,31 +291,25 @@ class SetPartController extends Controller
         
         // Valor final considerando a quantidade
         $finalValue = $quantity * $unitValue;
-        
-        return [
-            'unit_net_weight'   => round($unitNetWeight, 2),
-            'net_weight'        => round($netWeight, 2),
-            'unit_gross_weight' => round($unitGrossWeight, 2),
-            'gross_weight'      => round($grossWeight, 2),
-            'unit_value'        => round($unitValue, 2),
-            'final_value'       => round($finalValue, 2),
-        ];
+
+        $part->unit_net_weight   = round($unitNetWeight, 2);
+        $part->net_weight        = round($netWeight, 2);
+        $part->unit_gross_weight = round($unitGrossWeight, 2);
+        $part->gross_weight      = round($grossWeight, 2);
+        $part->unit_value        = round($unitValue, 2);
+        $part->final_value       = round($finalValue, 2);
+
+        return $part;
     }
 
     /**
      * Calcula as propriedades de uma part para material do tipo "bar".
      *
-     * @param array $part Dados da part. Deve conter 'quantity' e 'loss' (percentual de perda)
+     * @param object $part
      * @param object $bar Objeto com os dados do bar: diameter, length, specific_weight, price_kg
-     * @return array Array associativo com os campos calculados:
-     *               - unit_net_weight
-     *               - net_weight
-     *               - unit_gross_weight
-     *               - gross_weight
-     *               - unit_value
-     *               - final_value
+     * @return object
      */
-    public static function calculateBarProperties(object $part): array
+    public static function calculateBarProperties(object $part): object
     {
         $bar = Bar::findOrFail($part->bar_id);
         $material = $bar->material;
@@ -348,30 +339,24 @@ class SetPartController extends Controller
         $unitValue  = $unitNetWeight * $material->price_kg;
         $finalValue = $quantity * $unitValue;
         
-        return [
-            'unit_net_weight'   => round($unitNetWeight, 2),
-            'net_weight'        => round($netWeight, 2),
-            'unit_gross_weight' => round($unitGrossWeight, 2),
-            'gross_weight'      => round($grossWeight, 2),
-            'unit_value'        => round($unitValue, 2),
-            'final_value'       => round($finalValue, 2),
-        ];
+        $part->unit_net_weight   = round($unitNetWeight, 2);
+        $part->net_weight        = round($netWeight, 2);
+        $part->unit_gross_weight = round($unitGrossWeight, 2);
+        $part->gross_weight      = round($grossWeight, 2);
+        $part->unit_value        = round($unitValue, 2);
+        $part->final_value       = round($finalValue, 2);
+
+        return $part;
     }
 
     /**
      * Calcula as propriedades de uma part para material do tipo "component".
      *
-     * @param array $part Dados da part. Deve conter 'quantity'
+     * @param object $part
      * @param object $component Objeto com os dados do component: unit_value
-     * @return array Array associativo com os campos calculados:
-     *               - unit_net_weight
-     *               - net_weight
-     *               - unit_gross_weight
-     *               - gross_weight
-     *               - unit_value
-     *               - final_value
+     * @return object
      */
-    public static function calculateComponentProperties(object $part): array
+    public static function calculateComponentProperties(object $part): object
     {
         $component = Component::findOrFail($part->component_id);
 
@@ -387,52 +372,35 @@ class SetPartController extends Controller
         $markup     = isset($part->markup) ? $part->markup : 1;
         $finalValue = $quantity * $unitValue * $markup;
         
-        return [
-            'unit_net_weight'   => round($unitNetWeight, 2),
-            'net_weight'        => round($netWeight, 2),
-            'unit_gross_weight' => round($unitGrossWeight, 2),
-            'gross_weight'      => round($grossWeight, 2),
-            'unit_value'        => round($unitValue, 2),
-            'final_value'       => round($finalValue, 2),
-        ];
+        $part->unit_net_weight   = round($unitNetWeight, 2);
+        $part->net_weight        = round($netWeight, 2);
+        $part->unit_gross_weight = round($unitGrossWeight, 2);
+        $part->gross_weight      = round($grossWeight, 2);
+        $part->unit_value        = round($unitValue, 2);
+        $part->final_value       = round($finalValue, 2);
+
+        return $part;
     }
 
-    public function calculatePartProcesses(Request $request)
+    public static function calculatePartProcesses(object $part)
     {
-        try
-        {
-            $setPart = SetPart::findOrFail($request->input('set_id'));
+        $processes = $part->processes ?? [];
 
-            return self::calculateProcesses($setPart);
-        } catch (\InvalidArgumentException $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-    }
+        foreach ($processes as $partProcess) {
+            if (!isset($partProcess['id'])) {
+                continue;
+            }
+            
+            $process = Process::findOrFail($partProcess['id']);
 
-    /**
-     * Calcula os valores dos processos associados a uma SetPart.
-     *
-     * @param \App\Models\SetPart $setPart
-     * @return array Array de arrays, cada qual contendo 'process_id' e o 'final_value' calculado.
-     */
-    public static function calculateProcesses(\App\Models\SetPart $setPart): array
-    {
-        $result = [];
-
-        foreach ($setPart->processes as $process) {
-            $response = ProcessController::calculateValue($process, [
-                'time'     => $process->pivot->time ?? 0,
-                'quantity' => $setPart->quantity ?? 1
+            $value = ProcessController::calculateValue($process, [
+                'time' => $partProcess['pivot']['time'] ?? 0
             ]);
 
-            $finalValue = $response['value'];
-
-            $result[] = [
-                'process_id' => $process->id,
-                'final_value' => round($finalValue, 2),
-            ];
+            $part->unit_value  += round($value, 2);
+            $part->final_value += round($value * $part->quantity ?? 1, 2);
         }
 
-        return $result;
+        return $part;
     }
 }

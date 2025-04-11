@@ -1,3 +1,18 @@
+export interface OrderForm {
+  customer_id: string;
+  delivery_type: string;
+  markup: string;
+  delivery_date: string;
+  payment_obs: string;
+}
+
+export interface OrderSet {
+  id?: number;
+  name?: string;
+  setParts: Part[];
+  fileList: File[] | null;
+}
+
 export interface SetPartType {
   name: string;
   value: 'material' | 'sheet' | 'bar' | 'component';
@@ -57,6 +72,7 @@ export interface Part {
   final_value: number;
   width: number;
   length: number;
+  diameter: number;
   loss: number | null;
   markup: number | null;
 }
@@ -81,8 +97,7 @@ export interface Process {
   value_per_minute: number;
 }
 
-export interface ProcessSelection {
-  id: number | null;
+export interface ProcessPivot {
   time: number;
-  quantity: number;
+  final_value: number;
 }

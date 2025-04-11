@@ -13,7 +13,6 @@ class CreatePartProcessTable extends Migration
             $table->foreignId('set_part_id')->constrained('set_parts')->onDelete('cascade');
             $table->foreignId('process_id')->constrained('processes')->onDelete('cascade');
             $table->integer('time');
-            $table->integer('quantity');
             $table->decimal('final_value', 10, 2)->nullable();
             $table->timestamps();
         });

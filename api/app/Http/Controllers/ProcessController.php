@@ -60,7 +60,6 @@ class ProcessController extends Controller
         $data = $request->validate([
             'process_id' => 'required|exists:processes,id',
             'time'       => 'required|numeric',
-            'quantity'   => 'nullable|numeric',
         ]);
 
         $process = Process::find($data['process_id']);
@@ -78,17 +77,13 @@ class ProcessController extends Controller
     /**
      * Calculate the value based on the process and properties.
      *
-     * @param Process $process
-     * @param array $properties
+     * @param object $process
+     * @param array  $properties
      * @return float
      */
-    public function calculateValue(Process $process, $properties)
+    public static function calculateValue($process, $properties)
     {
-        if (!isset($properties['quantity'])) {
-            $properties['quantity'] = 1;
-        }
-
-        $value = ($process->value_per_minute * $properties['time']) * $properties['quantity'];
+        $value = $process->value_per_minute * $properties['time'];
 
         return $value;
     }

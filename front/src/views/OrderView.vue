@@ -74,9 +74,9 @@
             />
           </v-col>
           <v-col cols="8" class="d-flex justify-end align-center">
-              <v-btn color="error" @click="deleteSet(setIndex)">
-                Excluir
-              </v-btn>
+            <v-btn color="error" @click="deleteSet(setIndex)">
+              Excluir
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-title>
@@ -93,48 +93,45 @@
           <v-row class="d-flex flex-row" dense>
             <v-col
               v-for="(part, partIndex) in setItem.setParts.slice().reverse()"
-              :key="partIndex"
+              :key="part.id"
               cols="auto"
               class="pa-2"
             >
-            <div
-              setPart
-              class="image-preview"
-            >
-              <v-img
-                :src="getPartImageUrl(part.content)"
-                width="150"
-                height="150"
-                contain
-              >
-                <template #error>
-                  <div
-                    style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background-color:#f0f0f0"
-                  >
-                    <v-icon large color="grey lighten-1">mdi-file</v-icon>
-                  </div>
-                </template>
-              </v-img>
-              <div class="counter">{{ partIndex + 1 }}</div>
-              <div class="overlay">
-                <span class="overlay-text">{{ part.title }}</span>
-                <v-menu offset-y>
-                  <template #activator="{ props }">
-                    <v-btn variant="plain" :ripple="false" v-bind="props" class="part-actions">
-                      <v-icon color="white">mdi-dots-vertical</v-icon>
-                    </v-btn>
+              <div setPart class="image-preview">
+                <v-img
+                  :src="getPartImageUrl(part.content!)"
+                  width="150"
+                  height="150"
+                  contain
+                >
+                  <template #error>
+                    <div
+                      style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background-color:#f0f0f0"
+                    >
+                      <v-icon large color="grey lighten-1">mdi-file</v-icon>
+                    </div>
                   </template>
-                  <v-list>
-                    <v-list-item @click.stop="openPartModal(part)">
-                      <v-list-item-title>Visualizar</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click.stop="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)">
-                      <v-list-item-title>Excluir</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                </v-img>
+                <div class="counter">{{ partIndex + 1 }}</div>
+                <div class="overlay">
+                  <span class="overlay-text">{{ part.title }}</span>
+                  <v-menu offset-y>
+                    <template #activator="{ props }">
+                      <v-btn variant="plain" :ripple="false" v-bind="props" class="part-actions">
+                        <v-icon color="white">mdi-dots-vertical</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item @click.stop="openPartModal(part)">
+                        <v-list-item-title>Visualizar</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item @click.stop="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)">
+                        <v-list-item-title>Excluir</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
               </div>
-            </div>
             </v-col>
           </v-row>
         </div>
@@ -162,6 +159,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 import axios from 'axios';
 import PartForm from '@/components/PartForm.vue';
+import { OrderForm, OrderSet, Part } from '@/types/types';
 
 export default defineComponent({
   name: 'Orders',
@@ -169,14 +167,14 @@ export default defineComponent({
     PartForm
   },
   setup() {
+    const { showToast } = useToast();
+
     const route = useRoute();
     const router = useRouter();
     const isNew = ref(route.params.id === 'new');
     const customers = ref<any[]>([]);
 
-    const { showToast } = useToast();
-
-    const form = ref({
+    const form = ref<OrderForm>({
       customer_id: '',
       delivery_type: '',
       markup: '',
@@ -189,28 +187,22 @@ export default defineComponent({
       { title: 'FOB', value: 'FOB' }
     ]);
 
-    const sets = ref<Array<{
-      id?: number;
-      name?: string;
-      setParts: { id: string, set_id: string, title: string; content: string }[];
-      fileList: File[] | null;
-    }>>([]);
-
+    const sets = ref<OrderSet[]>([]);
     const showPartModal = ref(false);
-    const selectedPart = ref(null);
+    const selectedPart = ref<Part | null>(null);
 
-    const updatePartInList = (updatedPart: any) => {
-      sets.value.forEach(set => {
-        const index = set.setParts.findIndex((part: any) => part.id === updatedPart.id);
+    const updatePartInList = (updatedPart: Part) => {
+      sets.value.forEach((set) => {
+        const index = set.setParts.findIndex((part) => part.id === updatedPart.id);
         if (index !== -1) {
           set.setParts[index] = updatedPart;
         }
       });
-      
+
       showToast('Peça atualizada com sucesso.', 'success');
     };
 
-    const openPartModal = (part: any) => {
+    const openPartModal = (part: Part) => {
       selectedPart.value = part;
       showPartModal.value = true;
     };
@@ -223,7 +215,6 @@ export default defineComponent({
     onMounted(async () => {
       try {
         const { data } = await axios.get('/api/customers');
-
         customers.value = data;
       } catch (error) {
         showToast('Erro ao carregar clientes', 'error');
@@ -232,7 +223,6 @@ export default defineComponent({
       if (!isNew.value && route.params.id) {
         try {
           const { data } = await axios.get(`/api/orders/${route.params.id}`);
-
           form.value.customer_id = data.customer_id;
           form.value.delivery_type = data.delivery_type;
           form.value.markup = data.markup;
@@ -243,12 +233,11 @@ export default defineComponent({
             sets.value = data.sets.map((s: any) => ({
               ...s,
               fileList: null,
-              setParts: [],
+              setParts: [] as Part[]
             }));
 
             for (const set of sets.value) {
               const { data } = await axios.get(`/api/sets/${set.id}/parts`);
-
               set.setParts = data;
             }
           }
@@ -268,7 +257,6 @@ export default defineComponent({
             delivery_date: form.value.delivery_date,
             payment_obs: form.value.payment_obs
           });
-
           isNew.value = false;
           router.push({ name: 'OrderView', params: { id: data.id } });
         } else {
@@ -280,7 +268,6 @@ export default defineComponent({
             payment_obs: form.value.payment_obs
           });
         }
-
         showToast('Pedido salvo com sucesso.', 'success');
       } catch (error) {
         showToast('Erro ao salvar pedido: ' + error, 'error');
@@ -292,7 +279,6 @@ export default defineComponent({
         showToast('Crie o pedido antes de adicionar conjuntos.', 'warning');
         return;
       }
-
       try {
         const { data } = await axios.post('/api/sets', {
           name: 'Novo conjunto',
@@ -301,7 +287,7 @@ export default defineComponent({
         sets.value.push({
           ...data,
           fileList: null,
-          setParts: [],
+          setParts: [] as Part[]
         });
       } catch (error) {
         showToast('Erro ao criar conjunto: ' + error, 'error');
@@ -311,13 +297,10 @@ export default defineComponent({
     const deleteSet = async (setIndex: number) => {
       try {
         const set = sets.value[setIndex];
-
         if (set.id) {
           await axios.delete(`/api/sets/${set.id}`);
-          
           sets.value.splice(setIndex, 1);
         }
-
         showToast('Conjunto excluído com sucesso.', 'success');
       } catch (error) {
         showToast('Erro ao excluir conjunto: ' + error, 'error');
@@ -327,13 +310,11 @@ export default defineComponent({
     const updateSetName = async (setIndex: number) => {
       try {
         const set = sets.value[setIndex];
-
         if (set.id) {
           await axios.put(`/api/sets/${set.id}`, {
             name: set.name,
           });
         }
-
         showToast('Nome do conjunto atualizado com sucesso.', 'success');
       } catch (error) {
         showToast('Erro ao atualizar nome do conjunto: ' + error, 'error');
@@ -342,7 +323,7 @@ export default defineComponent({
 
     watch(
       () => sets.value.map((s) => s.fileList),
-      (newValues, oldValues) => {
+      (newValues) => {
         newValues.forEach((files, index) => {
           if (files && files.length) handleFileUpload(index);
         });
@@ -353,25 +334,16 @@ export default defineComponent({
     const handleFileUpload = async (setIndex: number) => {
       const currentSet = sets.value[setIndex];
       const files = currentSet.fileList;
-
       if (files && files.length && currentSet.id) {
         for (const file of files) {
           const formData = new FormData();
-
           formData.append('file', file);
-          formData.append('set_id', currentSet.id!.toString());
-
+          formData.append('set_id', currentSet.id.toString());
           try {
             const response = await axios.post('/api/upload-set-part', formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
             });
-
-            currentSet.setParts.push({
-              id: response.data.id,
-              set_id: response.data.set_id,
-              title: response.data.title,
-              content: response.data.content,
-            });
+            currentSet.setParts.push(response.data);
           } catch (error) {
             showToast('Erro ao fazer upload de arquivo: ' + error, 'error');
           }
@@ -381,24 +353,21 @@ export default defineComponent({
     };
 
     const deletePart = (setIndex: number, partIndex: number) => {
-      try
-      {
+      try {
         const part = sets.value[setIndex].setParts[partIndex];
-  
         if (part.id) {
           axios.delete(`/api/sets/${part.set_id}/parts/${part.id}`);
           sets.value[setIndex].setParts.splice(partIndex, 1);
         }
-      }
-      catch (error) {
+      } catch (error) {
         showToast('Erro ao excluir peça: ' + error, 'error');
       }
     };
 
     const getPartImageUrl = (content: string) => {
-      const baseUrl = import.meta.env.VITE_API_URL
-      return `${baseUrl}${content}`
-    }
+      const baseUrl = import.meta.env.VITE_API_URL;
+      return `${baseUrl}${content}`;
+    };
 
     return {
       isNew,

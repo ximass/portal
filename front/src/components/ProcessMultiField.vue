@@ -14,12 +14,13 @@
           v-model="proc.id"
           required
           density="compact"
+          @change="calculateProcess(index)"
         />
       </v-col>
       <v-col cols="3">
         <v-text-field
           label="Valor por minuto"
-          :value="getValuePerMinute(proc.id)"
+          :model-value="getValuePerMinute(proc.id)"
           readonly
           density="compact"
           prefix="R$"
@@ -28,17 +29,18 @@
       <v-col cols="2">
         <v-text-field
           label="Tempo"
-          v-model="proc.time"
+          v-model="proc.pivot.time"
           type="number"
           required
           density="compact"
           hint="Em minutos"
+          @blur="calculateProcess(index)"
         />
       </v-col>
       <v-col cols="3">
         <v-text-field
           label="Valor final"
-          v-model="proc.final_value"
+          v-model="proc.pivot.final_value"
           type="number"
           density="compact"
           prefix="R$"
@@ -54,42 +56,39 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from 'vue';
+import { defineComponent, ref, onMounted, watch, PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
-import type { ProcessSelection } from '@/types/types';
+import type { Process, ProcessPivot } from '@/types/types';
 
 export default defineComponent({
   name: 'ProcessMultiField',
   props: {
     modelValue: {
-      type: Array as () => any[],
+      type: Array as PropType<Array<{ id: Process['id'] | null; pivot: ProcessPivot }>>,
       default: () => []
     }
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
     const { showToast } = useToast();
-    const processOptions = ref<Array<{ id: number; title: string; value_per_minute?: number }>>([]);
+    const processOptions = ref<Process[]>([]);
 
-    // Include final_value on each process object
-    const flattenProcesses = (processes: any[]): ProcessSelection[] => {
+    const flattenProcesses = (processes: Array<{ id: Process['id'] | null; pivot: ProcessPivot }>) => {
       return processes.map(proc => ({
         id: proc.id || null,
-        time: proc.hasOwnProperty('time')
-          ? proc.time
-          : (proc.pivot && proc.pivot.time ? proc.pivot.time : 0),
-        final_value: proc.hasOwnProperty('final_value')
-          ? proc.final_value
-          : (proc.pivot && proc.pivot.final_value ? proc.pivot.final_value : 0)
+        pivot: {
+          time: proc.pivot?.time ?? 0,
+          final_value: proc.pivot?.final_value ?? 0
+        }
       }));
     };
 
-    const internalProcesses = ref<ProcessSelection[]>(flattenProcesses(props.modelValue));
+    const internalProcesses = ref<Array<{ id: Process['id'] | null; pivot: ProcessPivot }>>(flattenProcesses(props.modelValue));
 
     const fetchProcessOptions = async () => {
       try {
-        const { data } = await axios.get('/api/processes');
+        const { data } = await axios.get<Process[]>('/api/processes');
         processOptions.value = data;
       } catch (error) {
         showToast({ message: 'Erro ao buscar processos: ' + error, type: 'error' });
@@ -99,8 +98,10 @@ export default defineComponent({
     const addProcess = () => {
       internalProcesses.value.push({
         id: null,
-        time: 0,
-        final_value: 0
+        pivot: {
+          time: 0,
+          final_value: 0
+        }
       });
     };
 
@@ -108,16 +109,32 @@ export default defineComponent({
       internalProcesses.value.splice(index, 1);
     };
 
-    // Returns the value_per_minute of the selected process
-    const getValuePerMinute = (id: number | null): number | string => {
+    const getValuePerMinute = (id: Process['id'] | null): number | string => {
       if (!id) return '';
-
       const found = processOptions.value.find(p => p.id === id);
-      
       return found?.value_per_minute ?? '';
     };
 
-    // Watch internalProcesses and emit changes only if there's a difference compared to the prop value.
+    const calculateProcess = async (index: number) => {
+      const proc = internalProcesses.value[index];
+
+      if (!proc.id || !proc.pivot.time) {
+        proc.pivot.final_value = 0;
+        return;
+      }
+
+      try {
+        const { data } = await axios.post<{ value: number }>('/api/set-parts/calculateProcessValue', {
+          process_id: proc.id,
+          time: proc.pivot.time
+        });
+        proc.pivot.final_value = data.value;
+      } catch (error) {
+        showToast({ message: 'Erro ao calcular valor do processo: ' + error, type: 'error' });
+        proc.pivot.final_value = 0;
+      }
+    };
+
     watch(
       () => internalProcesses.value,
       (newVal) => {
@@ -137,7 +154,8 @@ export default defineComponent({
       processOptions,
       addProcess,
       removeProcess,
-      getValuePerMinute
+      getValuePerMinute,
+      calculateProcess
     };
   }
 });

@@ -93,10 +93,18 @@
             <!-- Campos Complementares para material, sheet e bar -->
             <v-card v-if="localPart.type === 'material' || localPart.type === 'sheet' || localPart.type === 'bar'" class="pa-4">
               <v-row dense>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact"
-                    @blur="localPart.width = roundValue(localPart.width, 2)" suffix="mm"/>
-                </v-col>
+                <template v-if="localPart.type === 'material' || localPart.type === 'sheet'">
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact"
+                      @blur="localPart.width = roundValue(localPart.width, 2)" suffix="mm"/>
+                  </v-col>
+                </template>
+                <template v-if="localPart.type === 'bar'">
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field label="Diâmetro" v-model="localPart.diameter" type="number" required density="compact"
+                      @blur="localPart.diameter = roundValue(localPart.diameter, 2)" suffix="mm"/>
+                  </v-col>
+                </template>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Comprimento" v-model="localPart.length" type="number" required density="compact"
                     @blur="localPart.length = roundValue(localPart.length, 2)" suffix="mm"/>
@@ -176,7 +184,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch, computed, onMounted, nextTick } from 'vue';
+import { defineComponent, PropType, ref, watch, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
 import type { Part, Material, Sheet, Bar, Component } from '@/types/types';
@@ -194,11 +202,10 @@ export default defineComponent({
   setup(props, { emit }) {
     const { showToast } = useToast();
 
-    // Estado do formulário. Se for nova instância, inicializa com valores default.
     const localPart = ref<Part>(props.part ? { ...props.part } : {
       id: '',
       set_id: '',
-      type: '', // novo campo para selecionar o tipo (material, sheet, bar, component)
+      type: '',
       material_id: null,
       sheet_id: null,
       bar_id: null,
@@ -214,12 +221,15 @@ export default defineComponent({
       final_value: 0,
       width: 0,
       length: 0,
+      diameter: 0,
       loss: 0,
       markup: 0,
       processes: []
     });
 
-    // Opções para o seletor de tipo (usando a interface SetPartType)
+    // Flag to indicate if the component has mounted
+    const isMounted = ref(false);
+
     const setPartTypes = [
       { name: 'Material', value: 'material' },
       { name: 'Chapa', value: 'sheet' },
@@ -227,13 +237,11 @@ export default defineComponent({
       { name: 'Componente', value: 'component' }
     ];
 
-    // Dados para os seletores
     const materials = ref<Material[]>([]);
     const sheets = ref<Sheet[]>([]);
     const bars = ref<Bar[]>([]);
     const components = ref<Component[]>([]);
 
-    // Seletores internos
     const selectedMaterial = ref<number | null>(null);
     const selectedSheet = ref<number | null>(null);
     const selectedBar = ref<number | null>(null);
@@ -280,10 +288,8 @@ export default defineComponent({
 
     const fillMaterialDetails = async (materialId: number | null) => {
       if (!materialId) return;
-
       try {
         const { data } = await axios.get(`/api/materials/${materialId}`);
-
         localPart.value.material_id = data.id;
       } catch (error) {
         showToast('Erro ao buscar material', 'error');
@@ -319,14 +325,13 @@ export default defineComponent({
       try {
         const { data } = await axios.get(`/api/components/${componentId}`);
         localPart.value.component_id = data.id;
-        localPart.value.markup = data.unit_value; // exemplo: usar unit_value do componente para markup
+        localPart.value.markup = data.unit_value;
       } catch (error) {
         showToast('Erro ao buscar componente', 'error');
       }
     };
 
     const onTypeChange = (newType: string) => {
-      // Limpar todos os seletores conforme o tipo muda
       selectedMaterial.value = null;
       selectedSheet.value = null;
       selectedBar.value = null;
@@ -336,19 +341,16 @@ export default defineComponent({
       if (newType === 'material' || newType === 'sheet' || newType === 'bar') {
         fetchMaterials();
       }
-
       if (newType === 'sheet') fetchSheets();
       if (newType === 'bar') fetchBars();
       if (newType === 'component') fetchComponents();
     };
 
     const calculateProperties = async () => {
-
       try {
         const { data } = await axios.post('/api/set-parts/calculateProperties', {
           part: localPart.value
         });
-
         localPart.value.unit_net_weight = data.unit_net_weight;
         localPart.value.net_weight = data.net_weight;
         localPart.value.unit_gross_weight = data.unit_gross_weight;
@@ -363,16 +365,13 @@ export default defineComponent({
     const savePart = async () => {
       if (!localPart.value.id || !localPart.value.set_id) return;
       try {
-        // Prepare payload conforme o tipo selecionado
         const payload = { 
           ...localPart.value,
-          // Use os IDs selecionados nos campos apropriados
           material_id: localPart.value.type === 'component' ? null : selectedMaterial.value,
           sheet_id: localPart.value.type === 'sheet' ? selectedSheet.value : null,
           bar_id: localPart.value.type === 'bar' ? selectedBar.value : null,
           component_id: localPart.value.type === 'component' ? selectedComponent.value : null
         };
-
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, payload);
         emit('part-saved', localPart.value);
         emit('close');
@@ -385,21 +384,22 @@ export default defineComponent({
       emit('close');
     };
 
-    // Se a part é passada via prop, preenche o formulário
+    // Atualiza o formulário quando a prop "part" é modificada
     watch(() => props.part, (newVal) => {
       if (newVal) {
         localPart.value = { ...newVal };
-        // Se já houver tipo definido, recarregar os dados correspondentes
-        if (localPart.value.type) {
+        // Chamar onTypeChange apenas se o componente já foi montado
+        if (isMounted.value && localPart.value.type) {
           onTypeChange(localPart.value.type);
         }
       }
-    }, { deep: true, immediate: true });
+    }, { deep: true });
 
     watch(
       () => [
         localPart.value.width,
         localPart.value.length,
+        localPart.value.diameter,
         localPart.value.quantity,
         localPart.value.unit_net_weight,
         localPart.value.unit_gross_weight,
@@ -411,8 +411,30 @@ export default defineComponent({
     );
 
     onMounted(() => {
-      // Caso seja uma nova instância (sem part) não tenha tipo definido ainda
-    });
+      isMounted.value = true;
+      
+      if (localPart.value.type) {
+          (async () => {
+              if (localPart.value.type === 'material' || localPart.value.type === 'sheet' || localPart.value.type === 'bar') {
+                  await fetchMaterials();
+              }
+              if (localPart.value.type === 'sheet') {
+                  await fetchSheets();
+              }
+              if (localPart.value.type === 'bar') {
+                  await fetchBars();
+              }
+              if (localPart.value.type === 'component') {
+                  await fetchComponents();
+              }
+              
+              selectedMaterial.value = localPart.value.material_id;
+              selectedSheet.value = localPart.value.sheet_id;
+              selectedBar.value = localPart.value.bar_id;
+              selectedComponent.value = localPart.value.component_id;
+          })();
+      }
+});
 
     return {
       localPart,
