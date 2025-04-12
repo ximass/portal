@@ -9,16 +9,18 @@ class BarController extends Controller
 {
     public function index()
     {
-        return response()->json(Bar::with('material')->get());
+        $bars = Bar::all();
+
+        return response()->json($bars);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'material_id'    => 'required|exists:materials,id',
             'name'           => 'required|string|max:255',
-            'diameter'       => 'required|numeric',
+            'weight'         => 'required|numeric',
             'length'         => 'required|numeric',
+            'price_kg'       => 'required|numeric',
         ]);
 
         $bar = Bar::create($data);
@@ -26,19 +28,21 @@ class BarController extends Controller
         return response()->json($bar, 201);
     }
 
-    public function show($materialId)
+    public function show($barId)
     {
-        $bar = Bar::with('material')->findOrFail($materialId);
+        $bar = Bar::findOrFail($barId);
 
         return response()->json($bar);
     }
 
-    public function update(Request $request, $materialId)
+    public function update(Request $request, $barId)
     {
-        $bar = Bar::findOrFail($materialId);
+        $bar = Bar::findOrFail($barId);
         $data = $request->validate([
-            'diameter'       => 'sometimes|required|numeric',
+            'name'           => 'sometimes|required|string|max:255',
+            'weight'         => 'sometimes|required|numeric',
             'length'         => 'sometimes|required|numeric',
+            'price_kg'       => 'sometimes|required|numeric',
         ]);
 
         $bar->update($data);
@@ -46,9 +50,9 @@ class BarController extends Controller
         return response()->json($bar);
     }
 
-    public function destroy($materialId)
+    public function destroy($barId)
     {
-        $bar = Bar::findOrFail($materialId);
+        $bar = Bar::findOrFail($barId);
         $bar->delete();
 
         return response()->json(null, 204);

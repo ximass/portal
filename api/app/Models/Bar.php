@@ -8,19 +8,14 @@ class Bar extends Model
 {
     protected $table = 'bars';
 
-    // diameter and length are in mm
-    // specific_weight is in kg/m3
+    // length is in mm
+    // weight is in kg
     // price_kg is in BRL/kg
 
     protected $fillable = [
-        'material_id',
         'name',
-        'diameter',
-        'length'
+        'weight',
+        'length',
+        'price_kg'
     ];
-
-    public function material()
-    {
-        return $this->belongsTo(Material::class, 'material_id');
-    }
 }

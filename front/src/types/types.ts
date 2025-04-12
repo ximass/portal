@@ -39,9 +39,9 @@ export interface Sheet {
 export interface Bar {
   id: number;
   name: string;
-  material_id: number;
-  diameter: number;
   length: number;
+  weight: number;
+  price_kg: number;
 }
 
 // Campos específicos de um componente
@@ -72,7 +72,6 @@ export interface Part {
   final_value: number;
   width: number;
   length: number;
-  diameter: number;
   loss: number | null;
   markup: number | null;
 }

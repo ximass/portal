@@ -239,7 +239,7 @@ export default defineComponent({
     const setPartsHeaders = [
       { title: 'Peça', value: 'title', sortable: true},
       { title: 'Valor unitário', value: 'unit_value', sortable: true },
-      { title: 'Quantidade', value: 'quantity', sortable: true },
+      { title: 'Qtd.', value: 'quantity', sortable: true },
       { title: 'Valor total', value: 'final_value', sortable: true },
       { title: 'Peso bruto', value: 'gross_weight', sortable: true },
       { title: 'Peso líquido', value: 'net_weight', sortable: true },

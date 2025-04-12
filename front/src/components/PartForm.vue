@@ -31,7 +31,7 @@
             </v-row>
 
             <!-- Para 'material', 'sheet' e 'bar', exibe seletor de Material -->
-            <v-row dense v-if="localPart.type === 'material' || localPart.type === 'sheet' || localPart.type === 'bar'">
+            <v-row dense v-if="localPart.type === 'material' || localPart.type === 'sheet'">
               <v-col cols="12">
                 <v-select
                   label="Material"
@@ -97,12 +97,6 @@
                   <v-col cols="12" md="4" small="6">
                     <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact"
                       @blur="localPart.width = roundValue(localPart.width, 2)" suffix="mm"/>
-                  </v-col>
-                </template>
-                <template v-if="localPart.type === 'bar'">
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field label="Diâmetro" v-model="localPart.diameter" type="number" required density="compact"
-                      @blur="localPart.diameter = roundValue(localPart.diameter, 2)" suffix="mm"/>
                   </v-col>
                 </template>
                 <v-col cols="12" md="4" small="6">
@@ -221,7 +215,6 @@ export default defineComponent({
       final_value: 0,
       width: 0,
       length: 0,
-      diameter: 0,
       loss: 0,
       markup: 0,
       processes: []
@@ -312,8 +305,8 @@ export default defineComponent({
       if (!barId) return;
       try {
         const { data } = await axios.get(`/api/bars/${barId}`);
+
         localPart.value.bar_id = data.id;
-        localPart.value.width = data.width;
         localPart.value.length = data.length;
       } catch (error) {
         showToast('Erro ao buscar barra', 'error');
@@ -338,7 +331,7 @@ export default defineComponent({
       selectedComponent.value = null;
 
       // Carregar os dados conforme o novo tipo
-      if (newType === 'material' || newType === 'sheet' || newType === 'bar') {
+      if (newType === 'material' || newType === 'sheet') {
         fetchMaterials();
       }
       if (newType === 'sheet') fetchSheets();
@@ -367,7 +360,7 @@ export default defineComponent({
       try {
         const payload = { 
           ...localPart.value,
-          material_id: localPart.value.type === 'component' ? null : selectedMaterial.value,
+          material_id: localPart.value.type === 'material' ? selectedMaterial.value : null,
           sheet_id: localPart.value.type === 'sheet' ? selectedSheet.value : null,
           bar_id: localPart.value.type === 'bar' ? selectedBar.value : null,
           component_id: localPart.value.type === 'component' ? selectedComponent.value : null
@@ -399,7 +392,6 @@ export default defineComponent({
       () => [
         localPart.value.width,
         localPart.value.length,
-        localPart.value.diameter,
         localPart.value.quantity,
         localPart.value.unit_net_weight,
         localPart.value.unit_gross_weight,
@@ -415,7 +407,7 @@ export default defineComponent({
       
       if (localPart.value.type) {
           (async () => {
-              if (localPart.value.type === 'material' || localPart.value.type === 'sheet' || localPart.value.type === 'bar') {
+              if (localPart.value.type === 'material' || localPart.value.type === 'sheet') {
                   await fetchMaterials();
               }
               if (localPart.value.type === 'sheet') {

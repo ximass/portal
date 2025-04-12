@@ -6,21 +6,36 @@
       </v-card-title>
       <v-card-text>
         <v-form ref="form" @submit.prevent="submitForm">
-          <v-select
-            label="Material"
-            :items="materials"
-            item-title="name"
-            item-value="id"
-            v-model="formData.material_id"
-            :rules="[v => !!v || 'Material é obrigatório']"
-            required
+          <v-text-field 
+            label="Nome" 
+            v-model="formData.name" 
+            :rules="[v => !!v || 'Nome é obrigatório']" 
+            required 
           />
-          <v-text-field label="Nome" v-model="formData.name" :rules="[v => !!v || 'Nome é obrigatório']"
-            required />
-          <v-text-field label="Diâmetro (mm)" v-model="formData.diameter" type="number"
-            :rules="[v => !!v || 'Diâmetro é obrigatório']" required />
-          <v-text-field label="Comprimento (mm)" v-model="formData.length" type="number"
-            :rules="[v => !!v || 'Comprimento é obrigatório']" required />
+          <v-text-field 
+            label="Comprimento (mm)" 
+            v-model="formData.length" 
+            type="number"
+            :rules="[v => !!v || 'Comprimento é obrigatório']" 
+            required 
+            suffix="mm" 
+          />
+          <v-text-field 
+            label="Peso (kg)" 
+            v-model="formData.weight" 
+            type="number" 
+            :rules="[v => !!v || 'Peso é obrigatório']"
+            required 
+            suffix="kg" 
+          />
+          <v-text-field 
+            label="Preço (R$/kg)" 
+            v-model="formData.price_kg" 
+            type="number"
+            :rules="[v => !!v || 'Preço é obrigatório']" 
+            required 
+            suffix="R$/kg" 
+          />
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -38,7 +53,7 @@
 import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
-import type { Bar, Material } from '@/types/types';
+import type { Bar } from '@/types/types';
 
 export default defineComponent({
   name: 'BarForm',
@@ -46,7 +61,7 @@ export default defineComponent({
     dialog: { type: Boolean, required: true },
     barData: {
       type: Object as PropType<Bar>,
-      default: () => ({ id: null, name: '', material_id: null, diameter: null, length: null }),
+      default: () => ({ id: null, name: '', length: null, weight: null, price_kg: null }),
     },
     isEdit: { type: Boolean, default: false },
   },
@@ -56,26 +71,12 @@ export default defineComponent({
     const form = ref();
     const formData = ref<Bar>({
       id: null,
-      material_id: null,
       name: '',
-      diameter: null,
       length: null,
+      weight: null,
+      price_kg: null,
     });
-    const materials = ref<Material[]>([]);
     const { showToast } = useToast();
-
-    const fetchMaterials = async () => {
-      try {
-        const { data } = await axios.get('/api/materials');
-        materials.value = data;
-      } catch (error: any) {
-        showToast(error.response?.data?.message || 'Erro ao buscar materiais', 'error');
-      }
-    };
-
-    onMounted(() => {
-      fetchMaterials();
-    });
 
     watch(() => props.barData, (newVal) => {
       formData.value = { ...newVal };
@@ -104,7 +105,7 @@ export default defineComponent({
       }
     };
 
-    return { internalDialog, form, formData, materials, closeDialog, submitForm };
+    return { internalDialog, form, formData, closeDialog, submitForm };
   },
 });
 </script>

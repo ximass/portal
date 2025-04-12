@@ -48,9 +48,10 @@ export default defineComponent({
 
     const headers = [
       { title: 'Código', value: 'id' },
-      { title: 'Material', value: 'material.name' },
-      { title: 'Diâmetro (mm)', value: 'diameter' },
+      { title: 'Nome', value: 'name' },
       { title: 'Comprimento (mm)', value: 'length' },
+      { title: 'Peso (kg)', value: 'weight' },
+      { title: 'Preço por kg', value: 'price_kg' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 

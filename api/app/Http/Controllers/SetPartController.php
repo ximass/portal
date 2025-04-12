@@ -225,6 +225,18 @@ class SetPartController extends Controller
      */
     public static function calculateProperties(object $part): object
     {
+        // Force zero weights and values when quantity is missing or zero
+        if (!isset($part->quantity) || $part->quantity == 0) {
+            $part->unit_net_weight   = 0;
+            $part->net_weight        = 0;
+            $part->unit_gross_weight = 0;
+            $part->gross_weight      = 0;
+            $part->unit_value        = 0;
+            $part->final_value       = 0;
+            
+            return $part;
+        }
+
         if ($part->type === 'material') {
             $part = self::calculateMaterialProperties($part);
         } elseif ($part->type === 'sheet') {
@@ -306,38 +318,29 @@ class SetPartController extends Controller
      * Calcula as propriedades de uma part para material do tipo "bar".
      *
      * @param object $part
-     * @param object $bar Objeto com os dados do bar: diameter, length, specific_weight, price_kg
      * @return object
      */
     public static function calculateBarProperties(object $part): object
     {
         $bar = Bar::findOrFail($part->bar_id);
-        $material = $bar->material;
 
-        // Converter medidas: diâmetro e comprimento de mm para m
-        $diameterInMeters = $part->diameter / 1000;
-        $lengthInMeters   = $part->length / 1000;
+        // Proporção do comprimento utilizado
+        $proportion = $bar->length > 0 ? $part->length / $bar->length : 0;
         
-        // Peso específico de g/mm³ em kg/m³
-        $specificWeight = $material->specific_weight * 1000 * 1000;
+        // Peso parcial da barra conforme a proporção
+        $partialWeight = $bar->weight * $proportion;
         
-        // Área da seção transversal: A = π * (raio)²
-        $radius = $diameterInMeters / 2;
-        $area = pi() * ($radius ** 2);
-        
-        // Peso unitário líquido = volume (área * comprimento) * peso específico
-        $unitNetWeight = $area * $lengthInMeters * $specificWeight;
-        
-        $loss   = isset($part->loss) ? round($part->loss, 2) : 0;
-        $factor = (100 - $loss) / 100;
+        $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
+        $factor   = (100 - $loss) / 100;
         $quantity = isset($part->quantity) ? $part->quantity : 0;
         
-        $netWeight       = $quantity * $unitNetWeight * $factor;
-        $unitGrossWeight = $unitNetWeight;
-        $grossWeight     = $netWeight;
+        $unitNetWeight   = $partialWeight * $factor;
+        $netWeight       = $unitNetWeight * $quantity;
+        $unitGrossWeight = $partialWeight;
+        $grossWeight     = $partialWeight * $quantity;
         
-        $unitValue  = $unitNetWeight * $material->price_kg;
-        $finalValue = $quantity * $unitValue;
+        $unitValue  = $unitNetWeight * $bar->price_kg;
+        $finalValue = $unitValue * $quantity;
         
         $part->unit_net_weight   = round($unitNetWeight, 2);
         $part->net_weight        = round($netWeight, 2);
@@ -345,7 +348,7 @@ class SetPartController extends Controller
         $part->gross_weight      = round($grossWeight, 2);
         $part->unit_value        = round($unitValue, 2);
         $part->final_value       = round($finalValue, 2);
-
+        
         return $part;
     }
 

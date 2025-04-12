@@ -20,11 +20,6 @@ class Material extends Model
         return $this->hasMany(Sheet::class, 'material_id');
     }
 
-    public function bars()
-    {
-        return $this->hasMany(Bar::class, 'material_id');
-    }
-
     public function setParts()
     {
         return $this->hasMany(SetPart::class, 'material_id');
