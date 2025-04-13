@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card class="mb-4">
-      <v-card-title>Pedido</v-card-title>
+      <v-card-title>Orçamento</v-card-title>
       <v-card-text>
         <v-form ref="formRef">
           <v-row>

@@ -1,7 +1,7 @@
 <template>
     <v-container style="padding: 50px;">
       <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
-        <h2>Pedidos</h2>
+        <h2>Orçamentos</h2>
         <v-btn color="primary" @click="openForm">Novo</v-btn>
       </v-row>
       <v-data-table

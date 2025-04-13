@@ -63,8 +63,8 @@ export default defineComponent({
       { title: 'Componentes', route: '/components', admin: false, icon: 'mdi-screw-lag' },
       { title: 'Processos', route: '/processes', admin: false, icon: 'mdi-cogs' },
       { title: 'Clientes', route: '/customers', admin: false, icon: 'mdi-account-multiple' },
-      { title: 'Grupos', route: '/groups', admin: true, icon: 'mdi-account-group' },
       { title: 'Usuários', route: '/users', admin: true, icon: 'mdi-account' },
+      { title: 'Grupos', route: '/groups', admin: true, icon: 'mdi-account-group' },
     ];
 
     const filteredMenuItems = computed(() => {

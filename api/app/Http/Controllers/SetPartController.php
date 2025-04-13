@@ -207,11 +207,14 @@ class SetPartController extends Controller
 
     public function calculatePartProperties(Request $request)
     {
-        $part = (object) $request->input('part');
+        $partData = $request->input('part');
 
-        try
-        {
-            return $this->calculateProperties($part);
+        $part = new SetPart($partData);
+        $part->setAttribute('processes', $request->input('part.processes', []));
+
+        try {
+            $calculatedPart = self::calculateProperties($part);
+            return response()->json($calculatedPart);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -294,7 +297,7 @@ class SetPartController extends Controller
         $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor   = (100 - $loss) / 100;
         $quantity = isset($part->quantity) ? $part->quantity : 0;
-        $markup   = !empty($part->order->markup) ? $part->order->markup : 1;
+        $markup   = !empty($part->set->order->markup) ? $part->set->order->markup : 1;
         
         // Cálculo dos pesos unitários:
         $unitNetWeight   = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight * $factor;
@@ -337,7 +340,7 @@ class SetPartController extends Controller
         $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor   = (100 - $loss) / 100;
         $quantity = isset($part->quantity) ? $part->quantity : 0;
-        $markup   = !empty($part->order->markup) ? $part->order->markup : 1;
+        $markup   = !empty($part->set->order->markup) ? $part->set->order->markup : 1;
         
         $unitNetWeight   = $partialWeight * $factor;
         $netWeight       = $unitNetWeight * $quantity;
@@ -377,7 +380,7 @@ class SetPartController extends Controller
         // O valor unitário já está definido no componente
         $unitValue = $component->unit_value;
         $quantity  = isset($part->quantity) ? $part->quantity : 0;
-        $markup    = !empty($part->markup) ? $part->markup : (!empty($part->order->markup) ? $part->order->markup : 1);
+        $markup    = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
         
         $finalValue = $quantity * $unitValue * $markup;
         
