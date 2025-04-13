@@ -291,23 +291,21 @@ class SetPartController extends Controller
         $specificWeight = $material->specific_weight * 1000 * 1000;
         
         // Fator de perda (ex.: se perda for 5%, fator = 0.95) e arredonda loss para 2 casas
-        $loss   = isset($part->loss) ? round($part->loss, 2) : 0;
-        $factor = (100 - $loss) / 100;
+        $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
+        $factor   = (100 - $loss) / 100;
+        $quantity = isset($part->quantity) ? $part->quantity : 0;
+        $markup   = !empty($part->order->markup) ? $part->order->markup : 1;
         
         // Cálculo dos pesos unitários:
         $unitNetWeight   = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight * $factor;
         $unitGrossWeight = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight;
-        
-        $quantity = isset($part->quantity) ? $part->quantity : 0;
         
         // Pesos totais
         $netWeight   = $unitNetWeight * $quantity;
         $grossWeight = $unitGrossWeight * $quantity;
         
         // Valor unitário com base no peso unitário e preço por kg
-        $unitValue  = $unitNetWeight * $material->price_kg;
-        
-        // Valor final considerando a quantidade
+        $unitValue  = $unitNetWeight * $material->price_kg * $markup;
         $finalValue = $quantity * $unitValue;
 
         $part->unit_net_weight   = round($unitNetWeight, 2);
@@ -339,13 +337,14 @@ class SetPartController extends Controller
         $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor   = (100 - $loss) / 100;
         $quantity = isset($part->quantity) ? $part->quantity : 0;
+        $markup   = !empty($part->order->markup) ? $part->order->markup : 1;
         
         $unitNetWeight   = $partialWeight * $factor;
         $netWeight       = $unitNetWeight * $quantity;
         $unitGrossWeight = $partialWeight;
         $grossWeight     = $partialWeight * $quantity;
         
-        $unitValue  = $unitNetWeight * $bar->price_kg;
+        $unitValue  = $unitNetWeight * $bar->price_kg * $markup;
         $finalValue = $unitValue * $quantity;
         
         $part->unit_net_weight   = round($unitNetWeight, 2);
@@ -376,9 +375,10 @@ class SetPartController extends Controller
         $grossWeight     = 0;
         
         // O valor unitário já está definido no componente
-        $unitValue  = $component->unit_value;
-        $quantity   = isset($part->quantity) ? $part->quantity : 0;
-        $markup     = isset($part->markup) ? $part->markup : 1;
+        $unitValue = $component->unit_value;
+        $quantity  = isset($part->quantity) ? $part->quantity : 0;
+        $markup    = !empty($part->markup) ? $part->markup : (!empty($part->order->markup) ? $part->order->markup : 1);
+        
         $finalValue = $quantity * $unitValue * $markup;
         
         $part->unit_net_weight   = round($unitNetWeight, 2);
