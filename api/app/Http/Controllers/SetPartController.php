@@ -38,6 +38,7 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'required|string|max:255',
             'content'          => 'required|string',
+            'obs'              => 'sometimes|nullable|string',
             'type'             => 'sometimes|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
@@ -59,6 +60,7 @@ class SetPartController extends Controller
         $setPart = SetPart::create([
             'title'            => $request->title,
             'content'          => $request->content,
+            'obs'              => $request->input('obs'),
             'set_id'           => $setId,
             'type'             => $request->input('type'),
             'material_id'      => $request->input('material_id'),
@@ -109,6 +111,7 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'sometimes|required|string|max:255',
             'content'          => 'sometimes|required|string',
+            'obs'              => 'sometimes|nullable|string',
             'type'             => 'sometimes|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
@@ -131,6 +134,7 @@ class SetPartController extends Controller
         $setPart->update($request->only(
             'title',
             'content',
+            'obs',
             'type',
             'material_id',
             'sheet_id',

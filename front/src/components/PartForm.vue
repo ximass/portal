@@ -15,6 +15,17 @@
           </v-col>
           <!-- Right: Form panel -->
           <v-col cols="6" class="dense-form">
+            <v-row dense style="margin-top: -40px;">
+              <v-col cols="12">
+                <v-text-field
+                  label="Referência"
+                  v-model="localPart.obs"
+                  variant="underlined"
+                  clearable
+                />
+              </v-col>
+            </v-row>
+
             <!-- Card 0: Seletor do tipo de part -->
             <v-row dense>
               <v-col cols="12">
@@ -206,6 +217,7 @@ export default defineComponent({
       component_id: null,
       title: '',
       content: '',
+      obs: '',
       quantity: 0,
       unit_net_weight: 0,
       unit_gross_weight: 0,
@@ -359,10 +371,11 @@ export default defineComponent({
 
     const savePart = async () => {
       if (!localPart.value.id || !localPart.value.set_id) return;
+
       try {
         const payload = { 
           ...localPart.value,
-          material_id: localPart.value.type === 'material' ? selectedMaterial.value : null,
+          material_id: (localPart.value.type === 'material' || localPart.value.type === 'sheet') ? selectedMaterial.value : null,
           sheet_id: localPart.value.type === 'sheet' ? selectedSheet.value : null,
           bar_id: localPart.value.type === 'bar' ? selectedBar.value : null,
           component_id: localPart.value.type === 'component' ? selectedComponent.value : null

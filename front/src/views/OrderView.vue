@@ -163,19 +163,19 @@
             <tr>
               <td colspan="1" class="text-right font-weight-bold">Total:</td>
               <td class="font-weight-bold">
-                {{ set.setParts.reduce((sum, part) => sum + part.unit_value, 0) }}
+                {{ computedTotal(set.setParts, part => part.unit_value) }}
               </td>
               <td class="font-weight-bold">
-                {{ set.setParts.reduce((sum, part) => sum + part.quantity, 0) }}
+                {{ computedTotal(set.setParts, part => part.quantity) }}
               </td>
               <td class="font-weight-bold">
-                {{ set.setParts.reduce((sum, part) => sum + (part.unit_value * part.quantity), 0) }}
+                {{ computedTotal(set.setParts, part => part.unit_value * part.quantity) }}
               </td>
               <td class="font-weight-bold">
-                {{ set.setParts.reduce((sum, part) => sum + (part.unit_gross_weight * part.quantity), 0) }}
+                {{ computedTotal(set.setParts, part => part.unit_gross_weight * part.quantity) }}
               </td>
               <td class="font-weight-bold">
-                {{ set.setParts.reduce((sum, part) => sum + (part.unit_net_weight * part.quantity), 0) }}
+                {{ computedTotal(set.setParts, part => part.unit_net_weight * part.quantity) }}
               </td>
             </tr>
           </template>
@@ -423,6 +423,10 @@ export default defineComponent({
       return `${baseUrl}${content}`;
     };
 
+    const computedTotal = (items: Part[], fn: (item: Part) => number): number => {
+      return items.reduce((total, item) => Number(total) + Number(fn(item)), 0);
+    };
+
     return {
       isNew,
       form,
@@ -436,6 +440,7 @@ export default defineComponent({
       deletePart,
       updatePartInList,
       getPartImageUrl,
+      computedTotal,
       openPartModal,
       closePartModal,
       showPartModal,

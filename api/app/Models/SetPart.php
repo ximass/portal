@@ -12,6 +12,7 @@ class SetPart extends Model
     protected $fillable = [
         'title',
         'content',
+        'obs',
         'set_id',
         'type',
         'material_id',
