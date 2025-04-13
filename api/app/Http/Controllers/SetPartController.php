@@ -20,7 +20,8 @@ class SetPartController extends Controller
         'material' => 'Material',
         'sheet'    => 'Sheet',
         'bar'      => 'Bar',
-        'component'=> 'Component'
+        'component'=> 'Component',
+        'process'  => 'Process',
     ];
 
     public function index($setId)
@@ -37,7 +38,7 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'required|string|max:255',
             'content'          => 'required|string',
-            'type'             => 'sometimes|in:material,sheet,bar,component',
+            'type'             => 'sometimes|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
@@ -108,7 +109,7 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'sometimes|required|string|max:255',
             'content'          => 'sometimes|required|string',
-            'type'             => 'sometimes|in:material,sheet,bar,component',
+            'type'             => 'sometimes|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
@@ -245,6 +246,11 @@ class SetPartController extends Controller
             $part = self::calculateBarProperties($part);
         } elseif ($part->type === 'component') {
             $part = self::calculateComponentProperties($part);
+        } else if ($part->type === 'process') {
+            $part->unit_value = 0;
+            $part->final_value = 0;
+        } else {
+            throw new \InvalidArgumentException('Invalid part type');
         }
 
         $part = self::calculatePartProcesses($part);
@@ -389,21 +395,28 @@ class SetPartController extends Controller
     {
         $processes = $part->processes ?? [];
 
+        $baseUnitValue  = $part->unit_value ?? 0;
+        $baseFinalValue = $part->final_value ?? 0;
+        $processUnit  = 0;
+        $processFinal = 0;
+
         foreach ($processes as $partProcess) {
             if (!isset($partProcess['id'])) {
                 continue;
             }
             
             $process = Process::findOrFail($partProcess['id']);
-
             $value = ProcessController::calculateValue($process, [
                 'time' => $partProcess['pivot']['time'] ?? 0
             ]);
 
-            $part->unit_value  += round($value, 2);
-            $part->final_value += round($value * $part->quantity ?? 1, 2);
+            $processUnit  += round($value, 2);
+            $processFinal += round($value * $part->quantity, 2);
         }
-
+        
+        $part->unit_value  = round($baseUnitValue + $processUnit, 2);
+        $part->final_value = round($baseFinalValue + $processFinal, 2);
+        
         return $part;
     }
 }

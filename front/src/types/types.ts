@@ -15,7 +15,7 @@ export interface OrderSet {
 
 export interface SetPartType {
   name: string;
-  value: 'material' | 'sheet' | 'bar' | 'component';
+  value: 'material' | 'sheet' | 'bar' | 'component' | 'process';
 }
 
 export interface Material {

@@ -164,7 +164,7 @@
               </v-row>
             </v-card>
 
-            <ProcessMultiField v-model="localPart.processes" />
+            <ProcessMultiField v-model="localPart.processes" @process-updated="calculateProperties" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -227,7 +227,8 @@ export default defineComponent({
       { name: 'Material', value: 'material' },
       { name: 'Chapa', value: 'sheet' },
       { name: 'Barra', value: 'bar' },
-      { name: 'Componente', value: 'component' }
+      { name: 'Componente', value: 'component' },
+      { name: 'Processos', value: 'process' }
     ];
 
     const materials = ref<Material[]>([]);
@@ -281,6 +282,7 @@ export default defineComponent({
 
     const fillMaterialDetails = async (materialId: number | null) => {
       if (!materialId) return;
+
       try {
         const { data } = await axios.get(`/api/materials/${materialId}`);
         localPart.value.material_id = data.id;
@@ -395,7 +397,8 @@ export default defineComponent({
         localPart.value.quantity,
         localPart.value.unit_net_weight,
         localPart.value.unit_gross_weight,
-        localPart.value.loss
+        localPart.value.loss,
+        localPart.value.markup
       ],
       () => {
         calculateProperties();
@@ -447,6 +450,7 @@ export default defineComponent({
       fillComponentDetails,
       savePart,
       closeDialog,
+      calculateProperties,
       show: props.show,
       getPartImageUrl: props.getPartImageUrl
     };

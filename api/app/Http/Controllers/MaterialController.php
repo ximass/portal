@@ -30,7 +30,7 @@ class MaterialController extends Controller
 
     public function show(Material $material)
     {
-        return response()->json($material->load(['sheets', 'bars']));
+        return response()->json($material->load(['sheets']));
     }
 
     public function update(Request $request, Material $material)

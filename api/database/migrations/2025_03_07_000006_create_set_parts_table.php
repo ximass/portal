@@ -9,7 +9,7 @@ class CreateSetPartsTable extends Migration
     public function up()
     {
         DB::statement('DROP TYPE IF EXISTS set_part_type');
-        DB::statement("CREATE TYPE set_part_type AS ENUM ('material', 'sheet', 'bar', 'component')");
+        DB::statement("CREATE TYPE set_part_type AS ENUM ('material', 'sheet', 'bar', 'component', 'process')");
 
         Schema::create('set_parts', function (Blueprint $table) {
             $table->id();
@@ -20,7 +20,7 @@ class CreateSetPartsTable extends Migration
             $table->unsignedBigInteger('sheet_id')->nullable();
             $table->unsignedBigInteger('bar_id')->nullable();
             $table->unsignedBigInteger('component_id')->nullable();
-            $table->enum('type', ['material', 'sheet', 'bar', 'component'])->nullable();
+            $table->enum('type', ['material', 'sheet', 'bar', 'component', 'process'])->nullable();
             $table->integer('quantity')->nullable();
             $table->decimal('loss', 5, 2)->nullable(); // percentage loss
             $table->decimal('unit_net_weight', 10, 2)->nullable();

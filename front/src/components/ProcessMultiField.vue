@@ -14,7 +14,7 @@
           v-model="proc.id"
           required
           density="compact"
-          @change="calculateProcess(index)"
+          @update:model-value="onSelectChange(index)"
         />
       </v-col>
       <v-col cols="3">
@@ -69,7 +69,7 @@ export default defineComponent({
       default: () => []
     }
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'process-updated'],
   setup(props, { emit }) {
     const { showToast } = useToast();
     const processOptions = ref<Process[]>([]);
@@ -107,6 +107,7 @@ export default defineComponent({
 
     const removeProcess = (index: number) => {
       internalProcesses.value.splice(index, 1);
+      emit('process-updated');
     };
 
     const getValuePerMinute = (id: Process['id'] | null): number | string => {
@@ -120,6 +121,7 @@ export default defineComponent({
 
       if (!proc.id || !proc.pivot.time) {
         proc.pivot.final_value = 0;
+        emit('process-updated');
         return;
       }
 
@@ -133,6 +135,13 @@ export default defineComponent({
         showToast({ message: 'Erro ao calcular valor do processo: ' + error, type: 'error' });
         proc.pivot.final_value = 0;
       }
+
+      emit('process-updated');
+    };
+
+    const onSelectChange = (index: number) => {
+      calculateProcess(index);
+      emit('process-updated');
     };
 
     watch(
@@ -155,7 +164,8 @@ export default defineComponent({
       addProcess,
       removeProcess,
       getValuePerMinute,
-      calculateProcess
+      calculateProcess,
+      onSelectChange
     };
   }
 });
