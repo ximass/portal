@@ -138,68 +138,12 @@
       </v-card-text>
     </v-card>
 
-    <!-- Tabela analítica modificada -->
-    <v-card>
-      <v-card-title>Valores</v-card-title>
-      <v-card-text>
-        <v-data-table
-          :headers="setPartsHeaders"
-          :items="allSetParts"
-          :group-by="groupBy"
-          class="elevation-1"
-          hide-default-footer
-          density="compact"
-        >
-          <template v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }">
-            <tr>
-              <td :colspan="columns.length">
-                <div class="d-flex align-center">
-                  <v-btn
-                    :icon="isGroupOpen(item) ? '$expand' : '$next'"
-                    color="medium-emphasis"
-                    density="comfortable"
-                    size="small"
-                    variant="outlined"
-                    @click="toggleGroup(item)"
-                  ></v-btn>
-
-                  <span class="ms-4">{{ item.value }}</span>
-                </div>
-              </td>
-            </tr>
-          </template>
-          <template #item.final_value="{ item }">
-            {{ item.unit_value * item.quantity }}
-          </template>
-          <template #item.net_weight="{ item }">
-            {{ item.unit_net_weight * item.quantity }}
-          </template>
-          <template #item.gross_weight="{ item }">
-            {{ item.unit_gross_weight * item.quantity }}
-          </template>
-          <template #body.append>
-            <tr>
-              <td colspan="2" class="text-right font-weight-bold">Total:</td>
-              <td class="font-weight-bold">
-                {{ computedTotal(allSetParts, part => part.unit_value) }}
-              </td>
-              <td class="font-weight-bold">
-                {{ computedTotal(allSetParts, part => part.quantity) }}
-              </td>
-              <td class="font-weight-bold">
-                {{ computedTotal(allSetParts, part => part.unit_value * part.quantity) }}
-              </td>
-              <td class="font-weight-bold">
-                {{ computedTotal(allSetParts, part => part.unit_gross_weight * part.quantity) }}
-              </td>
-              <td class="font-weight-bold">
-                {{ computedTotal(allSetParts, part => part.unit_net_weight * part.quantity) }}
-              </td>
-            </tr>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+    <!-- Tabela de valores -->
+    <OrderValuesTable 
+      :headers="setPartsHeaders" 
+      :items="allSetParts" 
+      :groupBy="groupByValuesTable" 
+    />
 
     <PartForm
       v-if="selectedPart"
@@ -222,12 +166,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 import axios from 'axios';
 import PartForm from '@/components/PartForm.vue';
+import OrderValuesTable from '@/components/OrderValuesTable.vue';
 import { OrderForm, OrderSet, Part } from '@/types/types';
 
 export default defineComponent({
   name: 'Orders',
   components: {
-    PartForm
+    PartForm,
+    OrderValuesTable
   },
   setup() {
     const { showToast } = useToast();
@@ -441,10 +387,6 @@ export default defineComponent({
       return `${baseUrl}${content}`;
     };
 
-    const computedTotal = (items: Part[], fn: (item: Part) => number): number => {
-      return Number(items.reduce((total, item) => Number(total) + Number(fn(item)), 0).toFixed(2));
-    };
-
     // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento
     const allSetParts = computed(() => {
       return sets.value.flatMap(set => {
@@ -452,7 +394,7 @@ export default defineComponent({
       });
     });
 
-    const groupBy = [{ key: 'setName', order: 'asc' }]
+    const groupByValuesTable = [{ key: 'setName', order: 'asc' }]
 
     return {
       isNew,
@@ -467,7 +409,6 @@ export default defineComponent({
       deletePart,
       updatePartInList,
       getPartImageUrl,
-      computedTotal,
       openPartModal,
       closePartModal,
       showPartModal,
@@ -475,7 +416,7 @@ export default defineComponent({
       setParts,
       setPartsHeaders,
       allSetParts,
-      groupBy
+      groupByValuesTable
     };
   },
 });
