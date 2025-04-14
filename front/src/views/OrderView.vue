@@ -138,18 +138,36 @@
       </v-card-text>
     </v-card>
 
-    <!-- Listagem de conjuntos com tabelas analíticas -->
+    <!-- Tabela analítica modificada -->
     <v-card>
-      <v-card-text v-for="set in sets" :key="set.id">
-        <v-card-title>{{ set.name }}</v-card-title>
-        <!-- Tabela de peças agrupadas por conjuntos -->
+      <v-card-title>Valores</v-card-title>
+      <v-card-text>
         <v-data-table
           :headers="setPartsHeaders"
-          :items="set.setParts"
-          item-value="id"
+          :items="allSetParts"
+          :group-by="groupBy"
           class="elevation-1"
           hide-default-footer
+          density="compact"
         >
+          <template v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }">
+            <tr>
+              <td :colspan="columns.length">
+                <div class="d-flex align-center">
+                  <v-btn
+                    :icon="isGroupOpen(item) ? '$expand' : '$next'"
+                    color="medium-emphasis"
+                    density="comfortable"
+                    size="small"
+                    variant="outlined"
+                    @click="toggleGroup(item)"
+                  ></v-btn>
+
+                  <span class="ms-4">{{ item.value }}</span>
+                </div>
+              </td>
+            </tr>
+          </template>
           <template #item.final_value="{ item }">
             {{ item.unit_value * item.quantity }}
           </template>
@@ -161,21 +179,21 @@
           </template>
           <template #body.append>
             <tr>
-              <td colspan="1" class="text-right font-weight-bold">Total:</td>
+              <td colspan="2" class="text-right font-weight-bold">Total:</td>
               <td class="font-weight-bold">
-                {{ computedTotal(set.setParts, part => part.unit_value) }}
+                {{ computedTotal(allSetParts, part => part.unit_value) }}
               </td>
               <td class="font-weight-bold">
-                {{ computedTotal(set.setParts, part => part.quantity) }}
+                {{ computedTotal(allSetParts, part => part.quantity) }}
               </td>
               <td class="font-weight-bold">
-                {{ computedTotal(set.setParts, part => part.unit_value * part.quantity) }}
+                {{ computedTotal(allSetParts, part => part.unit_value * part.quantity) }}
               </td>
               <td class="font-weight-bold">
-                {{ computedTotal(set.setParts, part => part.unit_gross_weight * part.quantity) }}
+                {{ computedTotal(allSetParts, part => part.unit_gross_weight * part.quantity) }}
               </td>
               <td class="font-weight-bold">
-                {{ computedTotal(set.setParts, part => part.unit_net_weight * part.quantity) }}
+                {{ computedTotal(allSetParts, part => part.unit_net_weight * part.quantity) }}
               </td>
             </tr>
           </template>
@@ -199,7 +217,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted } from 'vue';
+import { defineComponent, ref, watch, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 import axios from 'axios';
@@ -424,8 +442,17 @@ export default defineComponent({
     };
 
     const computedTotal = (items: Part[], fn: (item: Part) => number): number => {
-      return items.reduce((total, item) => Number(total) + Number(fn(item)), 0);
+      return Number(items.reduce((total, item) => Number(total) + Number(fn(item)), 0).toFixed(2));
     };
+
+    // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento
+    const allSetParts = computed(() => {
+      return sets.value.flatMap(set => {
+        return set.setParts.map(part => ({ ...part, setName: set.name }));
+      });
+    });
+
+    const groupBy = [{ key: 'setName', order: 'asc' }]
 
     return {
       isNew,
@@ -447,6 +474,8 @@ export default defineComponent({
       selectedPart,
       setParts,
       setPartsHeaders,
+      allSetParts,
+      groupBy
     };
   },
 });
