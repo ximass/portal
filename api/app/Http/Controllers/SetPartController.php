@@ -18,10 +18,10 @@ class SetPartController extends Controller
 {
     const SET_PART_TYPES = [
         'material' => 'Material',
-        'sheet'    => 'Sheet',
-        'bar'      => 'Bar',
-        'component'=> 'Component',
-        'process'  => 'Process',
+        'sheet'    => 'Chapa',
+        'bar'      => 'Barra',
+        'component'=> 'Componente',
+        'process'  => 'Processo',
     ];
 
     public function index($setId)

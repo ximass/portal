@@ -1,18 +1,19 @@
 <template>
   <v-app>
-    <TopMenu v-if="isAuthenticated" :user="user" @toggleDrawer="drawerOpen = !drawerOpen" />
-    <SideMenu v-if="isAuthenticated" :user="user" :drawerOpen="drawerOpen" />
+    <TopMenu v-if="isAuthenticated && !isPrintRoute" :user="user" @toggleDrawer="drawerOpen = !drawerOpen" />
+    <SideMenu v-if="isAuthenticated && !isPrintRoute" :user="user" :drawerOpen="drawerOpen" />
     <v-main>
       <router-view />
     </v-main>
-    <v-snackbar v-model="isToastVisible" timeout="3000" :color="toastColor">
+    <v-snackbar v-if="!isPrintRoute" v-model="isToastVisible" timeout="3000" :color="toastColor">
        {{ toastMessage }}
      </v-snackbar>
   </v-app>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import TopMenu from './components/TopMenu.vue';
 import SideMenu from './components/SideMenu.vue';
 import { useAuth } from './composables/auth';
@@ -26,6 +27,8 @@ export default defineComponent({
     const { isToastVisible, toastMessage, toastColor } = useToast();
     const { fetchUser, isAuthenticated, user } = useAuth();
     const drawerOpen = ref(false);
+    const route = useRoute();
+    const isPrintRoute = computed(() => route.name === 'SetPrint');
 
     fetchUser();
 
@@ -35,7 +38,8 @@ export default defineComponent({
       toastColor,
       isAuthenticated,
       user,
-      drawerOpen
+      drawerOpen,
+      isPrintRoute
     };
   },
 });

@@ -74,6 +74,13 @@ export interface Part {
   length: number;
   loss: number | null;
   markup: number | null;
+  weights: number;
+}
+
+export interface Set {
+  id: number;
+  name: string;
+  parts: Part[];
 }
 
 export interface User {

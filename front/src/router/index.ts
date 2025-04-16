@@ -15,6 +15,7 @@ import MaterialsView from '@/views/MaterialsView.vue';
 import SheetsView from '@/views/SheetsView.vue';
 import BarsView from '@/views/BarsView.vue';
 import ComponentsView from '@/views/ComponentsView.vue';
+import SetPrint from '@/views/SetPrint.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -100,6 +101,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Register',
     component: Register,
     meta: { requiresGuest: true },
+  },
+  {
+    path: '/sets/:id/print',
+    name: 'SetPrint',
+    component: SetPrint,
+    props: true,
   },
   {
     path: '/:pathMatch(.*)*',

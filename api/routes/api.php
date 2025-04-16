@@ -23,7 +23,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/users/search', [UserController::class, 'search']);
-Route::get('/materials/types', [MaterialController::class, 'getMaterialsType']);
+Route::get('/set-parts/types', [SetPartController::class, 'getPartTypes']);
 
 #POST#
 Route::post('/upload-set-part', [SetPartController::class, 'upload']);

@@ -74,6 +74,10 @@
             />
           </v-col>
           <v-col cols="8" class="d-flex justify-end align-center">
+            <v-btn color="primary" @click="printSet(setItem)" class="me-2">
+              <v-icon>mdi-printer</v-icon>
+              Imprimir
+            </v-btn>
             <v-btn color="error" @click="deleteSet(setIndex)">
               Excluir
             </v-btn>
@@ -167,7 +171,7 @@ import { useToast } from '@/composables/useToast';
 import axios from 'axios';
 import PartForm from '@/components/PartForm.vue';
 import OrderValuesTable from '@/components/OrderValuesTable.vue';
-import { OrderForm, OrderSet, Part } from '@/types/types';
+import { OrderForm, OrderSet, Part, Set } from '@/types/types';
 
 export default defineComponent({
   name: 'Orders',
@@ -394,7 +398,20 @@ export default defineComponent({
       });
     });
 
-    const groupByValuesTable = [{ key: 'setName', order: 'asc' }]
+    const groupByValuesTable = [{ key: 'setName', order: 'asc' }];
+
+    function printSet(set: Set) {
+      const url = router.resolve({ name: 'SetPrint', params: { id: set.id } }).href;
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        const onPrintReady = () => {
+          printWindow.removeEventListener('print-ready', onPrintReady);
+          printWindow.focus();
+          printWindow.print();
+        };
+        printWindow.addEventListener('print-ready', onPrintReady);
+      }
+    }
 
     return {
       isNew,
@@ -416,7 +433,8 @@ export default defineComponent({
       setParts,
       setPartsHeaders,
       allSetParts,
-      groupByValuesTable
+      groupByValuesTable,
+      printSet
     };
   },
 });
