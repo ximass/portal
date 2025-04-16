@@ -109,6 +109,12 @@ const routes: Array<RouteRecordRaw> = [
     props: true,
   },
   {
+    path: '/order/sets/print',
+    name: 'SetPrintAll',
+    component: SetPrint,
+    props: route => ({ order_id: route.query.order_id }),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

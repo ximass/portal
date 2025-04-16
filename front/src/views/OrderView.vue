@@ -74,7 +74,7 @@
             />
           </v-col>
           <v-col cols="8" class="d-flex justify-end align-center">
-            <v-btn color="primary" @click="printSet(setItem)" class="me-2">
+            <v-btn color="success" @click="printSet(setItem)" class="me-2">
               <v-icon>mdi-printer</v-icon>
               Imprimir
             </v-btn>
@@ -159,6 +159,10 @@
     />
 
     <v-row class="justify-end pa-4">
+      <v-btn color="success" class="me-2" @click="printOrder">
+        <v-icon class="me-2">mdi-printer</v-icon>
+        Imprimir orçamento
+      </v-btn>
       <v-btn color="primary" @click="saveOrder">Salvar</v-btn>
     </v-row>
   </v-container>
@@ -413,6 +417,12 @@ export default defineComponent({
       }
     }
 
+    function printOrder() {
+      const url = router.resolve({ path: '/order/sets/print', query: { order_id: route.params.id as string } }).href;
+      
+      window.open(url, '_blank');
+    }
+
     return {
       isNew,
       form,
@@ -434,7 +444,8 @@ export default defineComponent({
       setPartsHeaders,
       allSetParts,
       groupByValuesTable,
-      printSet
+      printSet,
+      printOrder
     };
   },
 });
