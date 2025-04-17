@@ -331,8 +331,9 @@ export default defineComponent({
       if (!componentId) return;
       try {
         const { data } = await axios.get(`/api/components/${componentId}`);
+        
         localPart.value.component_id = data.id;
-        localPart.value.markup = data.unit_value;
+        localPart.value.unit_value   = data.unit_value;
       } catch (error) {
         showToast('Erro ao buscar componente', 'error');
       }
