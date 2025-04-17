@@ -144,6 +144,7 @@
 
     <!-- Tabela de valores -->
     <OrderValuesTable 
+      v-if="!isNew"
       :headers="setPartsHeaders" 
       :items="allSetParts" 
       :groupBy="groupByValuesTable" 
@@ -159,7 +160,12 @@
     />
 
     <v-row class="justify-end pa-4">
-      <v-btn color="success" class="me-2" @click="printOrder">
+      <v-btn
+        v-if="!isNew"
+        color="success"
+        class="me-2"
+        @click="printOrder"
+      >
         <v-icon class="me-2">mdi-printer</v-icon>
         Imprimir orçamento
       </v-btn>
