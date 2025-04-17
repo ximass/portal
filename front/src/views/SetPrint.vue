@@ -25,7 +25,7 @@
             <tbody>
               <template v-for="part in set.parts" :key="part.id">
                 <tr>
-                  <td style="width:30%;">{{ part.title }}</td>
+                  <td style="width:30%;">{{ part.obs ? part.obs : part.title }}</td>
                   <td>{{ partTypes[part.type] ?? part.type }}</td>
                   <td>{{ part.quantity }}</td>
                   <td>{{ formatNumber(part.unit_net_weight) }} KG</td>
@@ -37,9 +37,12 @@
                 </tr>
                 <tr v-if="part.processes && part.processes.length" class="process-row">
                   <td class="arrow-cell">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 4v6c0 2.21 1.79 4 4 4h3.17l-2.59-2.59L14 10l5 5-5 5-1.41-1.41L15.17 16H12c-3.31 0-6-2.69-6-6V4h2z" fill="#888"/>
-                    </svg>
+                    <div class="d-flex align-center gap-1">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 4v6c0 2.21 1.79 4 4 4h3.17l-2.59-2.59L14 10l5 5-5 5-1.41-1.41L15.17 16H12c-3.31 0-6-2.69-6-6V4h2z" fill="#888"/>
+                      </svg>
+                      <span>Processos</span>
+                    </div>
                   </td>
                   <td :colspan="8" class="process-info-cell">
                     <span>
@@ -51,8 +54,7 @@
                 </tr>
               </template>
               <tr v-if="set.parts?.length" style="font-weight: bold;">
-                <td style="width:30%;">Totais</td>
-                <td></td>
+                <td colspan="2" style="width:30%;">Totais</td>
                 <td>{{ totalQuantity(set) }}</td>
                 <td>{{ total(set, 'unit_net_weight', false) }}</td>
                 <td>{{ total(set, 'net_weight', false) }}</td>
