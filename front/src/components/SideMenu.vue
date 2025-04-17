@@ -24,14 +24,54 @@
 
     <v-list density="compact" nav>
       <v-list-item 
-        v-for="item in filteredMenuItems" 
-        :key="item.title" 
-        :prepend-icon="item.icon" 
-        :title="item.title" 
-        :value="item.route"
-        @click="$router.push(item.route)"
+        v-if="homeMenuItem"
+        :prepend-icon="homeMenuItem.icon" 
+        :title="homeMenuItem.title" 
+        :value="homeMenuItem.route"
+        @click="$router.push(homeMenuItem.route)"
+      ></v-list-item>
+      <v-list-item 
+        v-if="orderMenuItem"
+        :prepend-icon="orderMenuItem.icon" 
+        :title="orderMenuItem.title" 
+        :value="orderMenuItem.route"
+        @click="$router.push(orderMenuItem.route)"
+      ></v-list-item>
+
+      <v-list-group
+        value="Cadastros"
+        prepend-icon="mdi-folder"
       >
-      </v-list-item>
+        <template v-slot:activator="{ props: groupProps }">
+          <v-list-item v-bind="groupProps" title="Cadastros"></v-list-item>
+        </template>
+        <v-list-item
+          v-for="item in basicMenuItems"
+          :key="item.title"
+          :prepend-icon="item.icon"
+          :title="item.title"
+          :value="item.route"
+          @click="$router.push(item.route)"
+        ></v-list-item>
+      </v-list-group>
+      
+      <v-list-group
+        v-if="adminMenuItems.length"
+        value="Administração"
+        prepend-icon="mdi-shield-account"
+      >
+        <template v-slot:activator="{ props: groupProps }">
+          <v-list-item v-bind="groupProps" title="Administração"></v-list-item>
+        </template>
+        <v-list-item
+          v-for="item in adminMenuItems"
+          :key="item.title"
+          :prepend-icon="item.icon"
+          :title="item.title"
+          :value="item.route"
+          @click="$router.push(item.route)"
+        ></v-list-item>
+      </v-list-group>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -67,17 +107,26 @@ export default defineComponent({
       { title: 'Grupos', route: '/groups', admin: true, icon: 'mdi-account-group' },
     ];
 
-    const filteredMenuItems = computed(() => {
-      return menuItems.filter(item => {
-        if (item.admin) {
-          return props.user && props.user.admin;
-        }
-        return true;
-      });
-    });
+    const homeMenuItem = computed(() => menuItems.find(item => item.route === '/home'));
+    const orderMenuItem = computed(() => menuItems.find(item => item.route === '/orders'));
+
+    const basicMenuItems = computed(() =>
+      menuItems.filter(item =>
+        !item.admin && item.route !== '/orders' && item.route !== '/home'
+      )
+    );
+
+    const adminMenuItems = computed(() =>
+      props.user && props.user.admin
+        ? menuItems.filter(item => item.admin)
+        : []
+    );
 
     return { 
-      filteredMenuItems,
+      homeMenuItem,
+      orderMenuItem,
+      basicMenuItems,
+      adminMenuItems,
       rail,
       props
     };
