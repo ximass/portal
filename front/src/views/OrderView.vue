@@ -129,6 +129,9 @@
                       <v-list-item @click.stop="openPartModal(part)">
                         <v-list-item-title>Visualizar</v-list-item-title>
                       </v-list-item>
+                      <v-list-item @click.stop="printPart(part)">
+                        <v-list-item-title>Imprimir</v-list-item-title>
+                      </v-list-item>
                       <v-list-item @click.stop="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)">
                         <v-list-item-title>Excluir</v-list-item-title>
                       </v-list-item>
@@ -168,6 +171,15 @@
       >
         <v-icon class="me-2">mdi-printer</v-icon>
         Imprimir orçamento
+      </v-btn>
+      <v-btn
+        v-if="!isNew"
+        color="secondary"
+        class="me-2"
+        @click="printAllParts"
+      >
+        <v-icon class="me-2">mdi-printer</v-icon>
+        Imprimir peças
       </v-btn>
       <v-btn color="primary" @click="saveOrder">Salvar</v-btn>
     </v-row>
@@ -387,9 +399,13 @@ export default defineComponent({
     const deletePart = (setIndex: number, partIndex: number) => {
       try {
         const part = sets.value[setIndex].setParts[partIndex];
+
         if (part.id) {
-          axios.delete(`/api/sets/${part.set_id}/parts/${part.id}`);
+          axios.delete(`/api/set-parts/${part.id}`);
+
           sets.value[setIndex].setParts.splice(partIndex, 1);
+
+          showToast('Peça excluída com sucesso.', 'success');
         }
       } catch (error) {
         showToast('Erro ao excluir peça: ' + error, 'error');
@@ -429,6 +445,17 @@ export default defineComponent({
       window.open(url, '_blank');
     }
 
+    function printPart(part: Part) {
+      const url = router.resolve({ name: 'PartPrint', params: { id: part.id } }).href;
+
+      window.open(url, '_blank');
+    }
+
+    function printAllParts() {
+      const url = router.resolve({ path: '/order/parts/print', query: { order_id: route.params.id as string } }).href;
+      window.open(url, '_blank');
+    }
+
     return {
       isNew,
       form,
@@ -451,7 +478,9 @@ export default defineComponent({
       allSetParts,
       groupByValuesTable,
       printSet,
-      printOrder
+      printOrder,
+      printPart,
+      printAllParts
     };
   },
 });

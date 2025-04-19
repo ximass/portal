@@ -24,13 +24,21 @@ class SetPartController extends Controller
         'process'  => 'Processo',
     ];
 
-    public function index($setId)
+    public function index()
     {
-        return response()->json(
-            SetPart::where('set_id', $setId)
+        $setParts = SetPart::with('processes')->get();
+
+        return response()->json($setParts);
+    }
+
+    public function getSetParts($setId)
+    {
+        $setParts = SetPart::where('set_id', $setId)
             ->with('processes')
-            ->get()
-        );
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return response()->json($setParts);
     }
 
     public function store(Request $request, $setId)
@@ -99,9 +107,9 @@ class SetPartController extends Controller
         return response()->json($setPart, 201);
     }
 
-    public function show($setId, $id)
+    public function show($id)
     {
-        $setPart = SetPart::where('set_id', $setId)->findOrFail($id);
+        $setPart = SetPart::with('processes')->findOrFail($id);
 
         return response()->json($setPart);
     }
@@ -172,9 +180,9 @@ class SetPartController extends Controller
         return response()->json($setPart);
     }
 
-    public function destroy($setId, $id)
+    public function destroy($id)
     {
-        $setPart = SetPart::where('set_id', $setId)->findOrFail($id);
+        $setPart = SetPart::findOrFail($id);
         $setPart->delete();
 
         return response()->json(['message' => 'Order part deleted successfully']);

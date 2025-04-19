@@ -16,6 +16,7 @@ import SheetsView from '@/views/SheetsView.vue';
 import BarsView from '@/views/BarsView.vue';
 import ComponentsView from '@/views/ComponentsView.vue';
 import SetPrint from '@/views/SetPrint.vue';
+import PartPrint from '@/views/PartPrint.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -112,6 +113,18 @@ const routes: Array<RouteRecordRaw> = [
     path: '/order/sets/print',
     name: 'SetPrintAll',
     component: SetPrint,
+    props: route => ({ order_id: route.query.order_id }),
+  },
+  {
+    path: '/parts/:id/print',
+    name: 'PartPrint',
+    component: PartPrint,
+    props: true,
+  },
+  {
+    path: '/order/parts/print',
+    name: 'PartPrintAll',
+    component: PartPrint,
     props: route => ({ order_id: route.query.order_id }),
   },
   {

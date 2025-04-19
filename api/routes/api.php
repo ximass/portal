@@ -24,21 +24,23 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/users/search', [UserController::class, 'search']);
 Route::get('/set-parts/types', [SetPartController::class, 'getPartTypes']);
+Route::get('/sets/{set}/parts', [SetPartController::class, 'getSetParts']);
 
 #POST#
 Route::post('/upload-set-part', [SetPartController::class, 'upload']);
 Route::post('/set-parts/calculateProperties', [SetPartController::class, 'calculatePartProperties']);
 Route::post('/set-parts/calculateProcessValue', [ProcessController::class, 'calculateProcessValue']);
+Route::post('/sets/{set}/parts', [SetPartController::class, 'store']);
 
 #PUT#
-// Route::put('/sets/{set}/parts/{}/', [SetPartController::class, 'upload']);
+Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update']);
 
 #RESOURCES#
 Route::apiResource('/groups', GroupController::class);
 Route::apiResource('/users', UserController::class);
 Route::apiResource('/orders', OrderController::class);
 Route::apiResource('/sets', SetController::class);
-Route::apiResource('/sets/{set}/parts', SetPartController::class);
+Route::apiResource('/set-parts', SetPartController::class);
 Route::apiResource('/processes', ProcessController::class);
 Route::apiResource('/materials', MaterialController::class);
 Route::apiResource('/sheets', SheetController::class);

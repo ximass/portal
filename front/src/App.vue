@@ -28,7 +28,12 @@ export default defineComponent({
     const { fetchUser, isAuthenticated, user } = useAuth();
     const drawerOpen = ref(false);
     const route = useRoute();
-    const isPrintRoute = computed(() => route.name === 'SetPrint' || route.name === 'SetPrintAll');
+    const isPrintRoute = computed(() =>
+      route.name === 'SetPrint' ||
+      route.name === 'SetPrintAll' ||
+      route.name === 'PartPrint' ||
+      route.name === 'PartPrintAll'
+    );
 
     fetchUser();
 

@@ -75,6 +75,8 @@ export interface Part {
   loss: number | null;
   markup: number | null;
   weights: number;
+  obs?: string;
+  processes?: any[];
 }
 
 export interface Set {
