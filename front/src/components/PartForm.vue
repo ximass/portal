@@ -371,7 +371,10 @@ export default defineComponent({
     };
 
     const savePart = async () => {
-      if (!localPart.value.id || !localPart.value.set_id) return;
+      if (!localPart.value.id || !localPart.value.set_id || !localPart.value.type) {
+        showToast('Erro: A peça não possui tipo definido', 'error');
+        return;
+      }
 
       try {
         const payload = { 
@@ -381,7 +384,9 @@ export default defineComponent({
           bar_id: localPart.value.type === 'bar' ? selectedBar.value : null,
           component_id: localPart.value.type === 'component' ? selectedComponent.value : null
         };
+
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, payload);
+
         emit('part-saved', localPart.value);
         emit('close');
       } catch (error) {
