@@ -63,6 +63,7 @@ class SetPartController extends Controller
             'markup'           => 'sometimes|nullable|numeric',
             'width'            => 'sometimes|nullable|numeric',
             'length'           => 'sometimes|nullable|numeric',
+            'locked_values'    => 'sometimes|nullable|array',
         ]);
 
         $setPart = SetPart::create([
@@ -86,6 +87,7 @@ class SetPartController extends Controller
             'markup'           => $request->input('markup'),
             'width'            => $request->input('width'),
             'length'           => $request->input('length'),
+            'locked_values'    => $request->input('locked_values', []),
         ]);
 
         if ($request->has('processes')) {
@@ -136,6 +138,7 @@ class SetPartController extends Controller
             'markup'           => 'sometimes|nullable|numeric',
             'width'            => 'sometimes|nullable|numeric',
             'length'           => 'sometimes|nullable|numeric',
+            'locked_values'    => 'sometimes|nullable|array',
         ]);
 
         $setPart = SetPart::where('set_id', $setId)->findOrFail($id);
@@ -159,6 +162,7 @@ class SetPartController extends Controller
             'markup',
             'width',
             'length',
+            'locked_values',
         ));
 
         if ($request->has('processes')) {
@@ -321,7 +325,16 @@ class SetPartController extends Controller
         
         // Valor unitário com base no peso unitário e preço por kg
         $unitValue  = $unitNetWeight * $material->price_kg * $markup;
+
+        if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
+            $unitValue = $part->unit_value;
+        }
+
         $finalValue = $quantity * $unitValue;
+
+        if (in_array('final_value', $part->locked_values) && isset($part->final_value)) {
+            $finalValue = $part->final_value;
+        }
 
         $part->unit_net_weight   = round($unitNetWeight, 2);
         $part->net_weight        = round($netWeight, 2);
@@ -360,7 +373,16 @@ class SetPartController extends Controller
         $grossWeight     = $partialWeight * $quantity;
         
         $unitValue  = $unitNetWeight * $bar->price_kg * $markup;
+
+        if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
+            $unitValue = $part->unit_value;
+        }
+
         $finalValue = $unitValue * $quantity;
+
+        if (in_array('final_value', $part->locked_values) && isset($part->final_value)) {
+            $finalValue = $part->final_value;
+        }
         
         $part->unit_net_weight   = round($unitNetWeight, 2);
         $part->net_weight        = round($netWeight, 2);
@@ -391,10 +413,19 @@ class SetPartController extends Controller
         
         // O valor unitário já está definido no componente
         $unitValue = $component->unit_value;
+
+        if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
+            $unitValue = $part->unit_value;
+        }
+
         $quantity  = isset($part->quantity) ? $part->quantity : 0;
         $markup    = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
         
         $finalValue = $quantity * $unitValue * $markup;
+
+        if (in_array('final_value', $part->locked_values) && isset($part->final_value)) {
+            $finalValue = $part->final_value;
+        }
         
         $part->unit_net_weight   = round($unitNetWeight, 2);
         $part->net_weight        = round($netWeight, 2);

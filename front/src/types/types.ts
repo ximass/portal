@@ -77,6 +77,7 @@ export interface Part {
   weights: number;
   obs?: string;
   processes?: any[];
+  locked_values?: string[];
 }
 
 export interface Set {

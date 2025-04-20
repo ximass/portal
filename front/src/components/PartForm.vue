@@ -107,26 +107,31 @@
                 <template v-if="localPart.type === 'material' || localPart.type === 'sheet'">
                   <v-col cols="12" md="4" small="6">
                     <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact"
-                      @blur="localPart.width = roundValue(localPart.width, 2)" suffix="mm"/>
+                      @change="calculateProperties"
+                      @blur="localPart.width = roundValue(localPart.width, 2);" suffix="mm"/>
                   </v-col>
                 </template>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Comprimento" v-model="localPart.length" type="number" required density="compact"
-                    @blur="localPart.length = roundValue(localPart.length, 2)" suffix="mm"/>
+                    @change="calculateProperties"
+                    @blur="localPart.length = roundValue(localPart.length, 2);" suffix="mm"/>
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact"
-                    @blur="localPart.loss = roundValue(localPart.loss, 2)" suffix="%"/>
+                    @change="calculateProperties"
+                    @blur="localPart.loss = roundValue(localPart.loss, 2);" suffix="%"/>
                 </v-col>
               </v-row>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required density="compact"
-                    @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2)" suffix="KG"/>
+                    @change="calculateProperties"
+                    @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2);" suffix="KG"/>
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required density="compact"
-                    @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2)" suffix="KG"/>
+                    @change="calculateProperties"
+                    @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2);" suffix="KG"/>
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required density="compact"
@@ -146,7 +151,8 @@
               <v-row dense>
                 <v-col cols="12">
                   <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact"
-                    @blur="localPart.markup = roundValue(localPart.markup, 3)" suffix="%"/>
+                    @change="calculateProperties"
+                    @blur="localPart.markup = roundValue(localPart.markup, 3); calculateProperties()" suffix="%"/>
                 </v-col>
               </v-row>
             </v-card>
@@ -161,16 +167,40 @@
                     type="number"
                     required
                     density="compact"
-                    @blur="localPart.quantity = roundValue(localPart.quantity, 0)"
+                    @change="calculateProperties"
+                    @blur="localPart.quantity = roundValue(localPart.quantity, 0);"
                   />
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Valor unitário" v-model="localPart.unit_value" type="number" required density="compact"
-                    @blur="localPart.unit_value = roundValue(localPart.unit_value, 2)" prefix="R$"/>
+                  <v-text-field
+                    label="Valor unitário"
+                    v-model="localPart.unit_value"
+                    type="number"
+                    required
+                    density="compact"
+                    @change="onUnitValueChange"
+                    prefix="R$"
+                  >
+                    <template #append-inner v-if="lockedValues.includes('unit_value')">
+                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
+                    </template>
+                  </v-text-field>
                 </v-col>
                 <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Valor final" v-model="localPart.final_value" type="number" required density="compact"
-                    @blur="localPart.final_value = roundValue(localPart.final_value, 2)" prefix="R$"/>
+                  <v-text-field
+                    label="Valor final"
+                    v-model="localPart.final_value"
+                    type="number"
+                    required
+                    density="compact"
+                    @change="onFinalValueChange"
+                    @blur="localPart.final_value = roundValue(localPart.final_value, 2)"
+                    prefix="R$"
+                  >
+                    <template #append-inner v-if="lockedValues.includes('final_value')">
+                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
+                    </template>
+                  </v-text-field>
                 </v-col>
               </v-row>
             </v-card>
@@ -182,6 +212,7 @@
       <v-card-actions>
         <v-spacer />
         <v-btn color="white" variant="flat" @click="closeDialog">Fechar</v-btn>
+        <v-btn color="white" variant="flat" @click="recalculatePart">Recalcular</v-btn>
         <v-btn color="primary" variant="flat" @click="savePart">Salvar</v-btn>
       </v-card-actions>
     </v-card>
@@ -232,7 +263,10 @@ export default defineComponent({
       processes: []
     });
 
-    // Flag to indicate if the component has mounted
+    // Estado para propriedades travadas
+    const lockedValues = ref<string[]>(props.part?.locked_values ?? []);
+
+    // Flag para indicar se o componente foi montado
     const isMounted = ref(false);
 
     const setPartTypes = [
@@ -354,10 +388,34 @@ export default defineComponent({
       if (newType === 'component') fetchComponents();
     };
 
+    const onUnitValueChange = () => {
+      if (!lockedValues.value.includes('unit_value')) {
+        lockedValues.value.push('unit_value');
+      }
+
+      calculateProperties();
+    };
+
+    const onFinalValueChange = () => {
+      if (!lockedValues.value.includes('final_value')) {
+        lockedValues.value.push('final_value');
+      }
+
+      calculateProperties();
+    };
+
+    const recalculatePart = () => {
+      lockedValues.value = [];
+      calculateProperties();
+    };
+
     const calculateProperties = async () => {
       try {
         const { data } = await axios.post('/api/set-parts/calculateProperties', {
-          part: localPart.value
+          part: {
+            ...localPart.value,
+            locked_values: lockedValues.value
+          }
         });
         localPart.value.unit_net_weight = data.unit_net_weight;
         localPart.value.net_weight = data.net_weight;
@@ -382,12 +440,13 @@ export default defineComponent({
           material_id: (localPart.value.type === 'material' || localPart.value.type === 'sheet') ? selectedMaterial.value : null,
           sheet_id: localPart.value.type === 'sheet' ? selectedSheet.value : null,
           bar_id: localPart.value.type === 'bar' ? selectedBar.value : null,
-          component_id: localPart.value.type === 'component' ? selectedComponent.value : null
+          component_id: localPart.value.type === 'component' ? selectedComponent.value : null,
+          locked_values: lockedValues.value
         };
 
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, payload);
 
-        emit('part-saved', localPart.value);
+        emit('part-saved', { ...localPart.value, locked_values: lockedValues.value });
         emit('close');
       } catch (error) {
         showToast('Erro ao salvar a peça: ' + error, 'error');
@@ -402,27 +461,9 @@ export default defineComponent({
     watch(() => props.part, (newVal) => {
       if (newVal) {
         localPart.value = { ...newVal };
-        // Chamar onTypeChange apenas se o componente já foi montado
-        if (isMounted.value && localPart.value.type) {
-          onTypeChange(localPart.value.type);
-        }
+        lockedValues.value = Array.isArray(newVal.locked_values) ? [...newVal.locked_values] : [];
       }
     }, { deep: true });
-
-    watch(
-      () => [
-        localPart.value.width,
-        localPart.value.length,
-        localPart.value.quantity,
-        localPart.value.unit_net_weight,
-        localPart.value.unit_gross_weight,
-        localPart.value.loss,
-        localPart.value.markup
-      ],
-      () => {
-        calculateProperties();
-      }
-    );
 
     onMounted(() => {
       isMounted.value = true;
@@ -461,6 +502,8 @@ export default defineComponent({
       selectedSheet,
       selectedBar,
       selectedComponent,
+      lockedValues,
+      show: props.show,
       roundValue,
       onTypeChange,
       fillMaterialDetails,
@@ -470,7 +513,9 @@ export default defineComponent({
       savePart,
       closeDialog,
       calculateProperties,
-      show: props.show,
+      onUnitValueChange,
+      onFinalValueChange,
+      recalculatePart,
       getPartImageUrl: props.getPartImageUrl
     };
   }

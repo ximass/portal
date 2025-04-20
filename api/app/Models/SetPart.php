@@ -15,6 +15,7 @@ class SetPart extends Model
         'obs',
         'set_id',
         'type',
+        'locked_values',
         'material_id',
         'sheet_id',
         'bar_id',
@@ -34,6 +35,10 @@ class SetPart extends Model
 
         // component
         'markup'
+    ];
+
+    protected $casts = [
+        'locked_values' => 'array',
     ];
 
     public function set()
