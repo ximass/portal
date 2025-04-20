@@ -318,11 +318,33 @@ class SetPartController extends Controller
         // Cálculo dos pesos unitários:
         $unitNetWeight   = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight * $factor;
         $unitGrossWeight = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight;
-        
+
         // Pesos totais
         $netWeight   = $unitNetWeight * $quantity;
         $grossWeight = $unitGrossWeight * $quantity;
+
+        // Travamento dos campos unit_net_weight e unit_gross_weight
+        if (in_array('unit_net_weight', $part->locked_values) && isset($part->unit_net_weight)) {
+            $unitNetWeight = $part->unit_net_weight;
+            $netWeight     = $unitNetWeight * $quantity;
+        }
+
+        if (in_array('unit_gross_weight', $part->locked_values) && isset($part->unit_gross_weight)) {
+            $unitGrossWeight = $part->unit_gross_weight;
+            $grossWeight     = $unitGrossWeight * $quantity;
+        }
+
+        // Travamento dos campos net_weight e gross_weight (ajusta os unitários)
+        if (in_array('net_weight', $part->locked_values) && isset($part->net_weight) && $quantity > 0) {
+            $netWeight = $part->net_weight;
+            $unitNetWeight = $netWeight / $quantity;
+        }
         
+        if (in_array('gross_weight', $part->locked_values) && isset($part->gross_weight) && $quantity > 0) {
+            $grossWeight = $part->gross_weight;
+            $unitGrossWeight = $grossWeight / $quantity;
+        }
+
         // Valor unitário com base no peso unitário e preço por kg
         $unitValue  = $unitNetWeight * $material->price_kg * $markup;
 
@@ -371,7 +393,28 @@ class SetPartController extends Controller
         $netWeight       = $unitNetWeight * $quantity;
         $unitGrossWeight = $partialWeight;
         $grossWeight     = $partialWeight * $quantity;
-        
+
+        if (in_array('unit_net_weight', $part->locked_values) && isset($part->unit_net_weight)) {
+            $unitNetWeight = $part->unit_net_weight;
+            $netWeight     = $unitNetWeight * $quantity;
+        }
+
+        if (in_array('unit_gross_weight', $part->locked_values) && isset($part->unit_gross_weight)) {
+            $unitGrossWeight = $part->unit_gross_weight;
+            $grossWeight     = $unitGrossWeight * $quantity;
+        }
+
+
+        if (in_array('net_weight', $part->locked_values) && isset($part->net_weight) && $quantity > 0) {
+            $netWeight = $part->net_weight;
+            $unitNetWeight = $netWeight / $quantity;
+        }
+
+        if (in_array('gross_weight', $part->locked_values) && isset($part->gross_weight) && $quantity > 0) {
+            $grossWeight = $part->gross_weight;
+            $unitGrossWeight = $grossWeight / $quantity;
+        }
+
         $unitValue  = $unitNetWeight * $bar->price_kg * $markup;
 
         if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
@@ -383,14 +426,14 @@ class SetPartController extends Controller
         if (in_array('final_value', $part->locked_values) && isset($part->final_value)) {
             $finalValue = $part->final_value;
         }
-        
+
         $part->unit_net_weight   = round($unitNetWeight, 2);
         $part->net_weight        = round($netWeight, 2);
         $part->unit_gross_weight = round($unitGrossWeight, 2);
         $part->gross_weight      = round($grossWeight, 2);
         $part->unit_value        = round($unitValue, 2);
         $part->final_value       = round($finalValue, 2);
-        
+
         return $part;
     }
 
@@ -410,23 +453,43 @@ class SetPartController extends Controller
         $netWeight       = 0;
         $unitGrossWeight = 0;
         $grossWeight     = 0;
-        
-        // O valor unitário já está definido no componente
+
+        if (in_array('unit_net_weight', $part->locked_values) && isset($part->unit_net_weight)) {
+            $unitNetWeight = $part->unit_net_weight;
+            $netWeight = $unitNetWeight * (isset($part->quantity) ? $part->quantity : 0);
+        }
+
+        if (in_array('unit_gross_weight', $part->locked_values) && isset($part->unit_gross_weight)) {
+            $unitGrossWeight = $part->unit_gross_weight;
+            $grossWeight = $unitGrossWeight * (isset($part->quantity) ? $part->quantity : 0);
+        }
+
+        // Travamento dos campos net_weight e gross_weight (ajusta os unitários)
+        $quantity = isset($part->quantity) ? $part->quantity : 0;
+        if (in_array('net_weight', $part->locked_values) && isset($part->net_weight) && $quantity > 0) {
+            $netWeight = $part->net_weight;
+            $unitNetWeight = $netWeight / $quantity;
+        }
+
+        if (in_array('gross_weight', $part->locked_values) && isset($part->gross_weight) && $quantity > 0) {
+            $grossWeight = $part->gross_weight;
+            $unitGrossWeight = $grossWeight / $quantity;
+        }
+
         $unitValue = $component->unit_value;
 
         if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
             $unitValue = $part->unit_value;
         }
 
-        $quantity  = isset($part->quantity) ? $part->quantity : 0;
         $markup    = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
-        
+
         $finalValue = $quantity * $unitValue * $markup;
 
         if (in_array('final_value', $part->locked_values) && isset($part->final_value)) {
             $finalValue = $part->final_value;
         }
-        
+
         $part->unit_net_weight   = round($unitNetWeight, 2);
         $part->net_weight        = round($netWeight, 2);
         $part->unit_gross_weight = round($unitGrossWeight, 2);

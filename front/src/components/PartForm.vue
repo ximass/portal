@@ -125,23 +125,41 @@
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required density="compact"
-                    @change="calculateProperties"
-                    @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2);" suffix="KG"/>
+                    @change="onUnitNetWeightChange"
+                    @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2);" suffix="KG">
+                    <template #append-inner v-if="lockedValues.includes('unit_net_weight')">
+                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
+                    </template>
+                  </v-text-field>
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required density="compact"
-                    @change="calculateProperties"
-                    @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2);" suffix="KG"/>
+                    @change="onUnitGrossWeightChange"
+                    @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2);" suffix="KG">
+                    <template #append-inner v-if="lockedValues.includes('unit_gross_weight')">
+                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
+                    </template>
+                  </v-text-field>
                 </v-col>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required density="compact"
-                    @blur="localPart.net_weight = roundValue(localPart.net_weight, 2)" suffix="KG"/>
+                    @change="onNetWeightChange"
+                    @blur="localPart.net_weight = roundValue(localPart.net_weight, 2)" suffix="KG">
+                    <template #append-inner v-if="lockedValues.includes('net_weight')">
+                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
+                    </template>
+                  </v-text-field>
                 </v-col>
               </v-row>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Peso bruto" v-model="localPart.gross_weight" type="number" required density="compact"
-                    @blur="localPart.gross_weight = roundValue(localPart.gross_weight, 2)" suffix="KG"/>
+                    @change="onGrossWeightChange"
+                    @blur="localPart.gross_weight = roundValue(localPart.gross_weight, 2)" suffix="KG">
+                    <template #append-inner v-if="lockedValues.includes('gross_weight')">
+                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
+                    </template>
+                  </v-text-field>
                 </v-col>
               </v-row>
             </v-card>
@@ -404,6 +422,34 @@ export default defineComponent({
       calculateProperties();
     };
 
+    const onUnitNetWeightChange = () => {
+      if (!lockedValues.value.includes('unit_net_weight')) {
+        lockedValues.value.push('unit_net_weight');
+      }
+      calculateProperties();
+    };
+
+    const onUnitGrossWeightChange = () => {
+      if (!lockedValues.value.includes('unit_gross_weight')) {
+        lockedValues.value.push('unit_gross_weight');
+      }
+      calculateProperties();
+    };
+
+    const onNetWeightChange = () => {
+      if (!lockedValues.value.includes('net_weight')) {
+        lockedValues.value.push('net_weight');
+      }
+      calculateProperties();
+    };
+
+    const onGrossWeightChange = () => {
+      if (!lockedValues.value.includes('gross_weight')) {
+        lockedValues.value.push('gross_weight');
+      }
+      calculateProperties();
+    };
+
     const recalculatePart = () => {
       lockedValues.value = [];
       calculateProperties();
@@ -515,6 +561,10 @@ export default defineComponent({
       calculateProperties,
       onUnitValueChange,
       onFinalValueChange,
+      onUnitNetWeightChange,
+      onUnitGrossWeightChange,
+      onNetWeightChange,
+      onGrossWeightChange,
       recalculatePart,
       getPartImageUrl: props.getPartImageUrl
     };
