@@ -1,8 +1,14 @@
 <template>
   <v-dialog :model-value="show" @update:model-value="(value) => { if (!value) closeDialog(); }" width="80vw" height="90vh">
     <v-card>
-      <v-card-title>
+      <v-card-title class="d-flex align-center justify-space-between">
         <v-text-field variant="underlined" v-model="localPart.title" required />
+        <button class="close-btn" @click="closeDialog" aria-label="Fechar" title="Fechar">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -229,7 +235,6 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="white" variant="flat" @click="closeDialog">Fechar</v-btn>
         <v-btn color="white" variant="flat" @click="recalculatePart">Recalcular</v-btn>
         <v-btn color="primary" variant="flat" @click="savePart">Salvar</v-btn>
       </v-card-actions>
@@ -575,5 +580,26 @@ export default defineComponent({
 <style>
 .dense-form .v-row {
   margin-bottom: -20px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.close-btn svg {
+  width: 24px;
+  height: 24px;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.close-btn:hover svg {
+  color: white;
 }
 </style>
