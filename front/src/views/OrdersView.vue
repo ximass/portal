@@ -9,6 +9,9 @@
         :headers="headers"
         class="elevation-1"
       >
+        <template #item.delivery_date="{ item }">
+          {{ formatDateBR(item.delivery_date) }}
+        </template>
         <template #item.actions="{ item }">
           <v-menu offset-y>
             <template #activator="{ props }">
@@ -41,17 +44,21 @@
   import axios from 'axios';
   import { useToast } from '@/composables/useToast';
   import { useRouter } from 'vue-router';
+  import { useMisc } from '@/composables/misc';
+  import { Order } from '@/types/types';
   
   export default defineComponent({
     name: 'OrdersView',
     setup() {
       const router = useRouter();
-      const orders = ref<Array<any>>([]);
+      const orders = ref<Array<Order>>([]);
       const { showToast } = useToast();
+      const { formatDateBR } = useMisc();
   
       const headers = [
         { title: 'Código', value: 'id', sortable: true },
-        { title: 'Valor final', value: 'final_value', sortable: true },
+        { title: 'Cliente', value: 'customer.name', sortable: true },
+        { title: 'Data de entrega', value: 'delivery_date', sortable: true },
         { title: 'Ações', value: 'actions', sortable: false },
       ];
   
@@ -68,7 +75,7 @@
         router.push({ name: 'OrderView', params: { id: 'new' } });
       };
   
-      const editOrder = (order: any) => {
+      const editOrder = (order: Order) => {
         router.push({ name: 'OrderView', params: { id: order.id } });
       };
   
@@ -92,6 +99,7 @@
         openForm,
         editOrder,
         deleteOrder,
+        formatDateBR,
       };
     },
   });

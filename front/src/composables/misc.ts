@@ -30,9 +30,22 @@ export function useMisc() {
       .replace(/^(\d{3})(\d{0,3})$/, '$1.$2');
   };
 
+  const formatDateBR = (dateStr: string) => {
+    if (!dateStr) return '';
+
+    const date = new Date(dateStr);
+
+    if (isNaN(date.getTime())) return dateStr;
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    
+    return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  };
+
   return {
     formatPhone,
     formatCnpj,
-    formatCpf
+    formatCpf,
+    formatDateBR,
   };
 }

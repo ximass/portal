@@ -9,9 +9,16 @@ class OrderController extends Controller
 {
     public function index()
     {
-        return response()->json(Order::with(['sets' => function($query) {
-            $query->orderBy('id', 'asc');
-        }])->get());
+        $orders = Order::with(
+            [
+                'sets' => function($query) {
+                    $query->orderBy('id', 'asc');
+                },
+                'customer'
+            ]
+        )->get();
+
+        return response()->json($orders);
     }
 
     public function store(Request $request)
