@@ -22,6 +22,7 @@
                 v-model="form.markup"
                 type="number"
                 step="0.001"
+                @change="onMarkupChange"
               />
             </v-col>
             <v-col cols="12" md="3" sm="12">
@@ -456,6 +457,27 @@ export default defineComponent({
       window.open(url, '_blank');
     }
 
+    const onMarkupChange = async () => {
+      if (!isNew.value && route.params.id && form.value.markup) {
+        try {
+          await axios.put(`/api/orders/${route.params.id}/on-markup-change`, {
+            markup: form.value.markup
+          });
+
+          for (const set of sets.value) {
+            if (set.id) {
+              const { data } = await axios.get(`/api/sets/${set.id}/parts`);
+              set.setParts = data;
+            }
+          }
+          
+          showToast('Valores das peças recalculados com sucesso.', 'success');
+        } catch (error) {
+          showToast('Erro ao recalcular valores das peças: ' + error, 'error');
+        }
+      }
+    };
+
     return {
       isNew,
       form,
@@ -480,7 +502,8 @@ export default defineComponent({
       printSet,
       printOrder,
       printPart,
-      printAllParts
+      printAllParts,
+      onMarkupChange
     };
   },
 });

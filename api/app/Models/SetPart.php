@@ -41,6 +41,13 @@ class SetPart extends Model
         'locked_values' => 'array',
     ];
 
+    public function getLockedValuesAttribute($value)
+    {
+        $value = json_decode($value, true);
+
+        return (array) $value;
+    }
+
     public function set()
     {
         return $this->belongsTo(Set::class);

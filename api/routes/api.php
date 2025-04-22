@@ -34,6 +34,7 @@ Route::post('/sets/{set}/parts', [SetPartController::class, 'store']);
 
 #PUT#
 Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update']);
+Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange']);
 
 #RESOURCES#
 Route::apiResource('/groups', GroupController::class);

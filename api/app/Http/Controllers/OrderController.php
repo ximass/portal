@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Set;
+use App\Models\SetPart;
+use App\Http\Controllers\SetPartController;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -65,5 +69,29 @@ class OrderController extends Controller
         $order->delete();
 
         return response()->json(['message' => 'Order deleted successfully']);
+    }
+
+    public function onMarkupChange(Request $request, $orderId)
+    {
+        $request->validate([
+            'markup' => 'required|numeric'
+        ]);
+
+        DB::transaction(function () use ($request, $orderId) {
+            $markup = $request->input('markup');
+
+            $order         = Order::with(['sets.setParts'])->findOrFail($orderId);
+            $order->markup = $markup;
+            $order->save();
+
+            foreach ($order->sets as $set) {
+                foreach ($set->setParts as $part) {
+                    $part = SetPartController::calculateProperties($part);
+                    $part->save();
+                }
+            }
+        });
+
+        return response()->json(['message' => 'Partes recalculadas com sucesso']);
     }
 }
