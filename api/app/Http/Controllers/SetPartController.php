@@ -113,7 +113,7 @@ class SetPartController extends Controller
     {
         $setPart = SetPart::with('processes')->findOrFail($id);
 
-        return response()->json($setPart);
+        return response()->json($setPart->toArray());
     }
 
     public function update(Request $request, $setId, $id)
