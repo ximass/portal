@@ -514,7 +514,7 @@ export default defineComponent({
         localPart.value = { ...newVal };
         lockedValues.value = Array.isArray(newVal.locked_values) ? [...newVal.locked_values] : [];
       }
-    }, { deep: true });
+    });
 
     onMounted(() => {
       isMounted.value = true;
