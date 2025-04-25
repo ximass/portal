@@ -75,13 +75,28 @@
             />
           </v-col>
           <v-col cols="8" class="d-flex justify-end align-center">
-            <v-btn color="success" @click="printSet(setItem)" class="me-2">
-              <v-icon>mdi-printer</v-icon>
-              Imprimir
-            </v-btn>
-            <v-btn color="error" @click="deleteSet(setIndex)">
-              Excluir
-            </v-btn>
+            <v-menu offset-y>
+              <template #activator="{ props }">
+                <v-btn
+                  variant="plain"
+                  :ripple="false"
+                  v-bind="props"
+                  class="menu-actions"
+                  size="large"
+                  title="Ações do conjunto"
+                >
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item @click.stop="printSet(setItem)">
+                  <v-list-item-title>Imprimir</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click.stop="deleteSet(setIndex)">
+                  <v-list-item-title>Excluir</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-col>
         </v-row>
       </v-card-title>
@@ -122,7 +137,13 @@
                   <span class="overlay-text">{{ part.title }}</span>
                   <v-menu offset-y>
                     <template #activator="{ props }">
-                      <v-btn variant="plain" :ripple="false" v-bind="props" class="part-actions">
+                      <v-btn 
+                        variant="plain" 
+                        :ripple="false" 
+                        v-bind="props" 
+                        class="menu-actions"
+                        title="Ações da peça"
+                      >
                         <v-icon color="white">mdi-dots-vertical</v-icon>
                       </v-btn>
                     </template>
@@ -171,7 +192,7 @@
         @click="printOrder"
       >
         <v-icon class="me-2">mdi-printer</v-icon>
-        Imprimir orçamento
+        Orçamento
       </v-btn>
       <v-btn
         v-if="!isNew"
@@ -180,7 +201,7 @@
         @click="printAllParts"
       >
         <v-icon class="me-2">mdi-printer</v-icon>
-        Imprimir peças
+        Peças
       </v-btn>
       <v-btn color="primary" @click="saveOrder">Salvar</v-btn>
     </v-row>
@@ -550,7 +571,7 @@ export default defineComponent({
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.part-actions {
+.menu-actions {
   cursor: pointer;
 }
 
