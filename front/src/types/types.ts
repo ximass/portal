@@ -63,6 +63,7 @@ export interface Part {
   component_id: number | null;
   title: string;
   content: string | null;
+  secondary_content?: string | null;
   quantity: number;
   unit_net_weight: number;
   unit_gross_weight: number;

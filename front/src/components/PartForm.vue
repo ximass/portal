@@ -18,6 +18,26 @@
               <v-img v-if="part?.content" :src="getPartImageUrl(part.content)" contain max-width="100%" />
               <div v-else>Sem imagem para exibir</div>
             </v-responsive>
+            <!-- Upload secundário-->
+            <div class="mt-4">
+              <v-file-input
+                v-model="secondaryFile"
+                accept="image/*,.pdf"
+                density="compact"
+                show-size
+                prepend-icon="mdi-upload"
+                label="Imagem secundária"
+                @change="onSecondaryFileChange"
+                clearable
+                @click:clear="onSecondaryFileDelete"
+              >
+                <template #selection>
+                  <span v-if="localPart.secondary_content">
+                    Imagem carregada.
+                  </span>
+                </template>
+              </v-file-input>
+            </div>
           </v-col>
           <!-- Right: Form panel -->
           <v-col cols="6" class="dense-form">
@@ -243,7 +263,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch, onMounted } from 'vue';
+import { defineComponent, PropType, ref, watch, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
 import type { Part, Material, Sheet, Bar, Component } from '@/types/types';
@@ -513,6 +533,7 @@ export default defineComponent({
       if (newVal) {
         localPart.value = { ...newVal };
         lockedValues.value = Array.isArray(newVal.locked_values) ? [...newVal.locked_values] : [];
+        secondaryFile.value = newVal.secondary_content ? new File([], newVal.secondary_content) : null;
       }
     });
 
@@ -540,7 +561,41 @@ export default defineComponent({
               selectedComponent.value = localPart.value.component_id;
           })();
       }
-});
+
+      if (localPart.value.id) {
+        secondaryFile.value = localPart.value.secondary_content ? new File([], localPart.value.secondary_content) : null;
+      }
+    });
+
+    const secondaryFile = ref<File | null>(null);
+
+    const onSecondaryFileChange = async () => {
+      if (!secondaryFile.value || !localPart.value.id || !localPart.value.set_id) return;
+
+      const formData = new FormData();
+      formData.append('file', secondaryFile.value);
+      formData.append('set_id', localPart.value.set_id.toString());
+      formData.append('part_id', localPart.value.id.toString());
+      formData.append('secondary', '1');
+
+      try {
+        const { data } = await axios.post('/api/upload-set-part', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        localPart.value.secondary_content = data.secondary_content;
+
+        await nextTick();
+        showToast('Imagem secundária enviada com sucesso.', 'success');
+      } catch (error) {
+        showToast('Erro ao enviar imagem secundária', 'error');
+      }
+    };
+
+    const onSecondaryFileDelete = () => {
+      localPart.value.secondary_content = '';
+      secondaryFile.value = null;
+    };
 
     return {
       localPart,
@@ -554,6 +609,7 @@ export default defineComponent({
       selectedBar,
       selectedComponent,
       lockedValues,
+      secondaryFile,
       show: props.show,
       roundValue,
       onTypeChange,
@@ -571,7 +627,9 @@ export default defineComponent({
       onNetWeightChange,
       onGrossWeightChange,
       recalculatePart,
-      getPartImageUrl: props.getPartImageUrl
+      getPartImageUrl: props.getPartImageUrl,
+      onSecondaryFileChange,
+      onSecondaryFileDelete
     };
   }
 });
@@ -580,6 +638,13 @@ export default defineComponent({
 <style>
 .dense-form .v-row {
   margin-bottom: -20px;
+}
+
+.secondary-preview {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  display: inline-block;
 }
 
 .close-btn {

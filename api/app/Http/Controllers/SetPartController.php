@@ -46,6 +46,7 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'required|string|max:255',
             'content'          => 'required|string',
+            'secondary_content'=> 'sometimes|nullable|string',
             'obs'              => 'sometimes|nullable|string',
             'type'             => 'sometimes|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
@@ -69,6 +70,7 @@ class SetPartController extends Controller
         $setPart = SetPart::create([
             'title'            => $request->title,
             'content'          => $request->content,
+            'secondary_content'=> $request->input('secondary_content'),
             'obs'              => $request->input('obs'),
             'set_id'           => $setId,
             'type'             => $request->input('type'),
@@ -121,6 +123,7 @@ class SetPartController extends Controller
         $request->validate([
             'title'            => 'sometimes|required|string|max:255',
             'content'          => 'sometimes|required|string',
+            'secondary_content'=> 'sometimes|nullable|string',
             'obs'              => 'sometimes|nullable|string',
             'type'             => 'sometimes|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
@@ -145,6 +148,7 @@ class SetPartController extends Controller
         $setPart->update($request->only(
             'title',
             'content',
+            'secondary_content',
             'obs',
             'type',
             'material_id',
@@ -202,18 +206,29 @@ class SetPartController extends Controller
 
         $request->validate([
             'file'   => 'required|file|mimes:jpg,jpeg,png,pdf,webp',
-            'set_id' => 'required|integer'
+            'set_id' => 'required|integer',
+            'secondary' => 'sometimes|boolean'
         ]);
 
         $path = $file->store('uploads/order-parts', 'public');
 
-        $setPart = SetPart::create([
-            'title'   => $file->getClientOriginalName(),
-            'content' => Storage::url($path),
-            'set_id'  => $request->input('set_id'),
-        ]);
+        if ($request->boolean('secondary')) {
+            $partId = $request->input('part_id');
 
-        return response()->json($setPart, 201);
+            $setPart = SetPart::findOrFail($partId);
+            $setPart->secondary_content = Storage::url($path);
+            $setPart->save();
+
+            return response()->json($setPart->toArray(), 200);
+        } else {
+            $setPart = SetPart::create([
+                'title'   => $file->getClientOriginalName(),
+                'content' => Storage::url($path),
+                'set_id'  => $request->input('set_id'),
+            ]);
+
+            return response()->json($setPart, 201);
+        }
     }
 
     public static function getPartTypes()
