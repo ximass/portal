@@ -3,57 +3,74 @@
     <h3 class="text-h6">Processos</h3>
     <v-btn small color="primary" @click="addProcess">Adicionar</v-btn>
   </v-row>
-  <div v-for="(proc, index) in internalProcesses" :key="index" class="mb-2">
-    <v-row dense>
-      <v-col cols="3">
-        <v-select
-          label="Processo"
-          :items="processOptions"
-          item-title="title"
-          item-value="id"
-          v-model="proc.id"
-          required
-          density="compact"
-          @update:model-value="onSelectChange(index)"
-        />
-      </v-col>
-      <v-col cols="3">
-        <v-text-field
-          label="Valor por minuto"
-          :model-value="getValuePerMinute(proc.id)"
-          readonly
-          density="compact"
-          prefix="R$"
-        />
-      </v-col>
-      <v-col cols="2">
-        <v-text-field
-          label="Tempo"
-          v-model="proc.pivot.time"
-          type="number"
-          required
-          density="compact"
-          hint="Em minutos"
-          @blur="calculateProcess(index)"
-        />
-      </v-col>
-      <v-col cols="3">
-        <v-text-field
-          label="Valor final"
-          v-model="proc.pivot.final_value"
-          type="number"
-          density="compact"
-          prefix="R$"
-        />
-      </v-col>
-      <v-col cols="1">
-        <v-btn variant="text" small icon color="error" @click="removeProcess(index)">
-          <v-icon small>mdi-delete</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
+  <div class="process-list">
+    <div
+      class="mb-2"
+      v-for="(proc, index) in internalProcesses"
+      :key="index"
+    >
+      <v-row dense>
+        <v-col cols="3">
+          <v-select
+            label="Processo"
+            :items="processOptions"
+            item-title="title"
+            item-value="id"
+            v-model="proc.id"
+            required
+            density="compact"
+            @update:model-value="onSelectChange(index)"
+          />
+        </v-col>
+        <v-col cols="3">
+          <v-text-field
+            label="Valor por minuto"
+            :model-value="getValuePerMinute(proc.id)"
+            readonly
+            density="compact"
+            prefix="R$"
+          />
+        </v-col>
+        <v-col cols="2">
+          <v-text-field
+            label="Tempo"
+            v-model="proc.pivot.time"
+            type="number"
+            required
+            density="compact"
+            hint="Em minutos"
+            @blur="calculateProcess(index)"
+          />
+        </v-col>
+        <v-col cols="3">
+          <v-text-field
+            label="Valor final"
+            v-model="proc.pivot.final_value"
+            type="number"
+            density="compact"
+            prefix="R$"
+          />
+        </v-col>
+        <v-col cols="1">
+          <v-btn variant="text" small icon color="error" @click="removeProcess(index)">
+            <v-icon small>mdi-delete</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </div>
   </div>
 </template>
+
+<style scoped>
+
+.process-list {
+  min-height: 100px;
+  overflow-y: auto;
+  max-height: 150px;
+  overflow-x: hidden;
+}
+
+</style>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, PropType } from 'vue';
