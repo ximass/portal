@@ -212,6 +212,7 @@
 import { defineComponent, ref, watch, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import axios from 'axios';
 import PartForm from '@/components/PartForm.vue';
 import OrderValuesTable from '@/components/OrderValuesTable.vue';
@@ -225,6 +226,7 @@ export default defineComponent({
   },
   setup() {
     const { showToast } = useToast();
+    const { getPartImageUrl } = useMisc();
 
     const route = useRoute();
     const router = useRouter();
@@ -432,11 +434,6 @@ export default defineComponent({
       } catch (error) {
         showToast('Erro ao excluir peça: ' + error, 'error');
       }
-    };
-
-    const getPartImageUrl = (content: string) => {
-      const baseUrl = import.meta.env.VITE_API_URL;
-      return `${baseUrl}${content}`;
     };
 
     // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento

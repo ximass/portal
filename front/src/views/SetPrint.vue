@@ -8,10 +8,13 @@
               {{ set.name }}
             </v-card-title>
           </v-card>
-          <v-table density="compact">
+          <v-table 
+            density="compact"
+          >
             <thead>
               <tr>
                 <th class="font-weight-bold" style="width:30%;">Peça</th>
+                <th class="font-weight-bold" style="width:40px;">Imagem</th>
                 <th class="font-weight-bold">Tipo</th>
                 <th class="font-weight-bold">Qtd.</th>
                 <th class="font-weight-bold">Peso líq. unit.</th>
@@ -26,6 +29,18 @@
               <template v-for="part in set.parts" :key="part.id">
                 <tr>
                   <td style="width:30%;">{{ part.obs ? part.obs : part.title }}</td>
+                  <td>
+                    <span v-if="part.secondary_content">
+                      <img
+                        :src="getPartImageUrl(part.secondary_content)"
+                        alt="Secundária"
+                        style="width:100%;height:100%;object-fit:contain;display:block;"
+                      />
+                    </span>
+                    <span v-else style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+                      <v-icon size="32" color="grey-lighten-1">mdi-image-off</v-icon>
+                    </span>
+                  </td>
                   <td>{{ partTypes[part.type] ?? part.type }}</td>
                   <td>{{ part.quantity }}</td>
                   <td>{{ formatNumber(part.unit_net_weight) }} KG</td>
@@ -36,7 +51,7 @@
                   <td>{{ formatCurrency(part.final_value) }}</td>
                 </tr>
                 <tr v-if="part.processes && part.processes.length" class="process-row">
-                  <td class="arrow-cell">
+                  <td :colspan="2" class="arrow-cell">
                     <div class="d-flex align-center gap-1">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M8 4v6c0 2.21 1.79 4 4 4h3.17l-2.59-2.59L14 10l5 5-5 5-1.41-1.41L15.17 16H12c-3.31 0-6-2.69-6-6V4h2z" fill="#888"/>
@@ -55,6 +70,7 @@
               </template>
               <tr v-if="set.parts?.length" style="font-weight: bold;">
                 <td colspan="2" style="width:30%;">Totais</td>
+                <td></td>
                 <td>{{ totalQuantity(set) }}</td>
                 <td>{{ total(set, 'unit_net_weight', false) }}</td>
                 <td>{{ total(set, 'net_weight', false) }}</td>
@@ -77,9 +93,12 @@ import axios from 'axios';
 import { defineComponent, ref, onMounted, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import type { Set, Part } from '@/types/types';
+import { useMisc } from '@/composables/misc';
 
 export default defineComponent({
   setup() {
+    const { getPartImageUrl } = useMisc();
+
     const route = useRoute();
     const sets = ref<Set[] | Set | null>(null);
     const partTypes = ref<Record<string, string>>({});
@@ -112,6 +131,7 @@ export default defineComponent({
 
       if (orderId) {
         const { data: setsData } = await axios.get(`/api/orders/${orderId}`);
+        
         if (setsData.sets && Array.isArray(setsData.sets)) {
           const setsWithParts = await Promise.all(
             setsData.sets.map(async (set: Set) => await fetchPartsForSet(set))
@@ -123,13 +143,16 @@ export default defineComponent({
       } else if (setId) {
         const response = await fetch(`/api/sets/${setId}`);
         const set = await response.json();
+
         await fetchPartsForSet(set);
+
         sets.value = [set];
       }
 
       await nextTick();
+
       window.dispatchEvent(new Event('print-ready'));
-      setTimeout(() => window.print(), 300);
+      setTimeout(() => window.print(), 500);
     });
 
     function formatNumber(value: number) {
@@ -162,7 +185,15 @@ export default defineComponent({
       return Array.isArray(sets.value) ? sets.value : [sets.value];
     });
 
-    return { setsArray, total, totalQuantity, formatNumber, formatCurrency, partTypes };
+    return { 
+      setsArray, 
+      partTypes,
+      total, 
+      totalQuantity, 
+      formatNumber, 
+      formatCurrency,
+      getPartImageUrl,
+    };
   }
 });
 </script>
