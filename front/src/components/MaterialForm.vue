@@ -8,12 +8,27 @@
         <v-form ref="form" @submit.prevent="submitForm">
           <v-text-field label="Nome do material" v-model="formData.name" :rules="[v => !!v || 'Nome é obrigatório']"
             required />
-          <v-text-field label="Espessura" v-model="formData.thickness" :rules="[v => !!v || 'Espessura é obrigatória']"
-            type="number" required hint="Em mm" />
+          <v-text-field label="Espessura" v-model="formData.thickness"
+            :rules="[
+              v => !!v || 'Espessura é obrigatória',
+              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]"
+            type="number" required hint="Em mm"
+            @blur="formData.thickness = roundValue(formData.thickness, 2)" />
           <v-text-field label="Peso específico" v-model="formData.specific_weight"
-            :rules="[v => !!v || 'Peso específico é obrigatório']" type="number" required hint="Em g/mm³" />
-          <v-text-field label="Preço por kilo" v-model="formData.price_kg" :rules="[v => !!v || 'Preço é obrigatório']"
-            type="number" required hint="Em BRL/kg" />
+            :rules="[
+              v => !!v || 'Peso específico é obrigatório',
+              v => /^\d+(\.\d{1,6})?$/.test(String(v)) || 'Máximo 6 casas decimais'
+            ]"
+            type="number" required hint="Em g/mm³"
+            @blur="formData.specific_weight = roundValue(formData.specific_weight, 6)" />
+          <v-text-field label="Preço por kilo" v-model="formData.price_kg"
+            :rules="[
+              v => !!v || 'Preço é obrigatório',
+              v => /^\d+(\.\d{1,4})?$/.test(String(v)) || 'Máximo 4 casas decimais'
+            ]"
+            type="number" required hint="Em BRL/kg"
+            @blur="formData.price_kg = roundValue(formData.price_kg, 4)" />
         </v-form>
       </v-card-text>
       <v-card-actions class="justify-end">
@@ -30,6 +45,7 @@
 import { defineComponent, ref, watch, type PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import { Material } from '@/types/types';
 
 export default defineComponent({
@@ -43,6 +59,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const internalDialog = ref(props.dialog);
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
 
     const form = ref();
     const formData = ref<Material>({
@@ -85,7 +102,7 @@ export default defineComponent({
       }
     };
 
-    return { internalDialog, form, formData, closeDialog, submitForm };
+    return { internalDialog, form, formData, closeDialog, submitForm, roundValue };
   },
 });
 </script>
