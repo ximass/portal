@@ -20,9 +20,13 @@
             label="Valor unitário (BRL)"
             v-model="formData.unit_value"
             type="number"
-            :rules="[v => !!v || 'Valor unitário é obrigatório']"
+            :rules="[
+              v => !!v || 'Valor unitário é obrigatório',
+              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]"
             required
             hint="Em BRL"
+            @blur="formData.unit_value = roundValue(formData.unit_value, 2)"
           />
           <v-text-field
             label="Fornecedor"
@@ -46,6 +50,7 @@
 import { defineComponent, ref, watch, type PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import { Component as ComponentType } from '@/types/types';
 
 export default defineComponent({
@@ -67,6 +72,7 @@ export default defineComponent({
       supplier: '',
     });
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
 
     watch(() => props.componentData, (newVal) => {
       formData.value = { ...newVal };
@@ -95,7 +101,7 @@ export default defineComponent({
       }
     };
 
-    return { internalDialog, form, formData, closeDialog, submitForm };
+    return { internalDialog, form, formData, closeDialog, submitForm, roundValue };
   },
 });
 </script>

@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name', 255);
             $table->text('specification')->nullable();
-            $table->decimal('unit_value', 10, 4);
+            $table->decimal('unit_value', 10, 2);
             $table->string('supplier')->nullable();
             $table->timestamps();
         });
