@@ -39,6 +39,9 @@
             required
             density="compact"
             hint="Em minutos"
+            step="1"
+            min="0"
+            :rules="[v => Number.isInteger(Number(v)) || 'Apenas números inteiros']"
             @blur="calculateProcess(index)"
           />
         </v-col>
@@ -49,6 +52,8 @@
             type="number"
             density="compact"
             prefix="R$"
+            :rules="[v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais']"
+            @blur="onFinalValueBlur(index)"
           />
         </v-col>
         <v-col cols="1">
@@ -76,6 +81,7 @@
 import { defineComponent, ref, onMounted, watch, PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import type { Process, ProcessPivot } from '@/types/types';
 
 export default defineComponent({
@@ -89,6 +95,8 @@ export default defineComponent({
   emits: ['update:modelValue', 'process-updated'],
   setup(props, { emit }) {
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
+    
     const processOptions = ref<Process[]>([]);
 
     const flattenProcesses = (processes: Array<{ id: Process['id'] | null; pivot: ProcessPivot }>) => {
@@ -127,10 +135,21 @@ export default defineComponent({
       emit('process-updated');
     };
 
+    const onFinalValueBlur = (index: number) => {
+      const proc = internalProcesses.value[index];
+
+      if (proc && typeof proc.pivot.final_value === 'number') {
+        proc.pivot.final_value = roundValue(proc.pivot.final_value, 2);
+      }
+    };
+
     const getValuePerMinute = (id: Process['id'] | null): number | string => {
       if (!id) return '';
       const found = processOptions.value.find(p => p.id === id);
-      return found?.value_per_minute ?? '';
+
+      return found?.value_per_minute !== undefined
+        ? roundValue(found.value_per_minute, 2)
+        : '';
     };
 
     const calculateProcess = async (index: number) => {
@@ -180,6 +199,7 @@ export default defineComponent({
       processOptions,
       addProcess,
       removeProcess,
+      onFinalValueBlur,
       getValuePerMinute,
       calculateProcess,
       onSelectChange
