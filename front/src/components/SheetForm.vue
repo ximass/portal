@@ -24,14 +24,24 @@
             label="Largura (mm)" 
             v-model="formData.width" 
             type="number"
-            :rules="[v => !!v || 'Largura é obrigatória']" 
-            required />
+            :rules="[
+              v => !!v || 'Largura é obrigatória',
+              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]"
+            required
+            @blur="formData.width = roundValue(formData.width, 2)"
+          />
           <v-text-field 
             label="Comprimento (mm)" 
             v-model="formData.length" 
             type="number"
-            :rules="[v => !!v || 'Comprimento é obrigatório']" 
-            required />
+            :rules="[
+              v => !!v || 'Comprimento é obrigatório',
+              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]"
+            required
+            @blur="formData.length = roundValue(formData.length, 2)"
+          />
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -47,6 +57,7 @@
 import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import type { Sheet, Material } from '@/types/types';
 
 export default defineComponent({
@@ -70,6 +81,7 @@ export default defineComponent({
     const internalDialog = ref(props.dialog);
     const form = ref();
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
 
     const formData = ref<Sheet>({
       id: 0,
@@ -139,6 +151,7 @@ export default defineComponent({
       materials,
       closeDialog,
       submitForm,
+      roundValue,
     };
   },
 });
