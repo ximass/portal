@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->string('name', 255);
             $table->decimal('weight', 10, 2);
             $table->decimal('length', 10, 2);
-            $table->decimal('price_kg', 10, 4);
+            $table->decimal('price_kg', 10, 2);
             $table->timestamps();
         });
     }

@@ -16,25 +16,37 @@
             label="Comprimento (mm)" 
             v-model="formData.length" 
             type="number"
-            :rules="[v => !!v || 'Comprimento é obrigatório']" 
+            :rules="[
+              v => !!v || 'Comprimento é obrigatório',
+              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]" 
             required 
             suffix="mm" 
+            @blur="formData.length = roundValue(formData.length, 2)"
           />
           <v-text-field 
             label="Peso (kg)" 
             v-model="formData.weight" 
             type="number" 
-            :rules="[v => !!v || 'Peso é obrigatório']"
+            :rules="[
+              v => !!v || 'Peso é obrigatório',
+              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]"
             required 
             suffix="kg" 
+            @blur="formData.weight = roundValue(formData.weight, 2)"
           />
           <v-text-field 
             label="Preço (R$/kg)" 
             v-model="formData.price_kg" 
             type="number"
-            :rules="[v => !!v || 'Preço é obrigatório']" 
+            :rules="[
+              v => !!v || 'Preço é obrigatório',
+              v => /^\d+(\.\d{1,4})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+            ]" 
             required 
             suffix="R$/kg" 
+            @blur="formData.price_kg = roundValue(formData.price_kg, 2)"
           />
         </v-form>
       </v-card-text>
@@ -53,6 +65,7 @@
 import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import type { Bar } from '@/types/types';
 
 export default defineComponent({
@@ -77,6 +90,7 @@ export default defineComponent({
       price_kg: null,
     });
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
 
     watch(() => props.barData, (newVal) => {
       formData.value = { ...newVal };
@@ -105,7 +119,7 @@ export default defineComponent({
       }
     };
 
-    return { internalDialog, form, formData, closeDialog, submitForm };
+    return { internalDialog, form, formData, closeDialog, submitForm, roundValue };
   },
 });
 </script>
