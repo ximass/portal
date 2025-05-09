@@ -30,7 +30,10 @@
                 type="number"
                 label="Valor por minuto"
                 v-model="form.value_per_minute"
-                :rules="[v => !v || /^\d+(\.\d{1,10})?$/.test(v) || 'Máximo de 10 casas decimais']"
+                :rules="[
+                  v => !v || /^\d+(\.\d{1,2})?$/.test(v) || 'Máximo de 2 casas decimais'
+                ]"
+                @blur="form.value_per_minute = roundValue(form.value_per_minute, 2)"
               />
             </v-col>
           </v-row>
@@ -49,6 +52,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 
 export default defineComponent({
   name: 'ProcessView',
@@ -61,6 +65,7 @@ export default defineComponent({
     const form = ref({ title: '', content: '', value_per_minute: null});
 
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
 
     onMounted(async () => {
       if (!isNew.value) {
@@ -89,7 +94,7 @@ export default defineComponent({
 
     const goBack = () => router.push({ name: 'ProcessesView' });
 
-    return { isNew, form, saveProcess, goBack, processForm, isFormValid };
+    return { isNew, form, saveProcess, goBack, processForm, isFormValid, roundValue };
   },
 });
 </script>
