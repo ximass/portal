@@ -329,6 +329,23 @@ export default defineComponent({
     const selectedSheet = ref<number | null>(null);
     const selectedBar = ref<number | null>(null);
     const selectedComponent = ref<number | null>(null);
+    
+    function roundPartValues(part: Part): Part {
+      return {
+        ...part,
+        unit_net_weight: roundValue(part.unit_net_weight, 2),
+        net_weight: roundValue(part.net_weight, 2),
+        unit_gross_weight: roundValue(part.unit_gross_weight, 2),
+        gross_weight: roundValue(part.gross_weight, 2),
+        unit_value: roundValue(part.unit_value, 2),
+        final_value: roundValue(part.final_value, 2),
+        width: roundValue(part.width, 2),
+        length: roundValue(part.length, 2),
+        loss: part.loss !== null && part.loss !== undefined ? roundValue(part.loss, 2) : null,
+        markup: part.markup !== null && part.markup !== undefined ? roundValue(part.markup, 3) : null,
+        quantity: Math.round(part.quantity),
+      };
+    }
 
     const roundValue = (value: number, decimals: number): number =>
       isNaN(value) ? 0 : Number(parseFloat(value.toString()).toFixed(decimals));
@@ -488,12 +505,20 @@ export default defineComponent({
             locked_values: lockedValues.value
           }
         });
-        localPart.value.unit_net_weight = data.unit_net_weight;
-        localPart.value.net_weight = data.net_weight;
-        localPart.value.unit_gross_weight = data.unit_gross_weight;
-        localPart.value.gross_weight = data.gross_weight;
-        localPart.value.unit_value = data.unit_value;
-        localPart.value.final_value = data.final_value;
+
+        const rounded = roundPartValues(data);
+
+        localPart.value.unit_net_weight = rounded.unit_net_weight;
+        localPart.value.net_weight = rounded.net_weight;
+        localPart.value.unit_gross_weight = rounded.unit_gross_weight;
+        localPart.value.gross_weight = rounded.gross_weight;
+        localPart.value.unit_value = rounded.unit_value;
+        localPart.value.final_value = rounded.final_value;
+        localPart.value.width = rounded.width;
+        localPart.value.length = rounded.length;
+        localPart.value.loss = rounded.loss;
+        localPart.value.markup = rounded.markup;
+        localPart.value.quantity = rounded.quantity;
       } catch (error) {
         showToast('Erro ao calcular propriedades', 'error');
       }

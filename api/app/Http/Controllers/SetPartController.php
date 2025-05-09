@@ -317,8 +317,8 @@ class SetPartController extends Controller
         }
 
         // Converte medidas de mm para m e aplica arredondamento para width e length se necessário
-        $widthInMeters     = round($part->width / 1000, 2);
-        $lengthInMeters    = round($part->length / 1000, 2);
+        $widthInMeters     = $part->width / 1000;
+        $lengthInMeters    = $part->length / 1000;
         $thicknessInMeters = $material->thickness / 1000;
         
         // Peso específico de g/mm³ em kg/m³
@@ -373,12 +373,12 @@ class SetPartController extends Controller
             $finalValue = $part->final_value;
         }
 
-        $part->unit_net_weight   = round($unitNetWeight, 2);
-        $part->net_weight        = round($netWeight, 2);
-        $part->unit_gross_weight = round($unitGrossWeight, 2);
-        $part->gross_weight      = round($grossWeight, 2);
-        $part->unit_value        = round($unitValue, 2);
-        $part->final_value       = round($finalValue, 2);
+        $part->unit_net_weight   = $unitNetWeight;
+        $part->net_weight        = $netWeight;
+        $part->unit_gross_weight = $unitGrossWeight;
+        $part->gross_weight      = $grossWeight;
+        $part->unit_value        = $unitValue;
+        $part->final_value       = $finalValue;
 
         return $part;
     }
@@ -442,12 +442,12 @@ class SetPartController extends Controller
             $finalValue = $part->final_value;
         }
 
-        $part->unit_net_weight   = round($unitNetWeight, 2);
-        $part->net_weight        = round($netWeight, 2);
-        $part->unit_gross_weight = round($unitGrossWeight, 2);
-        $part->gross_weight      = round($grossWeight, 2);
-        $part->unit_value        = round($unitValue, 2);
-        $part->final_value       = round($finalValue, 2);
+        $part->unit_net_weight   = $unitNetWeight;
+        $part->net_weight        = $netWeight;
+        $part->unit_gross_weight = $unitGrossWeight;
+        $part->gross_weight      = $grossWeight;
+        $part->unit_value        = $unitValue;
+        $part->final_value       = $finalValue;
 
         return $part;
     }
@@ -505,12 +505,12 @@ class SetPartController extends Controller
             $finalValue = $part->final_value;
         }
 
-        $part->unit_net_weight   = round($unitNetWeight, 2);
-        $part->net_weight        = round($netWeight, 2);
-        $part->unit_gross_weight = round($unitGrossWeight, 2);
-        $part->gross_weight      = round($grossWeight, 2);
-        $part->unit_value        = round($unitValue, 2);
-        $part->final_value       = round($finalValue, 2);
+        $part->unit_net_weight   = $unitNetWeight;
+        $part->net_weight        = $netWeight;
+        $part->unit_gross_weight = $unitGrossWeight;
+        $part->gross_weight      = $grossWeight;
+        $part->unit_value        = $unitValue;
+        $part->final_value       = $finalValue;
 
         return $part;
     }
@@ -534,12 +534,12 @@ class SetPartController extends Controller
                 'time' => $partProcess['pivot']['time'] ?? 0
             ]);
 
-            $processUnit  += round($value, 2);
-            $processFinal += round($value * $part->quantity, 2);
+            $processUnit  += $value;
+            $processFinal += $value * $part->quantity;
         }
         
-        $part->unit_value  = round($baseUnitValue + $processUnit, 2);
-        $part->final_value = round($baseFinalValue + $processFinal, 2);
+        $part->unit_value  = $baseUnitValue + $processUnit;
+        $part->final_value = $baseFinalValue + $processFinal;
         
         return $part;
     }
