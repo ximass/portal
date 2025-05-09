@@ -266,6 +266,7 @@
 import { defineComponent, PropType, ref, watch, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useMisc } from '@/composables/misc';
 import type { Part, Material, Sheet, Bar, Component } from '@/types/types';
 import ProcessMultiField from '@/components/ProcessMultiField.vue';
 
@@ -280,6 +281,7 @@ export default defineComponent({
   emits: ['part-saved', 'close'],
   setup(props, { emit }) {
     const { showToast } = useToast();
+    const { roundValue } = useMisc();
 
     const localPart = ref<Part>(props.part ? { ...props.part } : {
       id: '',
@@ -346,9 +348,6 @@ export default defineComponent({
         quantity: Math.round(part.quantity),
       };
     }
-
-    const roundValue = (value: number, decimals: number): number =>
-      isNaN(value) ? 0 : Number(parseFloat(value.toString()).toFixed(decimals));
 
     const fetchMaterials = async () => {
       try {
