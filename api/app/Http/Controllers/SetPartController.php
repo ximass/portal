@@ -13,6 +13,8 @@ use App\Http\Controllers\ProcessController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use App\Services\OptimizeFileService;
 
 class SetPartController extends Controller
 {
@@ -205,12 +207,25 @@ class SetPartController extends Controller
         $file = $request->file('file');
 
         $request->validate([
-            'file'   => 'required|file|mimes:jpg,jpeg,png,pdf,webp',
+            'file'   => 'required|file|mimes:jpg,jpeg,png,webp',
             'set_id' => 'required|integer',
             'secondary' => 'sometimes|boolean'
         ]);
 
         $path = $file->store('uploads/order-parts', 'public');
+
+        try
+        {
+            $optimizedImagePath = OptimizeFileService::optimize($path);
+        }
+        catch (\Exception $e)
+        {
+            Log::error("Falha ao otimizar o arquivo {$path}: ".$e->getMessage());
+        }
+
+        if ($optimizedImagePath) {
+            $path = $optimizedImagePath;
+        }
 
         if ($request->boolean('secondary')) {
             $partId = $request->input('part_id');
