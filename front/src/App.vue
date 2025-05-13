@@ -29,10 +29,8 @@ export default defineComponent({
     const drawerOpen = ref(false);
     const route = useRoute();
     const isPrintRoute = computed(() =>
-      route.name === 'SetPrint' ||
-      route.name === 'SetPrintAll' ||
-      route.name === 'PartPrint' ||
-      route.name === 'PartPrintAll'
+      ['SetPrint', 'SetPrintAll', 'PartPrint', 'PartPrintAll']
+        .includes(route.name as string)
     );
 
     fetchUser();

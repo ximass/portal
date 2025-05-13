@@ -1,10 +1,11 @@
 <template>
   <v-navigation-drawer 
     app 
-    v-model="drawerOpen"
+    :value="drawerOpen"
+    :mini-variant="!drawerOpen"
+    expand-on-hover
     :rail="rail"
     permanent
-    @click="rail = false"
   >
     <v-list-item
       :prepend-avatar="props.user?.avatar || 'mdi-account'"
