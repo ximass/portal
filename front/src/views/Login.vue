@@ -3,7 +3,7 @@
     <v-row align="center" justify="center" style="height: 100vh;">
       <v-col cols="12" sm="6" md="4">
         <v-card>
-          <v-img src="/src/assets/images/logo_horizontal.png" contain height="100" class="mt-8"></v-img>
+          <v-img :src="logo" contain height="100" class="mt-8"></v-img>
           <v-card-text>
             <v-card-title class="justify-center">Faça login</v-card-title>
             <v-form ref="form" v-model="isFormValid" @submit.prevent="loginHandler">
@@ -41,6 +41,8 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/auth';
 import { useToast } from '../composables/useToast';
 
+import logo from '@/assets/images/logo_horizontal.png';
+
 export default defineComponent({
   name: 'Login',
   setup() {
@@ -65,7 +67,7 @@ export default defineComponent({
       }
     };
 
-    return { form, isFormValid, email, password, loginHandler };
+    return { form, logo, isFormValid, email, password, loginHandler };
   },
 });
 </script>

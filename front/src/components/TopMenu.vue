@@ -3,7 +3,7 @@
     <v-app-bar-nav-icon @click="toggleDrawer" />
     <v-spacer />
     <div class="logo-header">
-      <v-img src="/../assets/images/logo_horizontal.png" alt="Logo" contain/>
+      <v-img :src="logo" alt="Logo" contain/>
     </div>
     <v-menu v-model="menu" offset-y>
       <template #activator="{ props }">
@@ -42,6 +42,8 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { useAuth } from '../composables/auth';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
+
+import logo from '@/assets/images/logo_horizontal.png';
 
 export default defineComponent({
   name: 'TopMenu',
@@ -92,6 +94,7 @@ export default defineComponent({
 
     return {
       isAuthenticated,
+      logo,
       onLogout,
       goToProfile,
       menu,

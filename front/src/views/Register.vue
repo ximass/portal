@@ -3,7 +3,7 @@
     <v-row align="center" justify="center" style="height: 100vh;">
       <v-col cols="12" sm="6" md="4">
         <v-card>
-          <v-img src="/src/assets/images/logo_horizontal.png" contain height="100" class="mt-8"></v-img>
+          <v-img :src="logo" contain height="100" class="mt-8"></v-img>
           <v-card-text>
             <v-card-title class="justify-center">Registre-se</v-card-title>
             <v-form ref="form" v-model="isFormValid" @submit.prevent="register">
@@ -51,6 +51,8 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
 
+import logo from '@/assets/images/logo_horizontal.png';
+
 export default defineComponent({
   name: 'Register',
   setup() {
@@ -88,7 +90,7 @@ export default defineComponent({
       }
     };
 
-    return { form, isFormValid, name, email, password, password_confirmation, register };
+    return { form, logo, isFormValid, name, email, password, password_confirmation, register };
   },
 });
 </script>
