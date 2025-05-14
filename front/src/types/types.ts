@@ -64,8 +64,8 @@ export interface Component {
 }
 
 export interface Part {
-  id: number | null;
-  set_id: number | null;
+  id: number;
+  set_id: number;
   type: SetPartType['value'] | null;
   material_id: number | null;
   material?: Material;

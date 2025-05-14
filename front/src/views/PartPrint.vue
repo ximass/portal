@@ -25,7 +25,7 @@
                 <v-col cols="12">
                   <v-list-item>
                     <v-list-item-title>Tipo</v-list-item-title>
-                    <v-list-item-subtitle>{{ partTypes[part?.type] ?? part?.type }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ part?.type ? (partTypes[part.type] ?? part.type) : '-' }}</v-list-item-subtitle>
                   </v-list-item>
                 </v-col>
               </v-row>

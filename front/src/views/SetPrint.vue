@@ -41,7 +41,7 @@
                       <v-icon size="32" color="grey-lighten-1">mdi-image-off</v-icon>
                     </span>
                   </td>
-                  <td>{{ partTypes[part.type] ?? part.type }}</td>
+                  <td>{{ part.type ? (partTypes[part.type] ?? part.type) : '' }}</td>
                   <td>{{ part.quantity }}</td>
                   <td>{{ formatNumber(part.unit_net_weight) }} KG</td>
                   <td>{{ formatNumber(part.net_weight) }} KG</td>
