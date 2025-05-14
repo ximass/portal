@@ -92,8 +92,8 @@
 import axios from 'axios';
 import { defineComponent, ref, onMounted, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import type { Set, Part } from '@/types/types';
-import { useMisc } from '@/composables/misc';
+import type { Set, Part } from '../types/types';
+import { useMisc } from '../composables/misc';
 
 export default defineComponent({
   setup() {

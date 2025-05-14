@@ -25,7 +25,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
+import { useToast } from '../composables/useToast';
 
 export default defineComponent({
     name: 'UserForm',
@@ -46,6 +46,7 @@ export default defineComponent({
 
         watch(() => props.userData, (newData) => {
             if (newData) {
+                //@ts-ignore
                 user.value = { ...newData };
             }
         }, { immediate: true });

@@ -49,9 +49,9 @@
 <script lang="ts">
 import { defineComponent, ref, watch, type PropType } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
-import { Component as ComponentType } from '@/types/types';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { Component as ComponentType } from '../types/types';
 
 export default defineComponent({
   name: 'ComponentForm',

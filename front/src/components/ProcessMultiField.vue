@@ -78,11 +78,11 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch, PropType } from 'vue';
+import { defineComponent, ref, onMounted, watch, type PropType } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
-import type { Process, ProcessPivot } from '@/types/types';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { Process, ProcessPivot } from '../types/types';
 
 export default defineComponent({
   name: 'ProcessMultiField',
@@ -116,7 +116,7 @@ export default defineComponent({
         const { data } = await axios.get<Process[]>('/api/processes');
         processOptions.value = data;
       } catch (error) {
-        showToast({ message: 'Erro ao buscar processos: ' + error, type: 'error' });
+        showToast('Erro ao buscar processos: ' + error, 'error');
       }
     };
 
@@ -168,7 +168,7 @@ export default defineComponent({
         });
         proc.pivot.final_value = data.value;
       } catch (error) {
-        showToast({ message: 'Erro ao calcular valor do processo: ' + error, type: 'error' });
+        showToast('Erro ao calcular valor do processo: ' + error, 'error');
         proc.pivot.final_value = 0;
       }
 

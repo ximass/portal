@@ -49,7 +49,7 @@
 import { defineComponent, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { useToast } from '@/composables/useToast';
+import { useToast } from '../composables/useToast';
 
 export default defineComponent({
   name: 'Register',

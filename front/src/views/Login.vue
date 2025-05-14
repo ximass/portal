@@ -38,8 +38,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth } from '@/composables/auth';
-import { useToast } from '@/composables/useToast';
+import { useAuth } from '../composables/auth';
+import { useToast } from '../composables/useToast';
 
 export default defineComponent({
   name: 'Login',

@@ -62,11 +62,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
+import { defineComponent, ref, watch, type PropType } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
-import type { Bar } from '@/types/types';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { Bar } from '../types/types';
 
 export default defineComponent({
   name: 'BarForm',
@@ -85,9 +85,9 @@ export default defineComponent({
     const formData = ref<Bar>({
       id: null,
       name: '',
-      length: null,
-      weight: null,
-      price_kg: null,
+      length: 0,
+      weight: 0,
+      price_kg: 0,
     });
     const { showToast } = useToast();
     const { roundValue } = useMisc();

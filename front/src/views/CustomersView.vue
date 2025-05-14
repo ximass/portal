@@ -38,7 +38,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import CustomerView from '@/components/CustomerView.vue';
+import CustomerView from '../components/CustomerView.vue';
 
 export default defineComponent({
   name: 'CustomersView',

@@ -33,7 +33,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import SheetForm from '@/components/SheetForm.vue';
+import SheetForm from '../components/SheetForm.vue';
 
 export default defineComponent({
   name: 'SheetsView',

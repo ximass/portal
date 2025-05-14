@@ -1,22 +1,22 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import { useAuth } from '@/composables/auth';
+import { useAuth } from '../composables/auth';
 
-import Login from '@/views/Login.vue';
-import Register from '@/views/Register.vue';
-import Home from '@/views/Home.vue';
-import OrdersView from '@/views/OrdersView.vue';
-import OrderView from '@/views/OrderView.vue';
-import GroupsView from '@/views/GroupsView.vue';
-import UsersView from '@/views/UsersView.vue';
-import ProcessView from '@/views/ProcessView.vue';
-import ProcessesView from '@/views/ProcessesView.vue';
-import CustomersView from '@/views/CustomersView.vue';
-import MaterialsView from '@/views/MaterialsView.vue';
-import SheetsView from '@/views/SheetsView.vue';
-import BarsView from '@/views/BarsView.vue';
-import ComponentsView from '@/views/ComponentsView.vue';
-import SetPrint from '@/views/SetPrint.vue';
-import PartPrint from '@/views/PartPrint.vue';
+import Login from '../views/Login.vue';
+import Register from '../views/Register.vue';
+import Home from '../views/Home.vue';
+import OrdersView from '../views/OrdersView.vue';
+import OrderView from '../views/OrderView.vue';
+import GroupsView from '../views/GroupsView.vue';
+import UsersView from '../views/UsersView.vue';
+import ProcessView from '../views/ProcessView.vue';
+import ProcessesView from '../views/ProcessesView.vue';
+import CustomersView from '../views/CustomersView.vue';
+import MaterialsView from '../views/MaterialsView.vue';
+import SheetsView from '../views/SheetsView.vue';
+import BarsView from '../views/BarsView.vue';
+import ComponentsView from '../views/ComponentsView.vue';
+import SetPrint from '../views/SetPrint.vue';
+import PartPrint from '../views/PartPrint.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -138,6 +138,7 @@ const router = createRouter({
   routes,
 });
 
+// @ts-ignore
 router.beforeEach(async (to, from, next) => {
   const { fetchUser, user, isAuthenticated } = useAuth();
   await fetchUser();
@@ -154,6 +155,7 @@ router.beforeEach(async (to, from, next) => {
     return next({ name: 'Home' });
   }
 
+  //@ts-ignore
   if (requiresAdmin && (!user.value || !user.value.admin)) {
     return next({ name: 'Home' });
   }

@@ -25,7 +25,7 @@
           </v-autocomplete>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn text @click="close">Cancelar</v-btn>
+            <v-btn @click="close">Cancelar</v-btn>
             <v-btn color="primary" type="submit">Salvar</v-btn>
           </v-card-actions>
         </v-form>
@@ -35,9 +35,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
+import type { VForm } from 'vuetify/components';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
+import { useToast } from '../composables/useToast';
+import type { Group } from '../types/types';
 
 export default defineComponent({
   name: 'GroupForm',
@@ -47,13 +49,13 @@ export default defineComponent({
       required: true,
     },
     groupData: {
-      type: Object,
+      type: Object as () => Group | null,
       default: null,
     },
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
-    const form = ref(null);
+    const form = ref<VForm | null>(null);
     const group = ref<{ name: string; user_ids: number[]; }>({ name: '', user_ids: [] });
     const users = ref<Array<{ id: number; title: string }>>([]);
     const loadingUsers = ref(false);
@@ -64,7 +66,7 @@ export default defineComponent({
       if (newData) {
         group.value = {
           name: newData.name,
-          user_ids: newData.users.map(user => user.id),
+          user_ids: newData.users.map((user: { id: any; }) => user.id),
         };
       } else {
         group.value = { 
@@ -86,7 +88,11 @@ export default defineComponent({
           users.value = response.data.map((user: any) => ({ id: user.id, title: user.name }));
         }
       } catch (error) {
-        const errorMsg = error.response?.data?.message || 'Erro ao buscar usuários';
+        let errorMsg = 'Erro ao buscar usuários';
+
+        if (typeof error === 'object' && error !== null && 'response' in error) {
+          errorMsg = (error as any).response?.data?.message || errorMsg;
+        }
 
         showToast(errorMsg);
       } finally {
@@ -97,7 +103,7 @@ export default defineComponent({
     const submitForm = async () => {
       const validation = await form.value?.validate();
 
-      if (validation.valid) {
+      if (validation && validation.valid) {
         try {
           const payload = {
             name: group.value.name,
@@ -112,8 +118,12 @@ export default defineComponent({
           emit('saved');
           close();
         } catch (error) {
-          const errorMsg = error.response?.data?.message || 'Erro ao salvar grupo';
-          
+          let errorMsg = 'Erro ao salvar grupo';
+
+          if (typeof error === 'object' && error !== null && 'response' in error) {
+            errorMsg = (error as any).response?.data?.message || errorMsg;
+          }
+
           showToast(errorMsg);
         }
       }

@@ -44,9 +44,9 @@
 <script lang="ts">
 import { defineComponent, ref, watch, type PropType } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
-import { Material } from '@/types/types';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { Material } from '../types/types';
 
 export default defineComponent({
   name: 'MaterialForm',
@@ -65,9 +65,9 @@ export default defineComponent({
     const formData = ref<Material>({
       id: null,
       name: '',
-      thickness: null,
-      specific_weight: null,
-      price_kg: null,
+      thickness: 0,
+      specific_weight: 0,
+      price_kg: 0,
     });
 
     watch(() => props.materialData, (newVal) => {

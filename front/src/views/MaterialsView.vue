@@ -44,8 +44,8 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import MaterialForm from '@/components/MaterialForm.vue';
+import { useToast } from '../composables/useToast';
+import MaterialForm from '../components/MaterialForm.vue';
 
 export default defineComponent({
   name: 'MaterialsView',

@@ -180,7 +180,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
-import type { Part } from '@/types/types';
+import type { Part } from '../types/types';
 
 export default defineComponent({
   props: {

@@ -19,7 +19,7 @@
                 Editar
               </v-list-item-title>
             </v-list-item>
-            <v-list-item @click="deleteProcess(item.id)">
+            <v-list-item @click="item.id !== null && deleteProcess(item.id)">
               <v-list-item-title>
                 <v-icon class="me-2">mdi-delete</v-icon>
                 Excluir
@@ -35,13 +35,14 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import router from '@/router';
-import { useToast } from '@/composables/useToast';
+import router from '../router';
+import { useToast } from '../composables/useToast';
+import type { Process } from '../types/types';
 
 export default defineComponent({
   name: 'ProcessesView',
   setup() {
-    const processes = ref([]);
+    const processes = ref<Process[]>([]);
     const headers = [
       { title: 'Código', value: 'id' },
       { title: 'Nome', value: 'title' },
@@ -60,8 +61,8 @@ export default defineComponent({
     const openForm = () => {
       router.push({ name: 'ProcessView', params: { id: 'new' } });
     };
-
-    const editProcess = (process: any) => {
+    
+    const editProcess = (process: Process) => {
       router.push({ name: 'ProcessView', params: { id: process.id } });
     };
 

@@ -51,8 +51,9 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { ProcessForm } from '../types/types';
 
 export default defineComponent({
   name: 'ProcessView',
@@ -62,7 +63,7 @@ export default defineComponent({
     const isNew = ref(route.params.id === 'new');
     const processForm = ref();
     const isFormValid = ref(false);
-    const form = ref({ title: '', content: '', value_per_minute: null});
+    const form = ref<ProcessForm>({ title: '', content: '', value_per_minute: 0 });
 
     const { showToast } = useToast();
     const { roundValue } = useMisc();

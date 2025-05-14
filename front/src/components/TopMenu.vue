@@ -3,7 +3,7 @@
     <v-app-bar-nav-icon @click="toggleDrawer" />
     <v-spacer />
     <div class="logo-header">
-      <v-img src="/src/assets/images/logo_horizontal.png" alt="Logo" contain/>
+      <v-img src="/../assets/images/logo_horizontal.png" alt="Logo" contain/>
     </div>
     <v-menu v-model="menu" offset-y>
       <template #activator="{ props }">
@@ -37,9 +37,9 @@
 </template>
 
 <script lang="ts">
-import '@/assets/styles/global.css';
+import '../assets/styles/global.css';
 import { defineComponent, ref, onMounted } from 'vue';
-import { useAuth } from '@/composables/auth';
+import { useAuth } from '../composables/auth';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
 

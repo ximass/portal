@@ -6,6 +6,16 @@ export interface OrderForm {
   payment_obs: string;
 }
 
+export interface Order {
+  id: number;
+  customer_id: number | null;
+  final_value: number | null;
+  delivery_type: string | null;
+  markup: number | null;
+  delivery_date: string | null;
+  payment_obs: string | null;
+}
+
 export interface OrderSet {
   id?: number;
   name?: string;
@@ -19,7 +29,7 @@ export interface SetPartType {
 }
 
 export interface Material {
-  id: number;
+  id: number | null;
   name: string;
   thickness: number;
   specific_weight: number;
@@ -28,7 +38,7 @@ export interface Material {
 
 // Campos específicos de uma chapa
 export interface Sheet {
-  id: number;
+  id: number | null;
   name: string;
   material_id: number;
   width: number;
@@ -37,7 +47,7 @@ export interface Sheet {
 
 // Campos específicos de uma barra
 export interface Bar {
-  id: number;
+  id: number | null;
   name: string;
   length: number;
   weight: number;
@@ -46,7 +56,7 @@ export interface Bar {
 
 // Campos específicos de um componente
 export interface Component {
-  id: number;
+  id: number | null;
   name: string;
   specification: string;
   unit_value: number;
@@ -54,13 +64,17 @@ export interface Component {
 }
 
 export interface Part {
-  id: number;
-  set_id: number;
-  type: SetPartType['value'];
+  id: number | null;
+  set_id: number | null;
+  type: SetPartType['value'] | null;
   material_id: number | null;
+  material?: Material;
   sheet_id: number | null;
+  sheet?: Sheet;
   bar_id: number | null;
+  bar?: Bar;
   component_id: number | null;
+  component?: Component;
   title: string;
   content: string | null;
   secondary_content?: string | null;
@@ -75,7 +89,6 @@ export interface Part {
   length: number;
   loss: number | null;
   markup: number | null;
-  weights: number;
   obs?: string;
   processes?: any[];
   locked_values?: string[];
@@ -88,24 +101,31 @@ export interface Set {
 }
 
 export interface User {
-  id: number;
+  id: number | null;
   name: string;
   email: string;
   admin: boolean;
 }
 
 export interface Group {
-  id: number;
+  id: number | null;
   name: string;
   user_ids: number[];
+  users: User[];
 }
 
 export interface Process {
-  id: number;
+  id: number | null;
   title: string;
   content: string;
   value_per_minute: number;
 }
+
+export type ProcessForm = {
+  title: string;
+  content: string;
+  value_per_minute: number;
+};
 
 export interface ProcessPivot {
   time: number;

@@ -32,8 +32,8 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import UserForm from '@/components/UserForm.vue';
-import { useToast } from '@/composables/useToast';
+import UserForm from '../components/UserForm.vue';
+import { useToast } from '../composables/useToast';
 
 export default defineComponent({
     name: 'UsersView',

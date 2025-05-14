@@ -30,7 +30,7 @@
                 Editar
               </v-list-item-title>
             </v-list-item>
-            <v-list-item @click="deleteGroup(item.id)">
+            <v-list-item @click="deleteGroup(item.id!)">
               <v-list-item-title>
                 <v-icon>mdi-delete</v-icon>
                 Excluir
@@ -47,16 +47,17 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import GroupForm from '@/components/GroupForm.vue';
-import { useToast } from '@/composables/useToast';
+import GroupForm from '../components/GroupForm.vue';
+import { useToast } from '../composables/useToast';
+import type { Group } from '../types/types';
 
 export default defineComponent({
   name: 'GroupsView',
   components: { GroupForm },
   setup() {
-    const groups = ref<Array<any>>([]);
+    const groups = ref<Group[]>([]);
     const isFormOpen = ref(false);
-    const selectedGroup = ref<any>(null);
+    const selectedGroup = ref<Group | null>(null);
 
     const { showToast } = useToast();
 
@@ -64,7 +65,10 @@ export default defineComponent({
       try {
         const response = await axios.get('/api/groups');
         
-        groups.value = response.data;
+        groups.value = response.data.map((group: any) => ({
+          ...group,
+          users: group.users ?? [],
+        }));
       } catch (error) {
         showToast('Erro ao buscar grupos');
       }

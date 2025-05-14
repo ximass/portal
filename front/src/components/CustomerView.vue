@@ -25,7 +25,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="closeDialog">Cancelar</v-btn>
+        <v-btn @click="closeDialog">Cancelar</v-btn>
         <v-btn color="primary" @click="submitForm">Salvar</v-btn>
       </v-card-actions>
     </v-card>
@@ -35,8 +35,9 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { VForm } from 'vuetify/components';
 
 export default defineComponent({
   name: 'CustomerView',
@@ -47,9 +48,9 @@ export default defineComponent({
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
-    const internalDialog = ref(props.dialog);
-    const form = ref(null);
+    const form = ref<VForm | null>(null);
     const formData = ref<any>({});
+    const internalDialog = ref(props.dialog);
 
     const { formatPhone, formatCnpj, formatCpf } = useMisc();
     const { showToast } = useToast();
@@ -76,7 +77,7 @@ export default defineComponent({
       try {
         const validation = await form.value?.validate();
 
-        if (validation.valid) {
+        if (validation && validation.valid) {
 
           if (props.isEdit) {
             await axios.put(`/api/customers/${formData.value.id}`, formData.value);
@@ -86,8 +87,12 @@ export default defineComponent({
           emit('saved');
         }
       } catch (error) {
-        const errorMsg = error.response?.data?.message || 'Erro ao salvar grupo';
-          
+        let errorMsg = 'Erro ao salvar grupo';
+        
+        if (typeof error === 'object' && error !== null && 'response' in error) {
+          const err = error as { response?: { data?: { message?: string } } };
+          errorMsg = err.response?.data?.message || errorMsg;
+        }
         showToast(errorMsg);
       }
     };

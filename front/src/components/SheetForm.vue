@@ -46,7 +46,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="closeDialog">Cancelar</v-btn>
+        <v-btn @click="closeDialog">Cancelar</v-btn>
         <v-btn color="primary" @click="submitForm">{{ isEdit ? 'Atualizar' : 'Salvar' }}</v-btn>
       </v-card-actions>
     </v-card>
@@ -54,11 +54,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, PropType } from 'vue';
+import { defineComponent, ref, watch, onMounted, type PropType } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
-import type { Sheet, Material } from '@/types/types';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { Sheet, Material } from '../types/types';
 
 export default defineComponent({
   name: 'SheetForm',

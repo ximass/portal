@@ -17,7 +17,7 @@
             <v-list-item @click="editBar(item)">
               <v-list-item-title>Editar</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="deleteBar(item.id)">
+            <v-list-item @click="item.id !== null && deleteBar(item.id)">
               <v-list-item-title>Excluir</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -32,9 +32,9 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import BarForm from '@/components/BarForm.vue';
-import type { Bar } from '@/types/types';
+import { useToast } from '../composables/useToast';
+import BarForm from '../components/BarForm.vue';
+import type { Bar } from '../types/types';
 
 export default defineComponent({
   name: 'BarsView',
@@ -44,7 +44,13 @@ export default defineComponent({
     const bars = ref<Bar[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
-    const selectedBar = ref<Partial<Bar>>({});
+    const selectedBar = ref<Bar>({
+      id: null,
+      name: '',
+      length: 0,
+      weight: 0,
+      price_kg: 0,
+    });
 
     const headers = [
       { title: 'Código', value: 'id' },
@@ -65,7 +71,13 @@ export default defineComponent({
     };
 
     const openForm = () => {
-      selectedBar.value = {};
+      selectedBar.value = {
+        id: null,
+        name: '',
+        length: 0,
+        weight: 0,
+        price_kg: 0,
+      };
       isEdit.value = false;
       dialog.value = true;
     };

@@ -33,8 +33,8 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
-import ComponentForm from '@/components/ComponentForm.vue';
-import { useToast } from '@/composables/useToast';
+import ComponentForm from '../components/ComponentForm.vue';
+import { useToast } from '../composables/useToast';
 
 export default defineComponent({
   name: 'ComponentsView',

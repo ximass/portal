@@ -89,7 +89,7 @@
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item @click.stop="printSet(setItem)">
+                <v-list-item @click.stop="printSet({ id: setItem.id!, name: setItem.name ?? '', parts: setItem.setParts })">
                   <v-list-item-title>Imprimir</v-list-item-title>
                 </v-list-item>
                 <v-list-item @click.stop="deleteSet(setIndex)">
@@ -211,12 +211,12 @@
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
 import axios from 'axios';
-import PartForm from '@/components/PartForm.vue';
-import OrderValuesTable from '@/components/OrderValuesTable.vue';
-import { OrderForm, OrderSet, Part, Set } from '@/types/types';
+import PartForm from '../components/PartForm.vue';
+import OrderValuesTable from '../components/OrderValuesTable.vue';
+import type { OrderForm, OrderSet, Part, Set } from '../types/types';
 
 export default defineComponent({
   name: 'Orders',

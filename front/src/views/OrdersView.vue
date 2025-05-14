@@ -10,7 +10,7 @@
         class="elevation-1"
       >
         <template #item.delivery_date="{ item }">
-          {{ formatDateBR(item.delivery_date) }}
+          {{ formatDateBR(item.delivery_date ?? '') }}
         </template>
         <template #item.actions="{ item }">
           <v-menu offset-y>
@@ -42,10 +42,10 @@
   <script lang="ts">
   import { defineComponent, ref, onMounted } from 'vue';
   import axios from 'axios';
-  import { useToast } from '@/composables/useToast';
+  import { useToast } from '../composables/useToast';
   import { useRouter } from 'vue-router';
-  import { useMisc } from '@/composables/misc';
-  import { Order } from '@/types/types';
+  import { useMisc } from '../composables/misc';
+  import type { Order } from '../types/types';
   
   export default defineComponent({
     name: 'OrdersView',

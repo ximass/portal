@@ -145,7 +145,7 @@
                 <v-col cols="12" md="4" small="6">
                   <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact"
                     @change="calculateProperties"
-                    @blur="localPart.loss = roundValue(localPart.loss, 2);" suffix="%"/>
+                    @blur="localPart.loss = roundValue(localPart.loss ?? 0, 2);" suffix="%"/>
                 </v-col>
               </v-row>
               <v-row dense>
@@ -196,7 +196,7 @@
                 <v-col cols="12">
                   <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact"
                     @change="calculateProperties"
-                    @blur="localPart.markup = roundValue(localPart.markup, 3); calculateProperties()" suffix="%"/>
+                    @blur="localPart.markup = roundValue(localPart.markup ?? 0, 3); calculateProperties()" suffix="%"/>
                 </v-col>
               </v-row>
             </v-card>
@@ -263,12 +263,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch, onMounted, nextTick } from 'vue';
+import { defineComponent, type PropType, ref, watch, onMounted, nextTick } from 'vue';
 import axios from 'axios';
-import { useToast } from '@/composables/useToast';
-import { useMisc } from '@/composables/misc';
-import type { Part, Material, Sheet, Bar, Component } from '@/types/types';
-import ProcessMultiField from '@/components/ProcessMultiField.vue';
+import { useToast } from '../composables/useToast';
+import { useMisc } from '../composables/misc';
+import type { Part, Material, Sheet, Bar, Component } from '../types/types';
+import ProcessMultiField from '../components/ProcessMultiField.vue';
 
 export default defineComponent({
   name: 'PartForm',
@@ -283,30 +283,7 @@ export default defineComponent({
     const { showToast } = useToast();
     const { roundValue } = useMisc();
 
-    const localPart = ref<Part>(props.part ? { ...props.part } : {
-      id: '',
-      set_id: '',
-      type: '',
-      material_id: null,
-      sheet_id: null,
-      bar_id: null,
-      component_id: null,
-      title: '',
-      content: '',
-      obs: '',
-      quantity: 0,
-      unit_net_weight: 0,
-      unit_gross_weight: 0,
-      net_weight: 0,
-      gross_weight: 0,
-      unit_value: 0,
-      final_value: 0,
-      width: 0,
-      length: 0,
-      loss: 0,
-      markup: 0,
-      processes: []
-    });
+    const localPart = ref<Part>(props.part ? { ...props.part } : {} as Part);
 
     // Estado para propriedades travadas
     const lockedValues = ref<string[]>(props.part?.locked_values ?? []);

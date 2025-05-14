@@ -65,8 +65,10 @@
 </template>
 
 <script lang="ts">
+// @ts-nocheck
+// v-data-table bug
 import { defineComponent } from 'vue';
-import { Part } from '@/types/types';
+import type { Part } from '../types/types';
 
 export default defineComponent({
   name: 'OrderValuesTable',
