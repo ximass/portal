@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        'api/register',
+        'api/login',
+        'api/logout',
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
