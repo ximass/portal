@@ -43,6 +43,10 @@ export function useMisc() {
   };
 
   const roundValue = (value: number, decimals: number): number => {
+    if (value === null || value === undefined) {
+      return 0;
+    }
+    
     return isNaN(value) ? 0 : Number(parseFloat(value.toString()).toFixed(decimals));
   }
 
