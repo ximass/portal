@@ -63,7 +63,17 @@
     </v-row>
 
     <!-- Listagem de conjuntos -->
-    <v-card v-for="(setItem, setIndex) in sets" :key="setItem.id" class="mb-4">
+    <v-card
+      v-for="(setItem, setIndex) in sets"
+      :key="setItem.id"
+      class="mb-4"
+    >
+      <v-progress-linear
+        v-if="uploadingIndex === setIndex"
+        indeterminate
+        color="primary"
+        height="4"
+      />
       <v-card-title>
         <v-row class="d-flex flex-row">
           <v-col cols="4">
@@ -105,6 +115,7 @@
           v-model="setItem.fileList"
           multiple
           clearable
+          :disabled="uploadingIndex === setIndex"
           label="Selecione arquivos"
           show-size
           counter
@@ -259,6 +270,8 @@ export default defineComponent({
       { title: 'Peso líquido', value: 'net_weight', sortable: true },
     ];
 
+    const uploadingIndex = ref<number|null>(null);
+
     const updatePartInList = (updatedPart: Part) => {
       sets.value.forEach((set) => {
         const index = set.setParts.findIndex((part) => part.id === updatedPart.id);
@@ -389,17 +402,9 @@ export default defineComponent({
       }
     };
 
-    watch(
-      () => sets.value.map((s) => s.fileList),
-      (newValues) => {
-        newValues.forEach((files, index) => {
-          if (files && files.length) handleFileUpload(index);
-        });
-      },
-      { deep: true }
-    );
-
     const handleFileUpload = async (setIndex: number) => {
+      uploadingIndex.value = setIndex;
+
       const currentSet = sets.value[setIndex];
       const files = currentSet.fileList;
       if (files && files.length && currentSet.id) {
@@ -425,7 +430,18 @@ export default defineComponent({
         }
       }
       currentSet.fileList = null;
+      uploadingIndex.value = null;
     };
+
+    watch(
+      () => sets.value.map((s) => s.fileList),
+      (newValues) => {
+        newValues.forEach((files, index) => {
+          if (files && files.length) handleFileUpload(index);
+        });
+      },
+      { deep: true }
+    );
 
     const deletePart = (setIndex: number, partIndex: number) => {
       try {
@@ -509,6 +525,7 @@ export default defineComponent({
       customers,
       deliveryTypeOptions,
       sets,
+      uploadingIndex,
       saveOrder,
       createSet,
       deleteSet,
@@ -528,7 +545,8 @@ export default defineComponent({
       printOrder,
       printPart,
       printAllParts,
-      onMarkupChange
+      onMarkupChange,
+      handleFileUpload,
     };
   },
 });

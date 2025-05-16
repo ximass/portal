@@ -246,7 +246,7 @@ class SetPartController extends Controller
                         'set_id'  => $request->input('set_id'),
                     ]);
                 }
-                
+
                 return response()->json($created, 201);
             }
 
