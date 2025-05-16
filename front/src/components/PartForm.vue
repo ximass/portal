@@ -14,8 +14,23 @@
         <v-row>
           <!-- Left: Image panel -->
           <v-col cols="6">
-            <v-responsive max-height="60vh" max-width="40vw" class="overflow-auto">
-              <v-img v-if="part?.content" :src="getPartImageUrl(part.content)" contain max-width="100%" />
+            <v-responsive max-height="60vh" max-width="40vw" min-height="50vh">
+              <template v-if="localPart.content">
+                <template v-if="isPdf(localPart.content)">
+                  <iframe 
+                    :src="getPartImageUrl(localPart.content)" 
+                    width="100%" 
+                    height="100%"
+                  />
+                </template>
+                <template v-else>
+                  <v-img 
+                    :src="getPartImageUrl(localPart.content)" 
+                    contain 
+                    max-width="100%" 
+                  />
+                </template>
+              </template>
               <div v-else>Sem imagem para exibir</div>
             </v-responsive>
             <!-- Upload secundário-->
@@ -598,6 +613,10 @@ export default defineComponent({
       secondaryFile.value = null;
     };
 
+    const isPdf = (filePath: string): boolean => {
+      return filePath.toLowerCase().endsWith('.pdf');
+    };
+
     return {
       localPart,
       setPartTypes,
@@ -630,7 +649,8 @@ export default defineComponent({
       recalculatePart,
       getPartImageUrl: props.getPartImageUrl,
       onSecondaryFileChange,
-      onSecondaryFileDelete
+      onSecondaryFileDelete,
+      isPdf,
     };
   }
 });

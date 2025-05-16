@@ -207,7 +207,7 @@ class SetPartController extends Controller
         $file = $request->file('file');
 
         $request->validate([
-            'file'   => 'required|file|mimes:jpg,jpeg,png,webp',
+            'file'   => 'required|file|mimes:jpg,jpeg,png,webp,pdf',
             'set_id' => 'required|integer',
             'secondary' => 'sometimes|boolean'
         ]);

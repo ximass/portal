@@ -62,7 +62,7 @@ export default defineComponent({
             }
 
             try {
-                await axios.put(`/api/user/${user.value.id}`, user.value);
+                await axios.put(`/api/users/${user.value.id}`, user.value);
                 emit('saved');
             } catch (error) {
                 showToast('Erro ao atualizar usuário');

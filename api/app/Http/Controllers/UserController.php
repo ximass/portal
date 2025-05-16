@@ -33,7 +33,7 @@ class UserController extends Controller
         return response()->json($users);
     }
 
-    public function updateUser(Request $request, User $user)
+    public function update(Request $request, User $user)
     {
         $request->validate([
             'name' => 'required|string|max:255',
