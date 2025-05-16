@@ -28,11 +28,13 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'final_value'   => 'nullable|numeric',
+            'type'           => 'required|in:pre_order,order',
+            'final_value'    => 'nullable|numeric',
             'customer_id'   => 'nullable|integer',
             'markup'        => 'nullable|numeric',
             'delivery_type' => 'nullable|in:CIF,FOB',
             'delivery_date' => 'nullable|date',
+            'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string'
         ]);
 
@@ -51,11 +53,13 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'final_value'   => 'sometimes|required|numeric',
+            'type'           => 'sometimes|required|in:pre_order,order',
+            'final_value'    => 'sometimes|required|numeric',
             'customer_id'   => 'nullable|integer',
             'markup'        => 'nullable|numeric',
             'delivery_type' => 'nullable|in:CIF,FOB',
             'delivery_date' => 'nullable|date',
+            'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string'
         ]);
 

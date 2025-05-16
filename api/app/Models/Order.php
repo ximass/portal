@@ -11,10 +11,12 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id',
+        'type',
         'final_value',
         'delivery_type',
         'markup',
         'delivery_date',
+        'estimated_delivery_date',
         'payment_obs',
     ];
 

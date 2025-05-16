@@ -1,18 +1,24 @@
+export type OrderType = 'pre_order' | 'order';
+
 export interface OrderForm {
+  type: OrderType;
   customer_id: string;
   delivery_type: string;
   markup: string;
   delivery_date: string;
+  estimated_delivery_date: string;
   payment_obs: string;
 }
 
 export interface Order {
   id: number;
+  type: OrderType;
   customer_id: number | null;
   final_value: number | null;
   delivery_type: string | null;
   markup: number | null;
   delivery_date: string | null;
+  estimated_delivery_date: string | null;
   payment_obs: string | null;
 }
 

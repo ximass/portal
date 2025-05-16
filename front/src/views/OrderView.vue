@@ -7,6 +7,15 @@
           <v-row>
             <v-col cols="12" md="3" sm="12">
               <v-select
+                label="Tipo"
+                v-model="form.type"
+                :items="orderTypeOptions"
+                item-value="value"
+                item-text="title"
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-select
                 label="Cliente"
                 v-model="form.customer_id"
                 :items="customers"
@@ -33,6 +42,13 @@
                 item-value="value"
                 item-text="title"
                 clearable
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-text-field
+                label="Data estimada de entrega"
+                v-model="form.estimated_delivery_date"
+                type="text"
               />
             </v-col>
             <v-col cols="12" md="3" sm="12">
@@ -216,7 +232,7 @@ import { useMisc } from '../composables/misc';
 import axios from 'axios';
 import PartForm from '../components/PartForm.vue';
 import OrderValuesTable from '../components/OrderValuesTable.vue';
-import type { OrderForm, OrderSet, Part, Set } from '../types/types';
+import type { OrderForm, OrderSet, Part, Set, OrderType } from '../types/types';
 
 export default defineComponent({
   name: 'Orders',
@@ -234,12 +250,19 @@ export default defineComponent({
     const customers = ref<any[]>([]);
 
     const form = ref<OrderForm>({
+      type: 'pre_order',
       customer_id: '',
       delivery_type: '',
       markup: '',
       delivery_date: '',
+      estimated_delivery_date: '',
       payment_obs: ''
     });
+
+    const orderTypeOptions = ref<{ title: string; value: OrderType }[]>([
+      { title: 'Orçamento', value: 'pre_order' },
+      { title: 'Pedido',    value: 'order' }
+    ]);
 
     const deliveryTypeOptions = ref([
       { title: 'CIF', value: 'CIF' },
@@ -291,10 +314,12 @@ export default defineComponent({
       if (!isNew.value && route.params.id) {
         try {
           const { data } = await axios.get(`/api/orders/${route.params.id}`);
+          form.value.type = data.type;
           form.value.customer_id = data.customer_id;
           form.value.delivery_type = data.delivery_type;
           form.value.markup = data.markup;
           form.value.delivery_date = data.delivery_date;
+          form.value.estimated_delivery_date = data.estimated_delivery_date;
           form.value.payment_obs = data.payment_obs;
 
           if (data.sets && data.sets.length) {
@@ -317,24 +342,22 @@ export default defineComponent({
 
     const saveOrder = async () => {
       try {
+        const payload = {
+          type: form.value.type,
+          customer_id: form.value.customer_id,
+          delivery_type: form.value.delivery_type,
+          markup: form.value.markup,
+          delivery_date: form.value.delivery_date,
+          estimated_delivery_date: form.value.estimated_delivery_date,
+          payment_obs: form.value.payment_obs,
+        };
+
         if (isNew.value) {
-          const { data } = await axios.post('/api/orders', {
-            customer_id: form.value.customer_id,
-            delivery_type: form.value.delivery_type,
-            markup: form.value.markup,
-            delivery_date: form.value.delivery_date,
-            payment_obs: form.value.payment_obs
-          });
+          const { data } = await axios.post('/api/orders', payload);
           isNew.value = false;
           router.push({ name: 'OrderView', params: { id: data.id } });
         } else {
-          await axios.put(`/api/orders/${route.params.id}`, {
-            customer_id: form.value.customer_id,
-            delivery_type: form.value.delivery_type,
-            markup: form.value.markup,
-            delivery_date: form.value.delivery_date,
-            payment_obs: form.value.payment_obs
-          });
+          await axios.put(`/api/orders/${route.params.id}`, payload);
         }
         showToast('Pedido salvo com sucesso.', 'success');
       } catch (error) {
@@ -500,6 +523,7 @@ export default defineComponent({
       isNew,
       form,
       customers,
+      orderTypeOptions,
       deliveryTypeOptions,
       sets,
       saveOrder,
