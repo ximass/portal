@@ -411,7 +411,14 @@ export default defineComponent({
             const response = await axios.post('/api/upload-set-part', formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
             });
-            currentSet.setParts.push(response.data);
+
+            const data = response.data;
+            
+            if (Array.isArray(data)) {
+              data.forEach(part => currentSet.setParts.push(part));
+            } else {
+              currentSet.setParts.push(data);
+            }
           } catch (error) {
             showToast('Erro ao fazer upload de arquivo: ' + error, 'error');
           }
