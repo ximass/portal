@@ -128,7 +128,7 @@
             </v-row>
 
             <!-- Campos Complementares para material, sheet e bar -->
-            <v-card v-if="localPart.type === 'material' || localPart.type === 'sheet' || localPart.type === 'bar'" class="pa-4">
+            <template v-if="localPart.type === 'material' || localPart.type === 'sheet' || localPart.type === 'bar'" class="pa-4">
               <v-row dense>
                 <template v-if="localPart.type === 'material' || localPart.type === 'sheet'">
                   <v-col cols="12" md="4" small="6">
@@ -188,10 +188,10 @@
                   </v-text-field>
                 </v-col>
               </v-row>
-            </v-card>
+            </template>
 
             <!-- Campo Complementar para component -->
-            <v-card v-if="localPart.type === 'component'" class="pa-4">
+            <template v-if="localPart.type === 'component'" class="pa-4">
               <v-row dense>
                 <v-col cols="12">
                   <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact"
@@ -199,10 +199,10 @@
                     @blur="localPart.markup = roundValue(localPart.markup ?? 0, 3); calculateProperties()" suffix="%"/>
                 </v-col>
               </v-row>
-            </v-card>
+            </template>
 
             <!-- Campos que sempre estarão presentes -->
-            <v-card class="pa-4">
+            <v-sheet>
               <v-row dense>
                 <v-col cols="12" md="4" small="6">
                   <v-text-field
@@ -247,7 +247,7 @@
                   </v-text-field>
                 </v-col>
               </v-row>
-            </v-card>
+            </v-sheet>
 
             <ProcessMultiField v-model="localPart.processes" @process-updated="calculateProperties" />
           </v-col>
