@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Services\OptimizeFileService;
+use App\Services\PdfToWebpService; // <-- import
 
 class SetPartController extends Controller
 {
@@ -207,23 +208,20 @@ class SetPartController extends Controller
         $file = $request->file('file');
 
         $request->validate([
-            'file'   => 'required|file|mimes:jpg,jpeg,png,webp,pdf',
-            'set_id' => 'required|integer',
-            'secondary' => 'sometimes|boolean'
+            'file'      => 'required|file|mimes:jpg,jpeg,png,webp,pdf',
+            'set_id'    => 'required|integer',
+            'secondary'=> 'sometimes|boolean'
         ]);
 
         $path = $file->store('uploads/order-parts', 'public');
 
-        try
-        {
+        try {
             $optimizedImagePath = OptimizeFileService::optimize($path);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error("Falha ao otimizar o arquivo {$path}: ".$e->getMessage());
         }
 
-        if ($optimizedImagePath) {
+        if (!empty($optimizedImagePath)) {
             $path = $optimizedImagePath;
         }
 
@@ -236,6 +234,22 @@ class SetPartController extends Controller
 
             return response()->json($setPart->toArray(), 200);
         } else {
+            if ($file->getClientOriginalExtension() === 'pdf') {
+                $pdfService = new PdfToWebpService();
+                $webpPaths = $pdfService->convert($path, 'uploads/order-parts');
+
+                $created = [];
+                foreach ($webpPaths as $webp) {
+                    $created[] = SetPart::create([
+                        'title'   => pathinfo($webp, PATHINFO_FILENAME),
+                        'content' => Storage::url($webp),
+                        'set_id'  => $request->input('set_id'),
+                    ]);
+                }
+
+                return response()->json($created, 201);
+            }
+
             $setPart = SetPart::create([
                 'title'   => $file->getClientOriginalName(),
                 'content' => Storage::url($path),
