@@ -32,6 +32,7 @@ class PdfToWebpService
 
         // Define a resolução antes de ler (importante para qualidade)
         $imagick->setResolution($resolution, $resolution);
+        $imagick->setBackgroundColor('white');
 
         // Lê o PDF inteiro; cada página vira um frame
         $imagick->readImage($fullPdfPath);
@@ -39,10 +40,26 @@ class PdfToWebpService
         $generated = [];
 
         foreach ($imagick as $index => $page) {
-            // Define o formato de saída
-            $page->setImageFormat('webp');
-            // Opcional: ajustar a compressão
-            $page->setImageCompressionQuality(80);
+            // Remove canal alpha para eliminar transparência
+            $page->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+            
+            // Define fundo branco para a página
+            $page->setImageBackgroundColor('white');
+            
+            // Cria uma nova imagem com fundo branco
+            $background = new Imagick();
+            $background->newImage($page->getImageWidth(), $page->getImageHeight(), 'white');
+            $background->setImageFormat('webp');
+            
+            // Compõe a página sobre o fundo branco
+            $background->compositeImage($page, Imagick::COMPOSITE_OVER, 0, 0);
+            
+            // Achata as camadas para garantir fundo sólido
+            $background = $background->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
+
+            // Define o formato de saída e compressão
+            $background->setImageFormat('webp');
+            $background->setImageCompressionQuality(80);
 
             // Nome de arquivo: pdf-nome-página-{i}.webp
             $filename = Str::slug(pathinfo($pdfPath, PATHINFO_FILENAME))
@@ -51,9 +68,13 @@ class PdfToWebpService
             $relativePath = "{$outputDir}/{$filename}";
 
             // grava no disco public
-            $disk->put($relativePath, $page->getImageBlob());
+            $disk->put($relativePath, $background->getImageBlob());
 
             $generated[] = $relativePath;
+            
+            // Limpa a imagem de fundo da memória
+            $background->clear();
+            $background->destroy();
         }
 
         // Libera memória
