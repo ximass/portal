@@ -29,6 +29,14 @@
         </v-menu>
       </template>
     </v-data-table>
+    
+    <ConfirmDialog
+      :show="isConfirmDialogOpen"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      @confirm="handleConfirm"
+      @cancel="closeConfirm"
+    />
   </v-container>
 </template>
 
@@ -37,10 +45,13 @@ import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import router from '../router';
 import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
 import type { Process } from '../types/types';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 export default defineComponent({
   name: 'ProcessesView',
+  components: { ConfirmDialog },
   setup() {
     const processes = ref<Process[]>([]);
     const headers = [
@@ -52,6 +63,7 @@ export default defineComponent({
     ];
 
     const { showToast } = useToast();
+    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
 
     const fetchProcesses = async () => {
       const { data } = await axios.get('/api/processes');
@@ -64,26 +76,38 @@ export default defineComponent({
     
     const editProcess = (process: Process) => {
       router.push({ name: 'ProcessView', params: { id: process.id } });
-    };
-
+    };    
+    
     const deleteProcess = async (id: number) => {
-      try {
-        const confirmed = window.confirm('Deseja realmente excluir este processo?');
-
-        if (!confirmed) {
-          return;
-        }
-        
-        await axios.delete(`/api/processes/${id}`);
-        fetchProcesses();
-      }
-      catch (error) {
-        showToast('Erro ao excluir processo', 'error');
-      }
-    };
-
+      openConfirm(
+        'Tem certeza que deseja excluir este processo?',
+        async () => {
+          try {
+            await axios.delete(`/api/processes/${id}`);
+            await fetchProcesses();
+            showToast('Processo excluído com sucesso.', 'success');
+          } catch (error) {
+            showToast('Erro ao excluir processo', 'error');
+          }
+        },
+        'Excluir processo'
+      );
+    };    
+    
     onMounted(() => fetchProcesses());
-    return { processes, headers, openForm, editProcess, deleteProcess };
+    
+    return { 
+      processes, 
+      headers, 
+      openForm, 
+      editProcess, 
+      deleteProcess, 
+      isConfirmDialogOpen, 
+      confirmTitle, 
+      confirmMessage, 
+      closeConfirm, 
+      handleConfirm 
+    };
   },
 });
 </script>

@@ -22,25 +22,33 @@
             <v-btn icon v-bind="props" variant="text">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
-          </template>
-          <v-list>
+          </template>          <v-list>
             <v-list-item @click="editGroup(item)">
               <v-list-item-title>
-                <v-icon>mdi-pencil</v-icon>
+                <v-icon class="me-2">mdi-pencil</v-icon>
                 Editar
               </v-list-item-title>
             </v-list-item>
             <v-list-item @click="deleteGroup(item.id!)">
               <v-list-item-title>
-                <v-icon>mdi-delete</v-icon>
+                <v-icon class="me-2">mdi-delete</v-icon>
                 Excluir
               </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
       </template>
-    </v-data-table>
+    </v-data-table>    
+    
     <GroupForm :dialog="isFormOpen" :groupData="selectedGroup" @close="isFormOpen = false" @saved="fetchGroups" />
+    
+    <ConfirmDialog
+      :show="isConfirmDialogOpen"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      @confirm="handleConfirm"
+      @cancel="closeConfirm"
+    />
   </v-container>
 </template>
 
@@ -48,18 +56,21 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import GroupForm from '../components/GroupForm.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
 import type { Group } from '../types/types';
 
 export default defineComponent({
   name: 'GroupsView',
-  components: { GroupForm },
+  components: { GroupForm, ConfirmDialog },
   setup() {
     const groups = ref<Group[]>([]);
     const isFormOpen = ref(false);
     const selectedGroup = ref<Group | null>(null);
 
     const { showToast } = useToast();
+    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
 
     const fetchGroups = async () => {
       try {
@@ -79,31 +90,30 @@ export default defineComponent({
       isFormOpen.value = true;
     };
 
-    const editGroup = (group: any) => {
+    const editGroup = (group: Group) => {
       selectedGroup.value = group;
       isFormOpen.value = true;
-    };
-
-    const deleteGroup = async (groupId: number) => {
-      try {
-        const confirmed = window.confirm('Deseja realmente excluir este grupo?');
-
-        if (!confirmed) {
-          return;
-        }
-
-        await axios.delete(`/api/groups/${groupId}`);
-        fetchGroups();
-      } catch (error) {
-        showToast('Erro ao deletar grupo');
-      }
+    };    
+    
+    const deleteGroup = async (id: number) => {
+      openConfirm(
+        'Deseja realmente excluir este grupo?',
+        async () => {
+          try {
+            await axios.delete(`/api/groups/${id}`);
+            fetchGroups();
+            showToast('Grupo excluído com sucesso', 'success');
+          } catch (error) {
+            showToast('Erro ao deletar grupo');
+          }
+        },
+        'Confirmar exclusão'
+      );
     };
 
     onMounted(() => {
       fetchGroups();
-    });
-
-    return {
+    });    return {
       groups,
       isFormOpen,
       selectedGroup,
@@ -111,6 +121,11 @@ export default defineComponent({
       editGroup,
       deleteGroup,
       fetchGroups,
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      closeConfirm,
+      handleConfirm,
     };
   },
 });

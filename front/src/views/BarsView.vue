@@ -23,9 +23,17 @@
           </v-list>
         </v-menu>
       </template>
-    </v-data-table>
-
+    </v-data-table>    
+    
     <BarForm :dialog="dialog" :barData="selectedBar" :isEdit="isEdit" @close="dialog = false" @saved="handleSaved" />
+    
+    <ConfirmDialog
+      :show="isConfirmDialogOpen"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      @confirm="handleConfirm"
+      @cancel="closeConfirm"
+    />
   </v-container>
 </template>
 
@@ -33,14 +41,17 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
 import BarForm from '../components/BarForm.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 import type { Bar } from '../types/types';
 
 export default defineComponent({
   name: 'BarsView',
-  components: { BarForm },
+  components: { BarForm, ConfirmDialog },  
   setup() {
     const { showToast } = useToast();
+    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
     const bars = ref<Bar[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
@@ -91,24 +102,44 @@ export default defineComponent({
     const handleSaved = () => {
       dialog.value = false;
       fetchBars();
-    };
-
+    };    
+    
     const deleteBar = async (id: number) => {
-      if (!confirm('Deseja excluir esta barra?')) return;
-
-      try {
-        await axios.delete(`/api/bars/${id}`);
-        fetchBars();
-      } catch (error: any) {
-        showToast('Erro ao excluir barra: ' + error.response?.data?.message || 'Erro desconhecido', 'error');
-      }
+      openConfirm(
+        'Tem certeza que deseja excluir esta barra?',
+        async () => {
+          try {
+            await axios.delete(`/api/bars/${id}`);
+            fetchBars();
+            showToast('Barra excluída com sucesso!', 'success');
+          } catch (error: any) {
+            showToast('Erro ao excluir barra: ' + error.response?.data?.message || 'Erro desconhecido', 'error');
+          }
+        },
+        'Excluir barra'
+      );
     };
 
     onMounted(() => {
       fetchBars();
     });
 
-    return { bars, headers, dialog, isEdit, selectedBar, openForm, editBar, deleteBar, handleSaved };
+    return { 
+      bars, 
+      headers, 
+      dialog, 
+      isEdit, 
+      selectedBar, 
+      openForm, 
+      editBar, 
+      deleteBar, 
+      handleSaved,
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      closeConfirm,
+      handleConfirm
+    };
   },
 });
 </script>

@@ -58,14 +58,14 @@ import { defineComponent, ref, watch, onMounted, type PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
-import type { Sheet, Material } from '../types/types';
+import type { SheetForm as SheetFormType, Material } from '../types/types';
 
 export default defineComponent({
   name: 'SheetForm',
   props: {
     dialog: { type: Boolean, required: true },
     sheetData: {
-      type: Object as PropType<Sheet>,
+      type: Object as PropType<SheetFormType>,
       default: () => ({
         id: null,
         material_id: 0,
@@ -83,7 +83,7 @@ export default defineComponent({
     const { showToast } = useToast();
     const { roundValue } = useMisc();
 
-    const formData = ref<Sheet>({
+    const formData = ref<SheetFormType>({
       id: 0,
       name: '',
       material_id: 0,

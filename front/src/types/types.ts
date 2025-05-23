@@ -51,6 +51,14 @@ export interface Sheet {
   length: number;
 }
 
+export interface SheetForm {
+  id: number | null;
+  name: string;
+  material_id: number | null;
+  width: number;
+  length: number;
+}
+
 // Campos específicos de uma barra
 export interface Bar {
   id: number | null;

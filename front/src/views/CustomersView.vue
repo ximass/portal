@@ -32,6 +32,14 @@
       @close="dialog = false"
       @saved="handleSaved"
     />
+    
+    <ConfirmDialog
+      :show="isConfirmDialogOpen"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      @confirm="handleConfirm"
+      @cancel="closeConfirm"
+    />
   </v-container>
 </template>
 
@@ -39,15 +47,17 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import CustomerView from '../components/CustomerView.vue';
+import { useConfirm } from '../composables/useConfirm';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 export default defineComponent({
   name: 'CustomersView',
-  components: { CustomerView },
-  setup() {
+  components: { CustomerView, ConfirmDialog },  setup() {
     const customers = ref<any[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
     const formData = ref<any>({});
+    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
 
     const headers = [
       { title: 'Nome', value: 'name' },
@@ -78,16 +88,25 @@ export default defineComponent({
     const handleSaved = () => {
       dialog.value = false;
       fetchCustomers();
-    };
-
+    };    
+    
     const deleteCustomer = async (id: number) => {
-      if (!confirm('Deseja excluir este cliente?')) return;
-      await axios.delete(`/api/customers/${id}`);
-      fetchCustomers();
+      openConfirm(
+        'Tem certeza que deseja excluir este cliente?',
+        async () => {
+          try {
+            await axios.delete(`/api/customers/${id}`);
+            fetchCustomers();
+          } catch (error) {
+            console.error('Erro ao excluir cliente:', error);
+          }
+        },
+        'Excluir cliente'
+      );
     };
 
-    onMounted(() => fetchCustomers());
-
+    onMounted(() => fetchCustomers());    
+    
     return {
       customers,
       headers,
@@ -99,6 +118,11 @@ export default defineComponent({
       editCustomer,
       deleteCustomer,
       handleSaved,
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      closeConfirm,
+      handleConfirm,
     };
   },
 });

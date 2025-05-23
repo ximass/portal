@@ -17,7 +17,7 @@
             <v-list-item @click="editComponent(item)">
               <v-list-item-title>Editar</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="deleteComponent(item.material_id)">
+            <v-list-item @click="item.id !== null && deleteComponent(item.id)">
               <v-list-item-title>Excluir</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -25,8 +25,21 @@
       </template>
     </v-data-table>
 
-    <ComponentForm :dialog="dialog" :componentData="selectedComponent" :isEdit="isEdit" @close="dialog = false"
-      @saved="handleSaved" />
+    <ComponentForm 
+      :dialog="dialog" 
+      :componentData="selectedComponent" 
+      :isEdit="isEdit" 
+      @close="dialog = false"
+      @saved="handleSaved" 
+    />
+      
+    <ConfirmDialog
+      :show="isConfirmDialogOpen"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      @confirm="handleConfirm"
+      @cancel="closeConfirm"
+    />
   </v-container>
 </template>
 
@@ -34,16 +47,28 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
 import ComponentForm from '../components/ComponentForm.vue';
+import type { Component } from '../types/types';
 import { useToast } from '../composables/useToast';
+import { useConfirm } from '../composables/useConfirm';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 export default defineComponent({
   name: 'ComponentsView',
-  components: { ComponentForm },
+  components: { ComponentForm, ConfirmDialog },
   setup() {
-    const components = ref<any[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
-    const selectedComponent = ref<any>({});
+    const { showToast } = useToast();
+    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+
+    const components = ref<Component[]>([]);
+    const selectedComponent = ref<Component>({
+      id: null,
+      name: '',
+      unit_value: 0,
+      specification: '',
+      supplier: '',
+    });
 
     const headers = [
       { title: 'Código', value: 'id' },
@@ -53,8 +78,6 @@ export default defineComponent({
       { title: 'Fornecedor', value: 'supplier' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
-
-    const { showToast } = useToast();
 
     const fetchComponents = async () => {
       try {
@@ -66,12 +89,18 @@ export default defineComponent({
     };
 
     const openForm = () => {
-      selectedComponent.value = {};
+      selectedComponent.value = {
+        id: null,
+        name: '',
+        unit_value: 0,
+        specification: '',
+        supplier: '',
+      };
       isEdit.value = false;
       dialog.value = true;
     };
 
-    const editComponent = (component: any) => {
+    const editComponent = (component: Component) => {
       selectedComponent.value = { ...component };
       isEdit.value = true;
       dialog.value = true;
@@ -82,21 +111,42 @@ export default defineComponent({
       fetchComponents();
     };
 
-    const deleteComponent = async (materialId: number) => {
-      if (!confirm('Deseja excluir este componente?')) return;
-      try {
-        await axios.delete(`/api/components/${materialId}`);
-        fetchComponents();
-      } catch (error) {
-        showToast('Erro ao excluir componente', 'error');
-      }
+    const deleteComponent = async (id: number) => {
+      openConfirm(
+        'Tem certeza que deseja excluir este componente?',
+        async () => {
+          try {
+            await axios.delete(`/api/components/${id}`);
+            fetchComponents();
+            showToast('Componente excluído com sucesso!', 'success');
+          } catch (error) {
+            showToast('Erro ao excluir componente', 'error');
+          }
+        },
+        'Excluir componente'
+      );
     };
 
     onMounted(() => {
       fetchComponents();
     });
 
-    return { components, headers, dialog, isEdit, selectedComponent, openForm, editComponent, deleteComponent, handleSaved };
+    return { 
+      components, 
+      headers, 
+      dialog, 
+      isEdit, 
+      selectedComponent, 
+      openForm, 
+      editComponent, 
+      deleteComponent, 
+      handleSaved,
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      closeConfirm,
+      handleConfirm
+    };
   },
 });
 </script>
