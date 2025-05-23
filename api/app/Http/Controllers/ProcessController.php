@@ -16,7 +16,7 @@ class ProcessController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string',
-            'content' => 'required|string',
+            'content' => 'string|nullable',
             'value_per_minute' => 'numeric|nullable',
         ]);
         $process = Process::create($data);
@@ -33,7 +33,7 @@ class ProcessController extends Controller
     {
         $data = $request->validate([
             'title' => 'sometimes|required|string',
-            'content' => 'sometimes|required|string',
+            'content' => 'string|nullable',
             'value_per_minute' => 'numeric|nullable',
         ]);
 

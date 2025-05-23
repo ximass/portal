@@ -19,8 +19,6 @@
               <v-textarea
                 label="Observações"
                 v-model="form.content"
-                required
-                :rules="[v => !!v || 'Campo obrigatório']"
               />
             </v-col>
           </v-row>

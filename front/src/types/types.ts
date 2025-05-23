@@ -123,7 +123,7 @@ export interface Group {
 export interface Process {
   id: number | null;
   title: string;
-  content: string;
+  content: string | null;
   value_per_minute: number;
 }
 
