@@ -8,6 +8,7 @@ import * as directives from 'vuetify/directives';
 // @ts-ignore
 import 'vuetify/styles';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
+import { pt } from 'vuetify/locale';
 import '@mdi/font/css/materialdesignicons.css';
 
 import router from './router';
@@ -22,6 +23,10 @@ document.documentElement.setAttribute('data-theme', savedTheme);
 const vuetify = createVuetify({
   components,
   directives,
+  locale: {
+    locale: 'pt',
+    messages: { pt },
+  },
   theme: {
     defaultTheme: isDark ? 'dark' : 'light',
     themes: {
