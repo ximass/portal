@@ -237,11 +237,14 @@ class SetPartController extends Controller
             if ($file->getClientOriginalExtension() === 'pdf') {
                 $pdfService = new PdfToWebpService();
                 $webpPaths = $pdfService->convert($path, 'uploads/order-parts');
+                $isUnique = count($webpPaths) === 1;
 
                 $created = [];
-                foreach ($webpPaths as $webp) {
+                foreach ($webpPaths as $index => $webp) {
+                    $title = $isUnique ? $file->getClientOriginalName() : $file->getClientOriginalName() . '-' . ($index + 1);
+
                     $created[] = SetPart::create([
-                        'title'   => pathinfo($webp, PATHINFO_FILENAME),
+                        'title'   => $title,
                         'content' => Storage::url($webp),
                         'set_id'  => $request->input('set_id'),
                     ]);
