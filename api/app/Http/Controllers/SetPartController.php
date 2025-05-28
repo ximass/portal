@@ -48,10 +48,10 @@ class SetPartController extends Controller
     {
         $request->validate([
             'title'            => 'required|string|max:255',
-            'content'          => 'required|string',
+            'content'          => 'sometimes|nullable|string',
             'secondary_content'=> 'sometimes|nullable|string',
             'obs'              => 'sometimes|nullable|string',
-            'type'             => 'sometimes|in:material,sheet,bar,component,process',
+            'type'             => 'sometimes|nullable|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
@@ -125,10 +125,10 @@ class SetPartController extends Controller
     {
         $request->validate([
             'title'            => 'sometimes|required|string|max:255',
-            'content'          => 'sometimes|required|string',
+            'content'          => 'sometimes|nullable|string',
             'secondary_content'=> 'sometimes|nullable|string',
             'obs'              => 'sometimes|nullable|string',
-            'type'             => 'sometimes|in:material,sheet,bar,component,process',
+            'type'             => 'sometimes|nullable|in:material,sheet,bar,component,process',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',

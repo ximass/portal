@@ -132,12 +132,25 @@
           multiple
           clearable
           :disabled="uploadingIndex === setIndex"
-          label="Selecione arquivos"
+          label="Adicionar peças ao conjunto"
           show-size
           counter
         />
         <div class="setParts-container">
           <v-row class="d-flex flex-row" dense>
+            <v-col
+              cols="auto"
+              class="pa-2"
+            >
+              <div class="image-preview add-part-button" @click="addNewPart(setIndex)">
+                <div class="add-part-content">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2V22M2 12H22" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span class="add-part-text">Adicionar peça</span>
+                </div>
+              </div>
+            </v-col>
             <v-col
               v-for="(part, partIndex) in setItem.setParts.slice().reverse()"
               :key="part.id"
@@ -430,11 +443,13 @@ export default defineComponent({
 
       const currentSet = sets.value[setIndex];
       const files = currentSet.fileList;
+
       if (files && files.length && currentSet.id) {
         for (const file of files) {
           const formData = new FormData();
           formData.append('file', file);
           formData.append('set_id', currentSet.id.toString());
+
           try {
             const response = await axios.post('/api/upload-set-part', formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
@@ -464,8 +479,8 @@ export default defineComponent({
         });
       },
       { deep: true }
-    );
-
+    );    
+    
     const deletePart = (setIndex: number, partIndex: number) => {
       try {
         const part = sets.value[setIndex].setParts[partIndex];
@@ -479,6 +494,44 @@ export default defineComponent({
         }
       } catch (error) {
         showToast('Erro ao excluir peça: ' + error, 'error');
+      }
+    };
+
+    const addNewPart = async (setIndex: number) => {
+      try {
+        const setId = sets.value[setIndex].id;
+
+        if (!setId) {
+          showToast('Erro: conjunto não encontrado.', 'error');
+          return;
+        }
+
+        const newPartData = {
+          set_id: setId,
+          type: null,
+          title: 'Nova peça',
+          content: null,
+          quantity: 0,
+          unit_net_weight: 0,
+          unit_gross_weight: 0,
+          net_weight: 0,
+          gross_weight: 0,
+          unit_value: 0,
+          final_value: 0,
+          width: 0,
+          length: 0,
+          loss: null,
+          markup: null,
+          locked_values: []
+        };
+
+        const { data } = await axios.post(`/api/sets/${setId}/parts`, newPartData);
+        
+        sets.value[setIndex].setParts.push(data);
+        
+        showToast('Nova peça adicionada com sucesso.', 'success');
+      } catch (error) {
+        showToast('Erro ao adicionar nova peça: ' + error, 'error');
       }
     };
 
@@ -541,7 +594,7 @@ export default defineComponent({
         }
       }
     };
-
+    
     return {
       isNew,
       form,
@@ -555,6 +608,7 @@ export default defineComponent({
       deleteSet,
       updateSetName,
       deletePart,
+      addNewPart,
       updatePartInList,
       getPartImageUrl,
       openPartModal,
@@ -633,5 +687,35 @@ export default defineComponent({
 .setParts-container::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.4);
   border-radius: 4px;
+}
+
+.add-part-button {
+  cursor: pointer;
+  border: 2px dashed #ccc !important;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-part-button:hover {
+  border-color: #1976d2;
+  background-color: #f5f5f5;
+}
+
+.add-part-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-part-text {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  font-weight: 500;
 }
 </style>
