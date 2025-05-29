@@ -393,7 +393,7 @@ class SetPartController extends Controller
         }
 
         // Valor unitário com base no peso unitário e preço por kg
-        $unitValue  = $unitNetWeight * $material->price_kg * $markup;
+        $unitValue  = $unitGrossWeight * $material->price_kg * $markup;
 
         if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
             $unitValue = $part->unit_value;
@@ -462,7 +462,7 @@ class SetPartController extends Controller
             $unitGrossWeight = $grossWeight / $quantity;
         }
 
-        $unitValue  = $unitNetWeight * $bar->price_kg * $markup;
+        $unitValue  = $unitGrossWeight * $bar->price_kg * $markup;
 
         if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
             $unitValue = $part->unit_value;
