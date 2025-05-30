@@ -128,18 +128,23 @@ export default defineComponent({
           final_value: 0
         }
       });
-    };
 
+      emit('update:modelValue', internalProcesses.value);
+    };
+    
     const removeProcess = (index: number) => {
       internalProcesses.value.splice(index, 1);
-      emit('process-updated');
-    };
 
+      emit('update:modelValue', internalProcesses.value);
+      emit('process-updated');
+    };    
+    
     const onFinalValueBlur = (index: number) => {
       const proc = internalProcesses.value[index];
 
       if (proc && typeof proc.pivot.final_value === 'number') {
         proc.pivot.final_value = roundValue(proc.pivot.final_value, 2);
+        emit('update:modelValue', internalProcesses.value);
       }
     };
 
@@ -157,6 +162,8 @@ export default defineComponent({
 
       if (!proc.id || !proc.pivot.time) {
         proc.pivot.final_value = 0;
+        
+        emit('update:modelValue', internalProcesses.value);
         emit('process-updated');
         return;
       }
@@ -172,10 +179,12 @@ export default defineComponent({
         proc.pivot.final_value = 0;
       }
 
+      emit('update:modelValue', internalProcesses.value);
       emit('process-updated');
-    };
-
+    };    
+    
     const onSelectChange = (index: number) => {
+      emit('update:modelValue', internalProcesses.value);
       calculateProcess(index);
       emit('process-updated');
     };

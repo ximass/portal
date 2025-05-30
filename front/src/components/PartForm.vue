@@ -452,7 +452,11 @@ export default defineComponent({
       selectedBar.value = null;
       selectedComponent.value = null;
 
-      // Carregar os dados conforme o novo tipo
+      localPart.value.material_id = null;
+      localPart.value.sheet_id = null;
+      localPart.value.bar_id = null;
+      localPart.value.component_id = null;
+
       if (newType === 'material' || newType === 'sheet') {
         fetchMaterials();
       }
@@ -565,38 +569,49 @@ export default defineComponent({
       emit('close');
     };
 
+    const loadDataBasedOnPartType = async (part: Part) => {
+      if (!part.type) return;
+
+      selectedMaterial.value = null;
+      selectedSheet.value = null;
+      selectedBar.value = null;
+      selectedComponent.value = null;
+
+      if (part.type === 'material' || part.type === 'sheet') {
+        await fetchMaterials();
+      }
+      if (part.type === 'sheet') {
+        await fetchSheets();
+      }
+      if (part.type === 'bar') {
+        await fetchBars();
+      }
+      if (part.type === 'component') {
+        await fetchComponents();
+      }
+
+      selectedMaterial.value = part.material_id;
+      selectedSheet.value = part.sheet_id;
+      selectedBar.value = part.bar_id;
+      selectedComponent.value = part.component_id;
+    };
+
     // Atualiza o formulário quando a prop "part" é modificada
-    watch(() => props.part, (newVal) => {
+    watch(() => props.part, async (newVal) => {
       if (newVal) {
         localPart.value = { ...newVal };
         lockedValues.value = Array.isArray(newVal.locked_values) ? [...newVal.locked_values] : [];
         secondaryFile.value = newVal.secondary_content ? new File([], newVal.secondary_content) : null;
+        
+        await loadDataBasedOnPartType(newVal);
       }
     });
 
-    onMounted(() => {
+    onMounted(async () => {
       isMounted.value = true;
       
       if (localPart.value.type) {
-          (async () => {
-              if (localPart.value.type === 'material' || localPart.value.type === 'sheet') {
-                  await fetchMaterials();
-              }
-              if (localPart.value.type === 'sheet') {
-                  await fetchSheets();
-              }
-              if (localPart.value.type === 'bar') {
-                  await fetchBars();
-              }
-              if (localPart.value.type === 'component') {
-                  await fetchComponents();
-              }
-              
-              selectedMaterial.value = localPart.value.material_id;
-              selectedSheet.value = localPart.value.sheet_id;
-              selectedBar.value = localPart.value.bar_id;
-              selectedComponent.value = localPart.value.component_id;
-          })();
+        await loadDataBasedOnPartType(localPart.value);
       }
 
       if (localPart.value.id) {
@@ -684,6 +699,7 @@ export default defineComponent({
       fillSheetDetails,
       fillBarDetails,
       fillComponentDetails,
+      loadDataBasedOnPartType,
       savePart,
       closeDialog,
       calculateProperties,
