@@ -190,6 +190,17 @@ export default defineComponent({
       { deep: true }
     );
 
+    // Watcher para atualizar internalProcesses quando modelValue mudar (navegação entre partes)
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        if (JSON.stringify(newVal) !== JSON.stringify(internalProcesses.value)) {
+          internalProcesses.value = flattenProcesses(newVal);
+        }
+      },
+      { deep: true, immediate: true }
+    );
+
     onMounted(() => {
       fetchProcessOptions();
     });

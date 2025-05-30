@@ -1,6 +1,18 @@
 <template>
-  <v-dialog :model-value="show" @update:model-value="(value) => { if (!value) closeDialog(); }" width="80vw" height="90vh">
-    <v-card>
+  <div class="part-form-container">
+    <v-btn
+      v-if="showNavigation && !isFirstPart"
+      class="navigation-arrow navigation-arrow-left"
+      icon
+      size="large"
+      color="primary"
+      @click="navigateToPrevious"
+    >
+      <v-icon>mdi-chevron-left</v-icon>
+    </v-btn>
+
+    <v-dialog :model-value="show" @update:model-value="(value) => { if (!value) closeDialog(); }" width="80vw" height="90vh">
+      <v-card>
       <v-card-title class="d-flex align-center justify-space-between">
         <v-text-field variant="underlined" v-model="localPart.title" required />
         <button class="close-btn" @click="closeDialog" aria-label="Fechar" title="Fechar">
@@ -269,16 +281,27 @@
         </v-row>
       </v-card-text>
       <v-card-actions>
-        <v-spacer />
-        <v-btn color="white" variant="flat" @click="recalculatePart">Recalcular</v-btn>
+        <v-spacer />        <v-btn color="white" variant="flat" @click="recalculatePart">Recalcular</v-btn>
         <v-btn color="primary" variant="flat" @click="savePart">Salvar</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-btn
+    v-if="showNavigation && !isLastPart"
+    class="navigation-arrow navigation-arrow-right"
+    icon
+    size="large"
+    color="primary"
+    @click="navigateToNext"
+  >
+    <v-icon>mdi-chevron-right</v-icon>
+  </v-btn>
+</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType, ref, watch, onMounted, nextTick } from 'vue';
+import { defineComponent, type PropType, ref, watch, onMounted, nextTick, computed } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
@@ -287,24 +310,18 @@ import ProcessMultiField from '../components/ProcessMultiField.vue';
 
 export default defineComponent({
   name: 'PartForm',
-  components: { ProcessMultiField },
-  props: {
+  components: { ProcessMultiField },  props: {
     show: { type: Boolean, required: true },
     part: { type: Object as PropType<Part>, default: null },
-    getPartImageUrl: { type: Function as PropType<(part: any) => string>, required: true }
+    allParts: { type: Array as PropType<Part[]>, default: () => [] },
+    getPartImageUrl: { type: Function as PropType<(part: any) => string>, required: true },
+    currentPartIndex: { type: Number, default: -1 },
+    showNavigation: { type: Boolean, default: false }
   },
-  emits: ['part-saved', 'close'],
+  emits: ['part-saved', 'close', 'navigate-to-part'],
   setup(props, { emit }) {
     const { showToast } = useToast();
     const { roundValue } = useMisc();
-
-    const localPart = ref<Part>(props.part ? { ...props.part } : {} as Part);
-
-    // Estado para propriedades travadas
-    const lockedValues = ref<string[]>(props.part?.locked_values ?? []);
-
-    // Flag para indicar se o componente foi montado
-    const isMounted = ref(false);
 
     const setPartTypes = [
       { name: 'Material', value: 'material' },
@@ -313,6 +330,11 @@ export default defineComponent({
       { name: 'Componente', value: 'component' },
       { name: 'Processos', value: 'process' }
     ];
+
+    const localPart = ref<Part>(props.part ? { ...props.part } : {} as Part);
+
+    const lockedValues = ref<string[]>(props.part?.locked_values ?? []);
+    const isMounted = ref(false);
 
     const materials = ref<Material[]>([]);
     const sheets = ref<Sheet[]>([]);
@@ -534,7 +556,6 @@ export default defineComponent({
         await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, payload);
 
         emit('part-saved', { ...localPart.value, locked_values: lockedValues.value });
-        emit('close');
       } catch (error) {
         showToast('Erro ao salvar a peça: ' + error, 'error');
       }
@@ -617,6 +638,30 @@ export default defineComponent({
       return filePath.toLowerCase().endsWith('.pdf');
     };
 
+    const isFirstPart = computed(() => {
+      return props.currentPartIndex <= 0;
+    });
+
+    const isLastPart = computed(() => {
+      return props.currentPartIndex >= props.allParts.length - 1;
+    });
+
+    const navigateToPrevious = () => {
+      if (!isFirstPart.value) {
+        const newIndex = props.currentPartIndex - 1;
+        const targetPart = props.allParts[newIndex];
+        emit('navigate-to-part', targetPart, newIndex);
+      }
+    };
+
+    const navigateToNext = () => {
+      if (!isLastPart.value) {
+        const newIndex = props.currentPartIndex + 1;
+        const targetPart = props.allParts[newIndex];
+        emit('navigate-to-part', targetPart, newIndex);
+      }
+    };
+
     return {
       localPart,
       setPartTypes,
@@ -631,6 +676,8 @@ export default defineComponent({
       lockedValues,
       secondaryFile,
       show: props.show,
+      isFirstPart,
+      isLastPart,
       roundValue,
       onTypeChange,
       fillMaterialDetails,
@@ -647,16 +694,41 @@ export default defineComponent({
       onNetWeightChange,
       onGrossWeightChange,
       recalculatePart,
-      getPartImageUrl: props.getPartImageUrl,
+      getPartImageUrl: 
+      props.getPartImageUrl,      
       onSecondaryFileChange,
       onSecondaryFileDelete,
       isPdf,
+      navigateToPrevious,
+      navigateToNext,
     };
   }
 });
 </script>
 
 <style>
+.part-form-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.navigation-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9999;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.navigation-arrow-left {
+  left: 30px;
+}
+
+.navigation-arrow-right {
+  right: 30px;
+}
+
 .dense-form .v-row {
   margin-bottom: -20px;
 }

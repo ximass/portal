@@ -220,8 +220,12 @@
       :part="selectedPart"
       :show="showPartModal"
       :getPartImageUrl="getPartImageUrl"
+      :allParts="allPartsInDisplayOrder"
+      :currentPartIndex="currentPartIndex"
+      :showNavigation="allPartsInDisplayOrder.length > 1"
       @part-saved="updatePartInList"
       @close="closePartModal"
+      @navigate-to-part="handlePartNavigation"
     />
 
     <v-row class="justify-end pa-4">
@@ -327,6 +331,10 @@ export default defineComponent({
     const closePartModal = () => {
       selectedPart.value = null;
       showPartModal.value = false;
+    };
+
+    const handlePartNavigation = (part: Part) => {
+      selectedPart.value = part;
     };
 
     onMounted(async () => {
@@ -533,13 +541,28 @@ export default defineComponent({
       } catch (error) {
         showToast('Erro ao adicionar nova peça: ' + error, 'error');
       }
-    };
-
+    };    
+    
     // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento
     const allSetParts = computed(() => {
       return sets.value.flatMap(set => {
         return set.setParts.map(part => ({ ...part, setName: set.name }));
       });
+    });
+
+    const allPartsInDisplayOrder = computed(() => {
+      const parts: Part[] = [];
+      sets.value.forEach(set => {
+        const reversedParts = set.setParts.slice().reverse();
+        parts.push(...reversedParts);
+      });
+      return parts;
+    });
+
+    const currentPartIndex = computed(() => {
+      if (!selectedPart.value) return -1;
+
+      return allPartsInDisplayOrder.value.findIndex(part => part.id === selectedPart.value?.id);
     });
 
     const groupByValuesTable = [{ key: 'setName', order: 'asc' }];
@@ -603,6 +626,14 @@ export default defineComponent({
       deliveryTypeOptions,
       sets,
       uploadingIndex,
+      showPartModal,
+      selectedPart,
+      setParts,
+      setPartsHeaders,      
+      allSetParts,
+      groupByValuesTable,
+      allPartsInDisplayOrder,
+      currentPartIndex,
       saveOrder,
       createSet,
       deleteSet,
@@ -613,18 +644,13 @@ export default defineComponent({
       getPartImageUrl,
       openPartModal,
       closePartModal,
-      showPartModal,
-      selectedPart,
-      setParts,
-      setPartsHeaders,
-      allSetParts,
-      groupByValuesTable,
       printSet,
       printOrder,
       printPart,
       printAllParts,
       onMarkupChange,
       handleFileUpload,
+      handlePartNavigation,
     };
   },
 });
