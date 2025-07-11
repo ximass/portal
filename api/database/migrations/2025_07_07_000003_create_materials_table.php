@@ -3,9 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
-return new class extends Migration {
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('materials', function (Blueprint $table) {
@@ -15,9 +18,13 @@ return new class extends Migration {
             $table->decimal('specific_weight', 10, 6);
             $table->decimal('price_kg', 10, 4);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
-    
+
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('materials');
