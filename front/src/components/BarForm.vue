@@ -113,6 +113,8 @@ export default defineComponent({
         } else {
           await axios.post('/api/bars', formData.value);
         }
+
+        showToast('Barra salva com sucesso!', 'success');
         emit('saved');
       } catch (error: any) {
         showToast('Erro ao salvar barra: ' + error.response?.data?.message, 'error');

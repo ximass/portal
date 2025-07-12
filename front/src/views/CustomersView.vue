@@ -46,6 +46,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useToast } from '../composables/useToast';
 import CustomerView from '../components/CustomerView.vue';
 import { useConfirm } from '../composables/useConfirm';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
@@ -58,6 +59,7 @@ export default defineComponent({
     const isEdit = ref(false);
     const formData = ref<any>({});
     const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const { showToast } = useToast();
 
     const headers = [
       { title: 'Nome', value: 'name' },
@@ -97,8 +99,9 @@ export default defineComponent({
           try {
             await axios.delete(`/api/customers/${id}`);
             fetchCustomers();
+            showToast('Cliente excluído com sucesso!', 'success');
           } catch (error) {
-            console.error('Erro ao excluir cliente:', error);
+            showToast('Erro ao excluir cliente.', 'error');
           }
         },
         'Excluir cliente'

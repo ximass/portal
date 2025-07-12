@@ -84,6 +84,7 @@ export default defineComponent({
           } else {
             await axios.post('/api/customers', formData.value);
           }
+          showToast('Cliente salvo com sucesso!', 'success');
           emit('saved');
         }
       } catch (error) {

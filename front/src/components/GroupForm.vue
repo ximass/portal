@@ -116,6 +116,7 @@ export default defineComponent({
             await axios.post('/api/groups', payload);
           }
           emit('saved');
+          showToast('Grupo salvo com sucesso!', 'success');
           close();
         } catch (error) {
           let errorMsg = 'Erro ao salvar grupo';

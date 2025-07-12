@@ -95,6 +95,7 @@ export default defineComponent({
         } else {
           await axios.post('/api/components', formData.value);
         }
+        showToast('Componente salvo com sucesso!', 'success');
         emit('saved');
       } catch (error: any) {
         showToast(error.response?.data?.message || 'Erro ao salvar componente', 'error');

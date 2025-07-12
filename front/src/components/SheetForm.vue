@@ -134,6 +134,7 @@ export default defineComponent({
           await axios.post('/api/sheets', formData.value);
         }
 
+        showToast('Chapa salva com sucesso!', 'success');
         emit('saved');
       } catch (error: any) {
         showToast('Erro ao salvar chapa: ' + error.response.data.message, 'error');
