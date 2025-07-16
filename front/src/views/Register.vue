@@ -1,6 +1,6 @@
 <template>
   <v-container class="login-bg" fluid>
-    <v-row align="center" justify="center" style="height: 100vh;">
+    <v-row align="center" justify="center" style="height: 100vh">
       <v-col cols="12" sm="6" md="4">
         <v-card>
           <v-img :src="logo" contain height="100" class="mt-8"></v-img>
@@ -37,7 +37,9 @@
             </v-form>
           </v-card-text>
           <v-card-actions class="justify-center">
-            <router-link to="/login">Já possui uma conta? Faça login</router-link>
+            <router-link to="/login"
+              >Já possui uma conta? Faça login</router-link
+            >
           </v-card-actions>
         </v-card>
       </v-col>
@@ -90,7 +92,16 @@ export default defineComponent({
       }
     };
 
-    return { form, logo, isFormValid, name, email, password, password_confirmation, register };
+    return {
+      form,
+      logo,
+      isFormValid,
+      name,
+      email,
+      password,
+      password_confirmation,
+      register,
+    };
   },
 });
 </script>

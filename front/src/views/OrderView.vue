@@ -79,11 +79,7 @@
     </v-row>
 
     <!-- Listagem de conjuntos -->
-    <v-card
-      v-for="(setItem, setIndex) in sets"
-      :key="setItem.id"
-      class="mb-4"
-    >
+    <v-card v-for="(setItem, setIndex) in sets" :key="setItem.id" class="mb-4">
       <v-progress-linear
         v-if="uploadingIndex === setIndex"
         indeterminate
@@ -115,7 +111,15 @@
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item @click.stop="printSet({ id: setItem.id!, name: setItem.name ?? '', parts: setItem.setParts })">
+                <v-list-item
+                  @click.stop="
+                    printSet({
+                      id: setItem.id!,
+                      name: setItem.name ?? '',
+                      parts: setItem.setParts,
+                    })
+                  "
+                >
                   <v-list-item-title>Imprimir</v-list-item-title>
                 </v-list-item>
                 <v-list-item @click.stop="deleteSet(setIndex)">
@@ -138,14 +142,25 @@
         />
         <div class="setParts-container">
           <v-row class="d-flex flex-row" dense>
-            <v-col
-              cols="auto"
-              class="pa-2"
-            >
-              <div class="image-preview add-part-button" @click="addNewPart(setIndex)">
+            <v-col cols="auto" class="pa-2">
+              <div
+                class="image-preview add-part-button"
+                @click="addNewPart(setIndex)"
+              >
                 <div class="add-part-content">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2V22M2 12H22" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2V22M2 12H22"
+                      stroke="#666"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
                   </svg>
                   <span class="add-part-text">Adicionar peça</span>
                 </div>
@@ -166,7 +181,14 @@
                 >
                   <template #error>
                     <div
-                      style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background-color:#f0f0f0"
+                      style="
+                        width: 150px;
+                        height: 150px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background-color: #f0f0f0;
+                      "
                     >
                       <v-icon large color="grey lighten-1">mdi-file</v-icon>
                     </div>
@@ -177,10 +199,10 @@
                   <span class="overlay-text">{{ part.title }}</span>
                   <v-menu offset-y>
                     <template #activator="{ props }">
-                      <v-btn 
-                        variant="plain" 
-                        :ripple="false" 
-                        v-bind="props" 
+                      <v-btn
+                        variant="plain"
+                        :ripple="false"
+                        v-bind="props"
                         class="menu-actions"
                         title="Ações da peça"
                       >
@@ -194,7 +216,14 @@
                       <v-list-item @click.stop="printPart(part)">
                         <v-list-item-title>Imprimir</v-list-item-title>
                       </v-list-item>
-                      <v-list-item @click.stop="deletePart(setIndex, setItem.setParts.length - 1 - partIndex)">
+                      <v-list-item
+                        @click.stop="
+                          deletePart(
+                            setIndex,
+                            setItem.setParts.length - 1 - partIndex
+                          )
+                        "
+                      >
                         <v-list-item-title>Excluir</v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -208,11 +237,11 @@
     </v-card>
 
     <!-- Tabela de valores -->
-    <OrderValuesTable 
+    <OrderValuesTable
       v-if="!isNew"
-      :headers="setPartsHeaders" 
-      :items="allSetParts" 
-      :groupBy="groupByValuesTable" 
+      :headers="setPartsHeaders"
+      :items="allSetParts"
+      :groupBy="groupByValuesTable"
     />
 
     <PartForm
@@ -229,12 +258,7 @@
     />
 
     <v-row class="justify-end pa-4">
-      <v-btn
-        v-if="!isNew"
-        color="success"
-        class="me-2"
-        @click="printOrder"
-      >
+      <v-btn v-if="!isNew" color="success" class="me-2" @click="printOrder">
         <v-icon class="me-2">mdi-printer</v-icon>
         Orçamento
       </v-btn>
@@ -266,7 +290,7 @@ export default defineComponent({
   name: 'Orders',
   components: {
     PartForm,
-    OrderValuesTable
+    OrderValuesTable,
   },
   setup() {
     const { showToast } = useToast();
@@ -284,17 +308,17 @@ export default defineComponent({
       markup: '',
       delivery_date: '',
       estimated_delivery_date: '',
-      payment_obs: ''
+      payment_obs: '',
     });
 
     const orderTypeOptions = ref<{ title: string; value: OrderType }[]>([
       { title: 'Orçamento', value: 'pre_order' },
-      { title: 'Pedido',    value: 'order' }
+      { title: 'Pedido', value: 'order' },
     ]);
 
     const deliveryTypeOptions = ref([
       { title: 'CIF', value: 'CIF' },
-      { title: 'FOB', value: 'FOB' }
+      { title: 'FOB', value: 'FOB' },
     ]);
 
     const sets = ref<OrderSet[]>([]);
@@ -302,7 +326,7 @@ export default defineComponent({
     const selectedPart = ref<Part | null>(null);
     const setParts = ref<Part[]>([]);
     const setPartsHeaders = [
-      { title: 'Peça', value: 'title', sortable: true},
+      { title: 'Peça', value: 'title', sortable: true },
       { title: 'Valor unitário', value: 'unit_value', sortable: true },
       { title: 'Qtd.', value: 'quantity', sortable: true },
       { title: 'Valor total', value: 'final_value', sortable: true },
@@ -310,11 +334,13 @@ export default defineComponent({
       { title: 'Peso líquido', value: 'net_weight', sortable: true },
     ];
 
-    const uploadingIndex = ref<number|null>(null);
+    const uploadingIndex = ref<number | null>(null);
 
     const updatePartInList = (updatedPart: Part) => {
-      sets.value.forEach((set) => {
-        const index = set.setParts.findIndex((part) => part.id === updatedPart.id);
+      sets.value.forEach(set => {
+        const index = set.setParts.findIndex(
+          part => part.id === updatedPart.id
+        );
         if (index !== -1) {
           set.setParts[index] = updatedPart;
         }
@@ -360,7 +386,7 @@ export default defineComponent({
             sets.value = data.sets.map((s: any) => ({
               ...s,
               fileList: null,
-              setParts: [] as Part[]
+              setParts: [] as Part[],
             }));
 
             for (const set of sets.value) {
@@ -412,7 +438,7 @@ export default defineComponent({
         sets.value.push({
           ...data,
           fileList: null,
-          setParts: [] as Part[]
+          setParts: [] as Part[],
         });
       } catch (error) {
         showToast('Erro ao criar conjunto: ' + error, 'error');
@@ -459,12 +485,16 @@ export default defineComponent({
           formData.append('set_id', currentSet.id.toString());
 
           try {
-            const response = await axios.post('/api/upload-set-part', formData, {
-              headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            const response = await axios.post(
+              '/api/upload-set-part',
+              formData,
+              {
+                headers: { 'Content-Type': 'multipart/form-data' },
+              }
+            );
 
             const data = response.data;
-            
+
             if (Array.isArray(data)) {
               data.forEach(part => currentSet.setParts.push(part));
             } else {
@@ -480,15 +510,15 @@ export default defineComponent({
     };
 
     watch(
-      () => sets.value.map((s) => s.fileList),
-      (newValues) => {
+      () => sets.value.map(s => s.fileList),
+      newValues => {
         newValues.forEach((files, index) => {
           if (files && files.length) handleFileUpload(index);
         });
       },
       { deep: true }
-    );    
-    
+    );
+
     const deletePart = (setIndex: number, partIndex: number) => {
       try {
         const part = sets.value[setIndex].setParts[partIndex];
@@ -530,19 +560,22 @@ export default defineComponent({
           length: 0,
           loss: null,
           markup: null,
-          locked_values: []
+          locked_values: [],
         };
 
-        const { data } = await axios.post(`/api/sets/${setId}/parts`, newPartData);
-        
+        const { data } = await axios.post(
+          `/api/sets/${setId}/parts`,
+          newPartData
+        );
+
         sets.value[setIndex].setParts.push(data);
-        
+
         showToast('Nova peça adicionada com sucesso.', 'success');
       } catch (error) {
         showToast('Erro ao adicionar nova peça: ' + error, 'error');
       }
-    };    
-    
+    };
+
     // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento
     const allSetParts = computed(() => {
       return sets.value.flatMap(set => {
@@ -562,13 +595,18 @@ export default defineComponent({
     const currentPartIndex = computed(() => {
       if (!selectedPart.value) return -1;
 
-      return allPartsInDisplayOrder.value.findIndex(part => part.id === selectedPart.value?.id);
+      return allPartsInDisplayOrder.value.findIndex(
+        part => part.id === selectedPart.value?.id
+      );
     });
 
     const groupByValuesTable = [{ key: 'setName', order: 'asc' }];
 
     function printSet(set: Set) {
-      const url = router.resolve({ name: 'SetPrint', params: { id: set.id } }).href;
+      const url = router.resolve({
+        name: 'SetPrint',
+        params: { id: set.id },
+      }).href;
       const printWindow = window.open(url, '_blank');
       if (printWindow) {
         const onPrintReady = () => {
@@ -581,19 +619,28 @@ export default defineComponent({
     }
 
     function printOrder() {
-      const url = router.resolve({ path: '/order/sets/print', query: { order_id: route.params.id as string } }).href;
-      
+      const url = router.resolve({
+        path: '/order/sets/print',
+        query: { order_id: route.params.id as string },
+      }).href;
+
       window.open(url, '_blank');
     }
 
     function printPart(part: Part) {
-      const url = router.resolve({ name: 'PartPrint', params: { id: part.id } }).href;
+      const url = router.resolve({
+        name: 'PartPrint',
+        params: { id: part.id },
+      }).href;
 
       window.open(url, '_blank');
     }
 
     function printAllParts() {
-      const url = router.resolve({ path: '/order/parts/print', query: { order_id: route.params.id as string } }).href;
+      const url = router.resolve({
+        path: '/order/parts/print',
+        query: { order_id: route.params.id as string },
+      }).href;
       window.open(url, '_blank');
     }
 
@@ -601,7 +648,7 @@ export default defineComponent({
       if (!isNew.value && route.params.id && form.value.markup) {
         try {
           await axios.put(`/api/orders/${route.params.id}/on-markup-change`, {
-            markup: form.value.markup
+            markup: form.value.markup,
           });
 
           for (const set of sets.value) {
@@ -610,14 +657,14 @@ export default defineComponent({
               set.setParts = data;
             }
           }
-          
+
           showToast('Valores das peças recalculados com sucesso.', 'success');
         } catch (error) {
           showToast('Erro ao recalcular valores das peças: ' + error, 'error');
         }
       }
     };
-    
+
     return {
       isNew,
       form,
@@ -629,7 +676,7 @@ export default defineComponent({
       showPartModal,
       selectedPart,
       setParts,
-      setPartsHeaders,      
+      setPartsHeaders,
       allSetParts,
       groupByValuesTable,
       allPartsInDisplayOrder,

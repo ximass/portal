@@ -1,9 +1,15 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title>{{ isNew ? 'Novo processo' : 'Editar processo' }}</v-card-title>
+      <v-card-title>{{
+        isNew ? 'Novo processo' : 'Editar processo'
+      }}</v-card-title>
       <v-card-text>
-        <v-form ref="processForm" v-model="isFormValid" @submit.prevent="saveProcess">
+        <v-form
+          ref="processForm"
+          v-model="isFormValid"
+          @submit.prevent="saveProcess"
+        >
           <v-row>
             <v-col cols="12">
               <v-text-field
@@ -16,10 +22,7 @@
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-textarea
-                label="Observações"
-                v-model="form.content"
-              />
+              <v-textarea label="Observações" v-model="form.content" />
             </v-col>
           </v-row>
           <v-row>
@@ -29,9 +32,14 @@
                 label="Valor por minuto"
                 v-model="form.value_per_minute"
                 :rules="[
-                  v => !v || /^\d+(\.\d{1,2})?$/.test(v) || 'Máximo de 2 casas decimais'
+                  v =>
+                    !v ||
+                    /^\d+(\.\d{1,2})?$/.test(v) ||
+                    'Máximo de 2 casas decimais',
                 ]"
-                @blur="form.value_per_minute = roundValue(form.value_per_minute, 2)"
+                @blur="
+                  form.value_per_minute = roundValue(form.value_per_minute, 2)
+                "
               />
             </v-col>
           </v-row>
@@ -61,7 +69,11 @@ export default defineComponent({
     const isNew = ref(route.params.id === 'new');
     const processForm = ref();
     const isFormValid = ref(false);
-    const form = ref<ProcessForm>({ title: '', content: '', value_per_minute: 0 });
+    const form = ref<ProcessForm>({
+      title: '',
+      content: '',
+      value_per_minute: 0,
+    });
 
     const { showToast } = useToast();
     const { roundValue } = useMisc();
@@ -93,7 +105,15 @@ export default defineComponent({
 
     const goBack = () => router.push({ name: 'ProcessesView' });
 
-    return { isNew, form, saveProcess, goBack, processForm, isFormValid, roundValue };
+    return {
+      isNew,
+      form,
+      saveProcess,
+      goBack,
+      processForm,
+      isFormValid,
+      roundValue,
+    };
   },
 });
 </script>

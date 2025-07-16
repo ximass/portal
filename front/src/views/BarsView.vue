@@ -1,6 +1,11 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Barras</h2>
       <v-btn color="primary" @click="openForm">Adicionar</v-btn>
     </v-row>
@@ -23,10 +28,16 @@
           </v-list>
         </v-menu>
       </template>
-    </v-data-table>    
-    
-    <BarForm :dialog="dialog" :barData="selectedBar" :isEdit="isEdit" @close="dialog = false" @saved="handleSaved" />
-    
+    </v-data-table>
+
+    <BarForm
+      :dialog="dialog"
+      :barData="selectedBar"
+      :isEdit="isEdit"
+      @close="dialog = false"
+      @saved="handleSaved"
+    />
+
     <ConfirmDialog
       :show="isConfirmDialogOpen"
       :title="confirmTitle"
@@ -48,10 +59,17 @@ import type { Bar } from '../types/types';
 
 export default defineComponent({
   name: 'BarsView',
-  components: { BarForm, ConfirmDialog },  
+  components: { BarForm, ConfirmDialog },
   setup() {
     const { showToast } = useToast();
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
     const bars = ref<Bar[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
@@ -77,7 +95,11 @@ export default defineComponent({
         const { data } = await axios.get<Bar[]>('/api/bars');
         bars.value = data;
       } catch (error: any) {
-        showToast('Erro ao carregar barras: ' + error.response?.data?.message || 'Erro desconhecido', 'error');
+        showToast(
+          'Erro ao carregar barras: ' + error.response?.data?.message ||
+            'Erro desconhecido',
+          'error'
+        );
       }
     };
 
@@ -102,8 +124,8 @@ export default defineComponent({
     const handleSaved = () => {
       dialog.value = false;
       fetchBars();
-    };    
-    
+    };
+
     const deleteBar = async (id: number) => {
       openConfirm(
         'Tem certeza que deseja excluir esta barra?',
@@ -113,7 +135,11 @@ export default defineComponent({
             fetchBars();
             showToast('Barra excluída com sucesso!', 'success');
           } catch (error: any) {
-            showToast('Erro ao excluir barra: ' + error.response?.data?.message || 'Erro desconhecido', 'error');
+            showToast(
+              'Erro ao excluir barra: ' + error.response?.data?.message ||
+                'Erro desconhecido',
+              'error'
+            );
           }
         },
         'Excluir barra'
@@ -124,21 +150,21 @@ export default defineComponent({
       fetchBars();
     });
 
-    return { 
-      bars, 
-      headers, 
-      dialog, 
-      isEdit, 
-      selectedBar, 
-      openForm, 
-      editBar, 
-      deleteBar, 
+    return {
+      bars,
+      headers,
+      dialog,
+      isEdit,
+      selectedBar,
+      openForm,
+      editBar,
+      deleteBar,
       handleSaved,
       isConfirmDialogOpen,
       confirmTitle,
       confirmMessage,
       closeConfirm,
-      handleConfirm
+      handleConfirm,
     };
   },
 });

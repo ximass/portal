@@ -2,12 +2,18 @@
   <v-dialog v-model="dialog" max-width="600px">
     <v-card>
       <v-card-title>
-        <span class="text-h5">{{ isEdit ? 'Editar grupo' : 'Novo grupo' }}</span>
+        <span class="text-h5">{{
+          isEdit ? 'Editar grupo' : 'Novo grupo'
+        }}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form" @submit.prevent="submitForm">
-          <v-text-field label="Nome do grupo" v-model="group.name" :rules="[v => !!v || 'Nome é obrigatório']"
-            required>
+          <v-text-field
+            label="Nome do grupo"
+            v-model="group.name"
+            :rules="[v => !!v || 'Nome é obrigatório']"
+            required
+          >
           </v-text-field>
           <v-autocomplete
             v-model="group.user_ids"
@@ -56,41 +62,56 @@ export default defineComponent({
   emits: ['close', 'saved'],
   setup(props, { emit }) {
     const form = ref<VForm | null>(null);
-    const group = ref<{ name: string; user_ids: number[]; }>({ name: '', user_ids: [] });
+    const group = ref<{ name: string; user_ids: number[] }>({
+      name: '',
+      user_ids: [],
+    });
     const users = ref<Array<{ id: number; title: string }>>([]);
     const loadingUsers = ref(false);
 
     const { showToast } = useToast();
 
-    watch(() => props.groupData, (newData) => {
-      if (newData) {
-        group.value = {
-          name: newData.name,
-          user_ids: newData.users.map((user: { id: any; }) => user.id),
-        };
-      } else {
-        group.value = { 
-          name: '', 
-          user_ids: [],
-        };
-      }
-    }, { immediate: true });
+    watch(
+      () => props.groupData,
+      newData => {
+        if (newData) {
+          group.value = {
+            name: newData.name,
+            user_ids: newData.users.map((user: { id: any }) => user.id),
+          };
+        } else {
+          group.value = {
+            name: '',
+            user_ids: [],
+          };
+        }
+      },
+      { immediate: true }
+    );
 
     const fetchUsers = async (search: string) => {
       if (!search) return;
 
       loadingUsers.value = true;
       try {
-        const response = await axios.get('/api/users/search', { params: { search } });
+        const response = await axios.get('/api/users/search', {
+          params: { search },
+        });
 
-        if (response.data)
-        {
-          users.value = response.data.map((user: any) => ({ id: user.id, title: user.name }));
+        if (response.data) {
+          users.value = response.data.map((user: any) => ({
+            id: user.id,
+            title: user.name,
+          }));
         }
       } catch (error) {
         let errorMsg = 'Erro ao buscar usuários';
 
-        if (typeof error === 'object' && error !== null && 'response' in error) {
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'response' in error
+        ) {
           errorMsg = (error as any).response?.data?.message || errorMsg;
         }
 
@@ -121,7 +142,11 @@ export default defineComponent({
         } catch (error) {
           let errorMsg = 'Erro ao salvar grupo';
 
-          if (typeof error === 'object' && error !== null && 'response' in error) {
+          if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error
+          ) {
             errorMsg = (error as any).response?.data?.message || errorMsg;
           }
 
@@ -142,7 +167,7 @@ export default defineComponent({
       fetchUsers,
       submitForm,
       close,
-      isEdit: !!props.groupData
+      isEdit: !!props.groupData,
     };
   },
 });

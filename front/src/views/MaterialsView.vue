@@ -1,6 +1,11 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Materiais</h2>
       <v-btn color="primary" @click="openForm">Adicionar</v-btn>
     </v-row>
@@ -29,8 +34,8 @@
           </v-list>
         </v-menu>
       </template>
-    </v-data-table>    
-    
+    </v-data-table>
+
     <MaterialForm
       :dialog="dialog"
       :materialData="selectedMaterial"
@@ -38,7 +43,7 @@
       @close="dialog = false"
       @saved="handleSaved"
     />
-    
+
     <ConfirmDialog
       :show="isConfirmDialogOpen"
       :title="confirmTitle"
@@ -61,11 +66,18 @@ import ConfirmDialog from '../components/ConfirmDialog.vue';
 export default defineComponent({
   name: 'MaterialsView',
   components: { MaterialForm, ConfirmDialog },
-  setup() {    
+  setup() {
     const dialog = ref(false);
     const isEdit = ref(false);
     const { showToast } = useToast();
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
 
     const materials = ref<Material[]>([]);
     const selectedMaterial = ref<Material>({
@@ -80,7 +92,11 @@ export default defineComponent({
       { title: 'Código', value: 'id', sortable: true },
       { title: 'Nome', value: 'name', sortable: true },
       { title: 'Espessura (mm)', value: 'thickness', sortable: true },
-      { title: 'Peso específico (g/cm³)', value: 'specific_weight', sortable: true },
+      {
+        title: 'Peso específico (g/cm³)',
+        value: 'specific_weight',
+        sortable: true,
+      },
       { title: 'Preço (R$)', value: 'price_kg', sortable: true },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
@@ -110,8 +126,8 @@ export default defineComponent({
       selectedMaterial.value = { ...material };
       isEdit.value = true;
       dialog.value = true;
-    };    
-    
+    };
+
     const deleteMaterial = async (id: number) => {
       openConfirm(
         'Tem certeza que deseja excluir este material?',
@@ -135,23 +151,23 @@ export default defineComponent({
 
     onMounted(() => {
       fetchMaterials();
-    });    
-    
-    return { 
-      materials, 
-      headers, 
-      dialog, 
-      isEdit, 
-      selectedMaterial, 
-      openForm, 
-      editMaterial, 
-      deleteMaterial, 
-      handleSaved, 
-      isConfirmDialogOpen, 
-      confirmTitle, 
-      confirmMessage, 
-      closeConfirm, 
-      handleConfirm 
+    });
+
+    return {
+      materials,
+      headers,
+      dialog,
+      isEdit,
+      selectedMaterial,
+      openForm,
+      editMaterial,
+      deleteMaterial,
+      handleSaved,
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      closeConfirm,
+      handleConfirm,
     };
   },
 });
