@@ -4,11 +4,7 @@
     <v-btn small color="primary" @click="addProcess">Adicionar</v-btn>
   </v-row>
   <div class="process-list">
-    <div
-      class="mb-2"
-      v-for="(proc, index) in internalProcesses"
-      :key="index"
-    >
+    <div class="mb-2" v-for="(proc, index) in internalProcesses" :key="index">
       <v-row dense>
         <v-col cols="3">
           <v-select
@@ -41,7 +37,9 @@
             hint="Em minutos"
             step="1"
             min="0"
-            :rules="[v => Number.isInteger(Number(v)) || 'Apenas números inteiros']"
+            :rules="[
+              v => Number.isInteger(Number(v)) || 'Apenas números inteiros',
+            ]"
             @blur="calculateProcess(index)"
           />
         </v-col>
@@ -52,12 +50,22 @@
             type="number"
             density="compact"
             prefix="R$"
-            :rules="[v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais']"
+            :rules="[
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
+            ]"
             @blur="onFinalValueBlur(index)"
           />
         </v-col>
         <v-col cols="1">
-          <v-btn variant="text" small icon color="error" @click="removeProcess(index)">
+          <v-btn
+            variant="text"
+            small
+            icon
+            color="error"
+            @click="removeProcess(index)"
+          >
             <v-icon small>mdi-delete</v-icon>
           </v-btn>
         </v-col>
@@ -67,14 +75,12 @@
 </template>
 
 <style scoped>
-
 .process-list {
   min-height: 100px;
   overflow-y: auto;
   max-height: 150px;
   overflow-x: hidden;
 }
-
 </style>
 
 <script lang="ts">
@@ -88,28 +94,34 @@ export default defineComponent({
   name: 'ProcessMultiField',
   props: {
     modelValue: {
-      type: Array as PropType<Array<{ id: Process['id'] | null; pivot: ProcessPivot }>>,
-      default: () => []
-    }
+      type: Array as PropType<
+        Array<{ id: Process['id'] | null; pivot: ProcessPivot }>
+      >,
+      default: () => [],
+    },
   },
   emits: ['update:modelValue', 'process-updated'],
   setup(props, { emit }) {
     const { showToast } = useToast();
     const { roundValue } = useMisc();
-    
+
     const processOptions = ref<Process[]>([]);
 
-    const flattenProcesses = (processes: Array<{ id: Process['id'] | null; pivot: ProcessPivot }>) => {
+    const flattenProcesses = (
+      processes: Array<{ id: Process['id'] | null; pivot: ProcessPivot }>
+    ) => {
       return processes.map(proc => ({
         id: proc.id || null,
         pivot: {
           time: proc.pivot?.time ?? 0,
-          final_value: proc.pivot?.final_value ?? 0
-        }
+          final_value: proc.pivot?.final_value ?? 0,
+        },
       }));
     };
 
-    const internalProcesses = ref<Array<{ id: Process['id'] | null; pivot: ProcessPivot }>>(flattenProcesses(props.modelValue));
+    const internalProcesses = ref<
+      Array<{ id: Process['id'] | null; pivot: ProcessPivot }>
+    >(flattenProcesses(props.modelValue));
 
     const fetchProcessOptions = async () => {
       try {
@@ -125,20 +137,20 @@ export default defineComponent({
         id: null,
         pivot: {
           time: 0,
-          final_value: 0
-        }
+          final_value: 0,
+        },
       });
 
       emit('update:modelValue', internalProcesses.value);
     };
-    
+
     const removeProcess = (index: number) => {
       internalProcesses.value.splice(index, 1);
 
       emit('update:modelValue', internalProcesses.value);
       emit('process-updated');
-    };    
-    
+    };
+
     const onFinalValueBlur = (index: number) => {
       const proc = internalProcesses.value[index];
 
@@ -162,17 +174,20 @@ export default defineComponent({
 
       if (!proc.id || !proc.pivot.time) {
         proc.pivot.final_value = 0;
-        
+
         emit('update:modelValue', internalProcesses.value);
         emit('process-updated');
         return;
       }
 
       try {
-        const { data } = await axios.post<{ value: number }>('/api/set-parts/calculateProcessValue', {
-          process_id: proc.id,
-          time: proc.pivot.time
-        });
+        const { data } = await axios.post<{ value: number }>(
+          '/api/set-parts/calculateProcessValue',
+          {
+            process_id: proc.id,
+            time: proc.pivot.time,
+          }
+        );
         proc.pivot.final_value = data.value;
       } catch (error) {
         showToast('Erro ao calcular valor do processo: ' + error, 'error');
@@ -181,8 +196,8 @@ export default defineComponent({
 
       emit('update:modelValue', internalProcesses.value);
       emit('process-updated');
-    };    
-    
+    };
+
     const onSelectChange = (index: number) => {
       emit('update:modelValue', internalProcesses.value);
       calculateProcess(index);
@@ -191,7 +206,7 @@ export default defineComponent({
 
     watch(
       () => internalProcesses.value,
-      (newVal) => {
+      newVal => {
         if (JSON.stringify(newVal) !== JSON.stringify(props.modelValue)) {
           emit('update:modelValue', newVal);
         }
@@ -202,8 +217,10 @@ export default defineComponent({
     // Watcher para atualizar internalProcesses quando modelValue mudar (navegação entre partes)
     watch(
       () => props.modelValue,
-      (newVal) => {
-        if (JSON.stringify(newVal) !== JSON.stringify(internalProcesses.value)) {
+      newVal => {
+        if (
+          JSON.stringify(newVal) !== JSON.stringify(internalProcesses.value)
+        ) {
           internalProcesses.value = flattenProcesses(newVal);
         }
       },
@@ -222,8 +239,8 @@ export default defineComponent({
       onFinalValueBlur,
       getValuePerMinute,
       calculateProcess,
-      onSelectChange
+      onSelectChange,
     };
-  }
+  },
 });
 </script>

@@ -1,24 +1,28 @@
 <template>
   <v-container fluid>
-    <v-row align="center" justify="center" style="height: 100vh;">
+    <v-row align="center" justify="center" style="height: 100vh">
       <v-col cols="12" sm="6" md="4">
         <v-card>
           <v-img :src="logo" contain height="100" class="mt-8"></v-img>
           <v-card-text>
             <v-card-title class="justify-center">Faça login</v-card-title>
-            <v-form ref="form" v-model="isFormValid" @submit.prevent="loginHandler">
-              <v-text-field 
-                label="Email" 
-                v-model="email" 
-                type="email" 
+            <v-form
+              ref="form"
+              v-model="isFormValid"
+              @submit.prevent="loginHandler"
+            >
+              <v-text-field
+                label="Email"
+                v-model="email"
+                type="email"
                 required
                 :rules="[v => !!v || 'Email é obrigatório']"
               >
               </v-text-field>
-              <v-text-field 
-                label="Senha" 
-                v-model="password" 
-                type="password" 
+              <v-text-field
+                label="Senha"
+                v-model="password"
+                type="password"
                 required
                 :rules="[v => !!v || 'Senha é obrigatória']"
               >
@@ -27,7 +31,9 @@
             </v-form>
           </v-card-text>
           <v-card-actions class="justify-center">
-            <router-link to="/register">Não possui uma conta? Registre-se</router-link>
+            <router-link to="/register"
+              >Não possui uma conta? Registre-se</router-link
+            >
           </v-card-actions>
         </v-card>
       </v-col>

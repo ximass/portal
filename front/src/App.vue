@@ -1,13 +1,26 @@
 <template>
   <v-app>
-    <TopMenu v-if="isAuthenticated && !isPrintRoute" :user="user" @toggleDrawer="drawerOpen = !drawerOpen" />
-    <SideMenu v-if="isAuthenticated && !isPrintRoute" :user="user" :drawerOpen="drawerOpen" />
+    <TopMenu
+      v-if="isAuthenticated && !isPrintRoute"
+      :user="user"
+      @toggleDrawer="drawerOpen = !drawerOpen"
+    />
+    <SideMenu
+      v-if="isAuthenticated && !isPrintRoute"
+      :user="user"
+      :drawerOpen="drawerOpen"
+    />
     <v-main>
       <router-view />
     </v-main>
-    <v-snackbar v-if="!isPrintRoute" v-model="isToastVisible" timeout="3000" :color="toastColor">
-       {{ toastMessage }}
-     </v-snackbar>
+    <v-snackbar
+      v-if="!isPrintRoute"
+      v-model="isToastVisible"
+      timeout="3000"
+      :color="toastColor"
+    >
+      {{ toastMessage }}
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -29,8 +42,9 @@ export default defineComponent({
     const drawerOpen = ref(false);
     const route = useRoute();
     const isPrintRoute = computed(() =>
-      ['SetPrint', 'SetPrintAll', 'PartPrint', 'PartPrintAll']
-        .includes(route.name as string)
+      ['SetPrint', 'SetPrintAll', 'PartPrint', 'PartPrintAll'].includes(
+        route.name as string
+      )
     );
 
     fetchUser();
@@ -42,7 +56,7 @@ export default defineComponent({
       isAuthenticated,
       user,
       drawerOpen,
-      isPrintRoute
+      isPrintRoute,
     };
   },
 });

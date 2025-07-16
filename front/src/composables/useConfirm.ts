@@ -6,7 +6,11 @@ export function useConfirm() {
   const confirmMessage = ref('Tem certeza que deseja continuar?');
   const confirmCallback = ref<(() => void) | null>(null);
 
-  const openConfirm = (message: string, callback: () => void, title: string = 'Confirmar') => {
+  const openConfirm = (
+    message: string,
+    callback: () => void,
+    title: string = 'Confirmar'
+  ) => {
     confirmTitle.value = title;
     confirmMessage.value = message;
     confirmCallback.value = callback;

@@ -11,297 +11,483 @@
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
 
-    <v-dialog :model-value="show" @update:model-value="(value) => { if (!value) closeDialog(); }" width="80vw" height="90vh">
+    <v-dialog
+      :model-value="show"
+      @update:model-value="
+        value => {
+          if (!value) closeDialog();
+        }
+      "
+      width="80vw"
+      height="90vh"
+    >
       <v-card>
-      <v-card-title class="d-flex align-center justify-space-between">
-        <v-text-field variant="underlined" v-model="localPart.title" required />
-        <button class="close-btn" @click="closeDialog" aria-label="Fechar" title="Fechar">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </v-card-title>
-      <v-card-text>
-        <v-row>
-          <!-- Left: Image panel -->
-          <v-col cols="6">
-            <v-responsive max-height="60vh" max-width="40vw" min-height="50vh">
-              <template v-if="localPart.content">
-                <template v-if="isPdf(localPart.content)">
-                  <iframe 
-                    :src="getPartImageUrl(localPart.content)" 
-                    width="100%" 
-                    height="100%"
-                  />
-                </template>
-                <template v-else>
-                  <v-img 
-                    :src="getPartImageUrl(localPart.content)" 
-                    contain 
-                    max-width="100%" 
-                  />
-                </template>
-              </template>
-              <div v-else>Sem imagem para exibir</div>
-            </v-responsive>
-            <!-- Upload secundário-->
-            <div class="mt-4">
-              <v-file-input
-                v-model="secondaryFile"
-                accept="image/*,.pdf"
-                density="compact"
-                show-size
-                prepend-icon="mdi-upload"
-                label="Imagem secundária"
-                @change="onSecondaryFileChange"
-                clearable
-                @click:clear="onSecondaryFileDelete"
+        <v-card-title class="d-flex align-center justify-space-between">
+          <v-text-field
+            variant="underlined"
+            v-model="localPart.title"
+            required
+          />
+          <button
+            class="close-btn"
+            @click="closeDialog"
+            aria-label="Fechar"
+            title="Fechar"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              width="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <!-- Left: Image panel -->
+            <v-col cols="6">
+              <v-responsive
+                max-height="60vh"
+                max-width="40vw"
+                min-height="50vh"
               >
-                <template #selection>
-                  <span v-if="localPart.secondary_content">
-                    Imagem carregada.
-                  </span>
+                <template v-if="localPart.content">
+                  <template v-if="isPdf(localPart.content)">
+                    <iframe
+                      :src="getPartImageUrl(localPart.content)"
+                      width="100%"
+                      height="100%"
+                    />
+                  </template>
+                  <template v-else>
+                    <v-img
+                      :src="getPartImageUrl(localPart.content)"
+                      contain
+                      max-width="100%"
+                    />
+                  </template>
                 </template>
-              </v-file-input>
-            </div>
-          </v-col>
-          <!-- Right: Form panel -->
-          <v-col cols="6" class="dense-form">
-            <v-row dense style="margin-top: -40px;">
-              <v-col cols="12">
-                <v-text-field
-                  label="Referência"
-                  v-model="localPart.obs"
-                  variant="underlined"
+                <div v-else>Sem imagem para exibir</div>
+              </v-responsive>
+              <!-- Upload secundário-->
+              <div class="mt-4">
+                <v-file-input
+                  v-model="secondaryFile"
+                  accept="image/*,.pdf"
+                  density="compact"
+                  show-size
+                  prepend-icon="mdi-upload"
+                  label="Imagem secundária"
+                  @change="onSecondaryFileChange"
                   clearable
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Card 0: Seletor do tipo de part -->
-            <v-row dense>
-              <v-col cols="12">
-                <v-select
-                  label="Tipo da peça"
-                  :items="setPartTypes"
-                  item-title="name"
-                  item-value="value"
-                  v-model="localPart.type"
-                  required density="compact"
-                  @update:modelValue="onTypeChange"
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Para 'material', 'sheet' e 'bar', exibe seletor de Material -->
-            <v-row dense v-if="localPart.type === 'material' || localPart.type === 'sheet'">
-              <v-col cols="12">
-                <v-select
-                  label="Material"
-                  :items="materials"
-                  item-title="name"
-                  item-value="id"
-                  v-model="selectedMaterial"
-                  required density="compact"
-                  @update:modelValue="fillMaterialDetails(selectedMaterial)"
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Para 'sheet' exibe seletor de Chapa -->
-            <v-row dense v-if="localPart.type === 'sheet'">
-              <v-col cols="12">
-                <v-select
-                  label="Chapa"
-                  :items="sheets"
-                  item-title="name"
-                  item-value="id"
-                  v-model="selectedSheet"
-                  required density="compact"
-                  @update:modelValue="fillSheetDetails(selectedSheet)"
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Para 'bar' exibe seletor de Barra -->
-            <v-row dense v-if="localPart.type === 'bar'">
-              <v-col cols="12">
-                <v-select
-                  label="Barra"
-                  :items="bars"
-                  item-title="name"
-                  item-value="id"
-                  v-model="selectedBar"
-                  required density="compact"
-                  @update:modelValue="fillBarDetails(selectedBar)"
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Para 'component' exibe seletor de Componente -->
-            <v-row dense v-if="localPart.type === 'component'">
-              <v-col cols="12">
-                <v-select
-                  label="Componente"
-                  :items="components"
-                  item-title="name"
-                  item-value="id"
-                  v-model="selectedComponent"
-                  required density="compact"
-                  @update:modelValue="fillComponentDetails(selectedComponent)"
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Campos Complementares para material, sheet e bar -->
-            <template v-if="localPart.type === 'material' || localPart.type === 'sheet' || localPart.type === 'bar'" class="pa-4">
-              <v-row dense>
-                <template v-if="localPart.type === 'material' || localPart.type === 'sheet'">
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field label="Largura" v-model="localPart.width" type="number" required density="compact"
-                      @change="calculateProperties"
-                      @blur="localPart.width = roundValue(localPart.width, 2);" suffix="mm"/>
-                  </v-col>
-                </template>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Comprimento" v-model="localPart.length" type="number" required density="compact"
-                    @change="calculateProperties"
-                    @blur="localPart.length = roundValue(localPart.length, 2);" suffix="mm"/>
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Perda" v-model="localPart.loss" type="number" required density="compact"
-                    @change="calculateProperties"
-                    @blur="localPart.loss = roundValue(localPart.loss ?? 0, 2);" suffix="%"/>
+                  @click:clear="onSecondaryFileDelete"
+                >
+                  <template #selection>
+                    <span v-if="localPart.secondary_content">
+                      Imagem carregada.
+                    </span>
+                  </template>
+                </v-file-input>
+              </div>
+            </v-col>
+            <!-- Right: Form panel -->
+            <v-col cols="6" class="dense-form">
+              <v-row dense style="margin-top: -40px">
+                <v-col cols="12">
+                  <v-text-field
+                    label="Referência"
+                    v-model="localPart.obs"
+                    variant="underlined"
+                    clearable
+                  />
                 </v-col>
               </v-row>
-              <v-row dense>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso líquido unitário" v-model="localPart.unit_net_weight" type="number" required density="compact"
-                    @change="onUnitNetWeightChange"
-                    @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2);" suffix="KG">
-                    <template #append-inner v-if="lockedValues.includes('unit_net_weight')">
-                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
-                    </template>
-                  </v-text-field>
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto unitário" v-model="localPart.unit_gross_weight" type="number" required density="compact"
-                    @change="onUnitGrossWeightChange"
-                    @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2);" suffix="KG">
-                    <template #append-inner v-if="lockedValues.includes('unit_gross_weight')">
-                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
-                    </template>
-                  </v-text-field>
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso líquido" v-model="localPart.net_weight" type="number" required density="compact"
-                    @change="onNetWeightChange"
-                    @blur="localPart.net_weight = roundValue(localPart.net_weight, 2)" suffix="KG">
-                    <template #append-inner v-if="lockedValues.includes('net_weight')">
-                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
-                    </template>
-                  </v-text-field>
-                </v-col>
-              </v-row>
-              <v-row dense>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field label="Peso bruto" v-model="localPart.gross_weight" type="number" required density="compact"
-                    @change="onGrossWeightChange"
-                    @blur="localPart.gross_weight = roundValue(localPart.gross_weight, 2)" suffix="KG">
-                    <template #append-inner v-if="lockedValues.includes('gross_weight')">
-                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
-                    </template>
-                  </v-text-field>
-                </v-col>
-              </v-row>
-            </template>
 
-            <!-- Campo Complementar para component -->
-            <template v-if="localPart.type === 'component'" class="pa-4">
+              <!-- Card 0: Seletor do tipo de part -->
               <v-row dense>
                 <v-col cols="12">
-                  <v-text-field label="Markup" v-model="localPart.markup" type="number" required density="compact"
-                    @change="calculateProperties"
-                    @blur="localPart.markup = roundValue(localPart.markup ?? 0, 3); calculateProperties()" suffix="%"/>
-                </v-col>
-              </v-row>
-            </template>
-
-            <!-- Campos que sempre estarão presentes -->
-            <v-sheet>
-              <v-row dense>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field
-                    label="Quantidade"
-                    v-model="localPart.quantity"
-                    type="number"
+                  <v-select
+                    label="Tipo da peça"
+                    :items="setPartTypes"
+                    item-title="name"
+                    item-value="value"
+                    v-model="localPart.type"
                     required
                     density="compact"
-                    @change="calculateProperties"
-                    @blur="localPart.quantity = roundValue(localPart.quantity, 0);"
+                    @update:modelValue="onTypeChange"
                   />
                 </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field
-                    label="Valor unitário"
-                    v-model="localPart.unit_value"
-                    type="number"
+              </v-row>
+
+              <!-- Para 'material', 'sheet' e 'bar', exibe seletor de Material -->
+              <v-row
+                dense
+                v-if="
+                  localPart.type === 'material' || localPart.type === 'sheet'
+                "
+              >
+                <v-col cols="12">
+                  <v-select
+                    label="Material"
+                    :items="materials"
+                    item-title="name"
+                    item-value="id"
+                    v-model="selectedMaterial"
                     required
                     density="compact"
-                    @change="onUnitValueChange"
-                    prefix="R$"
-                  >
-                    <template #append-inner v-if="lockedValues.includes('unit_value')">
-                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
-                    </template>
-                  </v-text-field>
-                </v-col>
-                <v-col cols="12" md="4" small="6">
-                  <v-text-field
-                    label="Valor final"
-                    v-model="localPart.final_value"
-                    type="number"
-                    required
-                    density="compact"
-                    @change="onFinalValueChange"
-                    @blur="localPart.final_value = roundValue(localPart.final_value, 2)"
-                    prefix="R$"
-                  >
-                    <template #append-inner v-if="lockedValues.includes('final_value')">
-                      <v-icon title="Valor travado devido à edição manual">mdi-lock</v-icon>
-                    </template>
-                  </v-text-field>
+                    @update:modelValue="fillMaterialDetails(selectedMaterial)"
+                  />
                 </v-col>
               </v-row>
-            </v-sheet>
 
-            <ProcessMultiField v-model="localPart.processes" @process-updated="calculateProperties" />
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />        <v-btn color="white" variant="flat" @click="recalculatePart">Recalcular</v-btn>
-        <v-btn color="primary" variant="flat" @click="savePart">Salvar</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+              <!-- Para 'sheet' exibe seletor de Chapa -->
+              <v-row dense v-if="localPart.type === 'sheet'">
+                <v-col cols="12">
+                  <v-select
+                    label="Chapa"
+                    :items="sheets"
+                    item-title="name"
+                    item-value="id"
+                    v-model="selectedSheet"
+                    required
+                    density="compact"
+                    @update:modelValue="fillSheetDetails(selectedSheet)"
+                  />
+                </v-col>
+              </v-row>
 
-  <v-btn
-    v-if="showNavigation && !isLastPart"
-    class="navigation-arrow navigation-arrow-right"
-    icon
-    size="large"
-    color="primary"
-    @click="navigateToNext"
-  >
-    <v-icon>mdi-chevron-right</v-icon>
-  </v-btn>
-</div>
+              <!-- Para 'bar' exibe seletor de Barra -->
+              <v-row dense v-if="localPart.type === 'bar'">
+                <v-col cols="12">
+                  <v-select
+                    label="Barra"
+                    :items="bars"
+                    item-title="name"
+                    item-value="id"
+                    v-model="selectedBar"
+                    required
+                    density="compact"
+                    @update:modelValue="fillBarDetails(selectedBar)"
+                  />
+                </v-col>
+              </v-row>
+
+              <!-- Para 'component' exibe seletor de Componente -->
+              <v-row dense v-if="localPart.type === 'component'">
+                <v-col cols="12">
+                  <v-select
+                    label="Componente"
+                    :items="components"
+                    item-title="name"
+                    item-value="id"
+                    v-model="selectedComponent"
+                    required
+                    density="compact"
+                    @update:modelValue="fillComponentDetails(selectedComponent)"
+                  />
+                </v-col>
+              </v-row>
+
+              <!-- Campos Complementares para material, sheet e bar -->
+              <template
+                v-if="
+                  localPart.type === 'material' ||
+                  localPart.type === 'sheet' ||
+                  localPart.type === 'bar'
+                "
+                class="pa-4"
+              >
+                <v-row dense>
+                  <template
+                    v-if="
+                      localPart.type === 'material' ||
+                      localPart.type === 'sheet'
+                    "
+                  >
+                    <v-col cols="12" md="4" small="6">
+                      <v-text-field
+                        label="Largura"
+                        v-model="localPart.width"
+                        type="number"
+                        required
+                        density="compact"
+                        @change="calculateProperties"
+                        @blur="localPart.width = roundValue(localPart.width, 2)"
+                        suffix="mm"
+                      />
+                    </v-col>
+                  </template>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Comprimento"
+                      v-model="localPart.length"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="calculateProperties"
+                      @blur="localPart.length = roundValue(localPart.length, 2)"
+                      suffix="mm"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Perda"
+                      v-model="localPart.loss"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="calculateProperties"
+                      @blur="
+                        localPart.loss = roundValue(localPart.loss ?? 0, 2)
+                      "
+                      suffix="%"
+                    />
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Peso líquido unitário"
+                      v-model="localPart.unit_net_weight"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="onUnitNetWeightChange"
+                      @blur="
+                        localPart.unit_net_weight = roundValue(
+                          localPart.unit_net_weight,
+                          2
+                        )
+                      "
+                      suffix="KG"
+                    >
+                      <template
+                        #append-inner
+                        v-if="lockedValues.includes('unit_net_weight')"
+                      >
+                        <v-icon title="Valor travado devido à edição manual"
+                          >mdi-lock</v-icon
+                        >
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Peso bruto unitário"
+                      v-model="localPart.unit_gross_weight"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="onUnitGrossWeightChange"
+                      @blur="
+                        localPart.unit_gross_weight = roundValue(
+                          localPart.unit_gross_weight,
+                          2
+                        )
+                      "
+                      suffix="KG"
+                    >
+                      <template
+                        #append-inner
+                        v-if="lockedValues.includes('unit_gross_weight')"
+                      >
+                        <v-icon title="Valor travado devido à edição manual"
+                          >mdi-lock</v-icon
+                        >
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Peso líquido"
+                      v-model="localPart.net_weight"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="onNetWeightChange"
+                      @blur="
+                        localPart.net_weight = roundValue(
+                          localPart.net_weight,
+                          2
+                        )
+                      "
+                      suffix="KG"
+                    >
+                      <template
+                        #append-inner
+                        v-if="lockedValues.includes('net_weight')"
+                      >
+                        <v-icon title="Valor travado devido à edição manual"
+                          >mdi-lock</v-icon
+                        >
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Peso bruto"
+                      v-model="localPart.gross_weight"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="onGrossWeightChange"
+                      @blur="
+                        localPart.gross_weight = roundValue(
+                          localPart.gross_weight,
+                          2
+                        )
+                      "
+                      suffix="KG"
+                    >
+                      <template
+                        #append-inner
+                        v-if="lockedValues.includes('gross_weight')"
+                      >
+                        <v-icon title="Valor travado devido à edição manual"
+                          >mdi-lock</v-icon
+                        >
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                </v-row>
+              </template>
+
+              <!-- Campo Complementar para component -->
+              <template v-if="localPart.type === 'component'" class="pa-4">
+                <v-row dense>
+                  <v-col cols="12">
+                    <v-text-field
+                      label="Markup"
+                      v-model="localPart.markup"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="calculateProperties"
+                      @blur="
+                        localPart.markup = roundValue(localPart.markup ?? 0, 3);
+                        calculateProperties();
+                      "
+                      suffix="%"
+                    />
+                  </v-col>
+                </v-row>
+              </template>
+
+              <!-- Campos que sempre estarão presentes -->
+              <v-sheet>
+                <v-row dense>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Quantidade"
+                      v-model="localPart.quantity"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="calculateProperties"
+                      @blur="
+                        localPart.quantity = roundValue(localPart.quantity, 0)
+                      "
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Valor unitário"
+                      v-model="localPart.unit_value"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="onUnitValueChange"
+                      prefix="R$"
+                    >
+                      <template
+                        #append-inner
+                        v-if="lockedValues.includes('unit_value')"
+                      >
+                        <v-icon title="Valor travado devido à edição manual"
+                          >mdi-lock</v-icon
+                        >
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="4" small="6">
+                    <v-text-field
+                      label="Valor final"
+                      v-model="localPart.final_value"
+                      type="number"
+                      required
+                      density="compact"
+                      @change="onFinalValueChange"
+                      @blur="
+                        localPart.final_value = roundValue(
+                          localPart.final_value,
+                          2
+                        )
+                      "
+                      prefix="R$"
+                    >
+                      <template
+                        #append-inner
+                        v-if="lockedValues.includes('final_value')"
+                      >
+                        <v-icon title="Valor travado devido à edição manual"
+                          >mdi-lock</v-icon
+                        >
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                </v-row>
+              </v-sheet>
+
+              <ProcessMultiField
+                v-model="localPart.processes"
+                @process-updated="calculateProperties"
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="white" variant="flat" @click="recalculatePart"
+            >Recalcular</v-btn
+          >
+          <v-btn color="primary" variant="flat" @click="savePart">Salvar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-btn
+      v-if="showNavigation && !isLastPart"
+      class="navigation-arrow navigation-arrow-right"
+      icon
+      size="large"
+      color="primary"
+      @click="navigateToNext"
+    >
+      <v-icon>mdi-chevron-right</v-icon>
+    </v-btn>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType, ref, watch, onMounted, nextTick, computed } from 'vue';
+import {
+  defineComponent,
+  type PropType,
+  ref,
+  watch,
+  onMounted,
+  nextTick,
+  computed,
+} from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
@@ -310,13 +496,17 @@ import ProcessMultiField from '../components/ProcessMultiField.vue';
 
 export default defineComponent({
   name: 'PartForm',
-  components: { ProcessMultiField },  props: {
+  components: { ProcessMultiField },
+  props: {
     show: { type: Boolean, required: true },
     part: { type: Object as PropType<Part>, default: null },
     allParts: { type: Array as PropType<Part[]>, default: () => [] },
-    getPartImageUrl: { type: Function as PropType<(part: any) => string>, required: true },
+    getPartImageUrl: {
+      type: Function as PropType<(part: any) => string>,
+      required: true,
+    },
     currentPartIndex: { type: Number, default: -1 },
-    showNavigation: { type: Boolean, default: false }
+    showNavigation: { type: Boolean, default: false },
   },
   emits: ['part-saved', 'close', 'navigate-to-part'],
   setup(props, { emit }) {
@@ -328,10 +518,10 @@ export default defineComponent({
       { name: 'Chapa', value: 'sheet' },
       { name: 'Barra', value: 'bar' },
       { name: 'Componente', value: 'component' },
-      { name: 'Processos', value: 'process' }
+      { name: 'Processos', value: 'process' },
     ];
 
-    const localPart = ref<Part>(props.part ? { ...props.part } : {} as Part);
+    const localPart = ref<Part>(props.part ? { ...props.part } : ({} as Part));
 
     const lockedValues = ref<string[]>(props.part?.locked_values ?? []);
     const isMounted = ref(false);
@@ -345,7 +535,7 @@ export default defineComponent({
     const selectedSheet = ref<number | null>(null);
     const selectedBar = ref<number | null>(null);
     const selectedComponent = ref<number | null>(null);
-    
+
     function roundPartValues(part: Part): Part {
       return {
         ...part,
@@ -357,8 +547,14 @@ export default defineComponent({
         final_value: roundValue(part.final_value, 2),
         width: roundValue(part.width, 2),
         length: roundValue(part.length, 2),
-        loss: part.loss !== null && part.loss !== undefined ? roundValue(part.loss, 2) : null,
-        markup: part.markup !== null && part.markup !== undefined ? roundValue(part.markup, 3) : null,
+        loss:
+          part.loss !== null && part.loss !== undefined
+            ? roundValue(part.loss, 2)
+            : null,
+        markup:
+          part.markup !== null && part.markup !== undefined
+            ? roundValue(part.markup, 3)
+            : null,
         quantity: Math.round(part.quantity),
       };
     }
@@ -438,9 +634,9 @@ export default defineComponent({
       if (!componentId) return;
       try {
         const { data } = await axios.get(`/api/components/${componentId}`);
-        
+
         localPart.value.component_id = data.id;
-        localPart.value.unit_value   = data.unit_value;
+        localPart.value.unit_value = data.unit_value;
       } catch (error) {
         showToast('Erro ao buscar componente', 'error');
       }
@@ -516,12 +712,15 @@ export default defineComponent({
 
     const calculateProperties = async () => {
       try {
-        const { data } = await axios.post('/api/set-parts/calculateProperties', {
-          part: {
-            ...localPart.value,
-            locked_values: lockedValues.value
+        const { data } = await axios.post(
+          '/api/set-parts/calculateProperties',
+          {
+            part: {
+              ...localPart.value,
+              locked_values: lockedValues.value,
+            },
           }
-        });
+        );
 
         const rounded = roundPartValues(data);
 
@@ -542,24 +741,42 @@ export default defineComponent({
     };
 
     const savePart = async () => {
-      if (!localPart.value.id || !localPart.value.set_id || !localPart.value.type) {
+      if (
+        !localPart.value.id ||
+        !localPart.value.set_id ||
+        !localPart.value.type
+      ) {
         showToast('Erro: A peça não possui tipo definido', 'error');
         return;
       }
 
       try {
-        const payload = { 
+        const payload = {
           ...localPart.value,
-          material_id: (localPart.value.type === 'material' || localPart.value.type === 'sheet') ? selectedMaterial.value : null,
-          sheet_id: localPart.value.type === 'sheet' ? selectedSheet.value : null,
+          material_id:
+            localPart.value.type === 'material' ||
+            localPart.value.type === 'sheet'
+              ? selectedMaterial.value
+              : null,
+          sheet_id:
+            localPart.value.type === 'sheet' ? selectedSheet.value : null,
           bar_id: localPart.value.type === 'bar' ? selectedBar.value : null,
-          component_id: localPart.value.type === 'component' ? selectedComponent.value : null,
-          locked_values: lockedValues.value
+          component_id:
+            localPart.value.type === 'component'
+              ? selectedComponent.value
+              : null,
+          locked_values: lockedValues.value,
         };
 
-        await axios.put(`/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`, payload);
+        await axios.put(
+          `/api/sets/${localPart.value.set_id}/parts/${localPart.value.id}`,
+          payload
+        );
 
-        emit('part-saved', { ...localPart.value, locked_values: lockedValues.value });
+        emit('part-saved', {
+          ...localPart.value,
+          locked_values: lockedValues.value,
+        });
       } catch (error) {
         showToast('Erro ao salvar a peça: ' + error, 'error');
       }
@@ -597,32 +814,46 @@ export default defineComponent({
     };
 
     // Atualiza o formulário quando a prop "part" é modificada
-    watch(() => props.part, async (newVal) => {
-      if (newVal) {
-        localPart.value = { ...newVal };
-        lockedValues.value = Array.isArray(newVal.locked_values) ? [...newVal.locked_values] : [];
-        secondaryFile.value = newVal.secondary_content ? new File([], newVal.secondary_content) : null;
-        
-        await loadDataBasedOnPartType(newVal);
+    watch(
+      () => props.part,
+      async newVal => {
+        if (newVal) {
+          localPart.value = { ...newVal };
+          lockedValues.value = Array.isArray(newVal.locked_values)
+            ? [...newVal.locked_values]
+            : [];
+          secondaryFile.value = newVal.secondary_content
+            ? new File([], newVal.secondary_content)
+            : null;
+
+          await loadDataBasedOnPartType(newVal);
+        }
       }
-    });
+    );
 
     onMounted(async () => {
       isMounted.value = true;
-      
+
       if (localPart.value.type) {
         await loadDataBasedOnPartType(localPart.value);
       }
 
       if (localPart.value.id) {
-        secondaryFile.value = localPart.value.secondary_content ? new File([], localPart.value.secondary_content) : null;
+        secondaryFile.value = localPart.value.secondary_content
+          ? new File([], localPart.value.secondary_content)
+          : null;
       }
     });
 
     const secondaryFile = ref<File | null>(null);
 
     const onSecondaryFileChange = async () => {
-      if (!secondaryFile.value || !localPart.value.id || !localPart.value.set_id) return;
+      if (
+        !secondaryFile.value ||
+        !localPart.value.id ||
+        !localPart.value.set_id
+      )
+        return;
 
       const formData = new FormData();
       formData.append('file', secondaryFile.value);
@@ -632,7 +863,7 @@ export default defineComponent({
 
       try {
         const { data } = await axios.post('/api/upload-set-part', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
 
         localPart.value.secondary_content = data.secondary_content;
@@ -710,15 +941,14 @@ export default defineComponent({
       onNetWeightChange,
       onGrossWeightChange,
       recalculatePart,
-      getPartImageUrl: 
-      props.getPartImageUrl,      
+      getPartImageUrl: props.getPartImageUrl,
       onSecondaryFileChange,
       onSecondaryFileDelete,
       isPdf,
       navigateToPrevious,
       navigateToNext,
     };
-  }
+  },
 });
 </script>
 

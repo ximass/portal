@@ -1,6 +1,11 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Componentes</h2>
       <v-btn color="primary" @click="openForm">Adicionar</v-btn>
     </v-row>
@@ -25,14 +30,14 @@
       </template>
     </v-data-table>
 
-    <ComponentForm 
-      :dialog="dialog" 
-      :componentData="selectedComponent" 
-      :isEdit="isEdit" 
+    <ComponentForm
+      :dialog="dialog"
+      :componentData="selectedComponent"
+      :isEdit="isEdit"
       @close="dialog = false"
-      @saved="handleSaved" 
+      @saved="handleSaved"
     />
-      
+
     <ConfirmDialog
       :show="isConfirmDialogOpen"
       :title="confirmTitle"
@@ -59,7 +64,14 @@ export default defineComponent({
     const dialog = ref(false);
     const isEdit = ref(false);
     const { showToast } = useToast();
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
 
     const components = ref<Component[]>([]);
     const selectedComponent = ref<Component>({
@@ -131,21 +143,21 @@ export default defineComponent({
       fetchComponents();
     });
 
-    return { 
-      components, 
-      headers, 
-      dialog, 
-      isEdit, 
-      selectedComponent, 
-      openForm, 
-      editComponent, 
-      deleteComponent, 
+    return {
+      components,
+      headers,
+      dialog,
+      isEdit,
+      selectedComponent,
+      openForm,
+      editComponent,
+      deleteComponent,
       handleSaved,
       isConfirmDialogOpen,
       confirmTitle,
       confirmMessage,
       closeConfirm,
-      handleConfirm
+      handleConfirm,
     };
   },
 });

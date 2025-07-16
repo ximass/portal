@@ -10,7 +10,9 @@
         hide-default-footer
         density="compact"
       >
-        <template v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }">
+        <template
+          v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }"
+        >
           <tr>
             <td :colspan="columns.length">
               <div class="d-flex align-center">
@@ -49,13 +51,28 @@
               {{ computedTotalWeight(items, part => part.quantity) }}
             </td>
             <td class="font-weight-bold">
-              {{ computedTotalValue(items, part => part.unit_value * part.quantity) }}
+              {{
+                computedTotalValue(
+                  items,
+                  part => part.unit_value * part.quantity
+                )
+              }}
             </td>
             <td class="font-weight-bold">
-              {{ computedTotalWeight(items, part => part.unit_gross_weight * part.quantity) }}
+              {{
+                computedTotalWeight(
+                  items,
+                  part => part.unit_gross_weight * part.quantity
+                )
+              }}
             </td>
             <td class="font-weight-bold">
-              {{ computedTotalWeight(items, part => part.unit_net_weight * part.quantity) }}
+              {{
+                computedTotalWeight(
+                  items,
+                  part => part.unit_net_weight * part.quantity
+                )
+              }}
             </td>
           </tr>
         </template>
@@ -75,41 +92,41 @@ export default defineComponent({
   props: {
     headers: {
       type: Array,
-      required: true
+      required: true,
     },
     items: {
       type: Array as () => Part[],
-      required: true
+      required: true,
     },
     groupBy: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
   methods: {
     computedTotalValue(items: Part[], fn: (item: any) => number): string {
-        const total = items.reduce((acc, item) => {
-          const number = Number(fn(item));
+      const total = items.reduce((acc, item) => {
+        const number = Number(fn(item));
 
-          return acc + (isNaN(number) ? 0 : number);
-        }, 0);
+        return acc + (isNaN(number) ? 0 : number);
+      }, 0);
 
-        return total.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+      return total.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
     },
     computedTotalWeight(items: Part[], fn: (item: any) => number): string {
-        const total = items.reduce((acc, item) => {
-          const number = Number(fn(item));
+      const total = items.reduce((acc, item) => {
+        const number = Number(fn(item));
 
-          return acc + (isNaN(number) ? 0 : number);
-        }, 0);
+        return acc + (isNaN(number) ? 0 : number);
+      }, 0);
 
-        return total.toFixed(2);
-    }
-  }
+      return total.toFixed(2);
+    },
+  },
 });
 </script>

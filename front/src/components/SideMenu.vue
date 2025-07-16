@@ -1,6 +1,6 @@
 <template>
-  <v-navigation-drawer 
-    app 
+  <v-navigation-drawer
+    app
     :value="drawerOpen"
     :mini-variant="!drawerOpen"
     expand-on-hover
@@ -24,25 +24,22 @@
     <v-divider></v-divider>
 
     <v-list density="compact" nav>
-      <v-list-item 
+      <v-list-item
         v-if="homeMenuItem"
-        :prepend-icon="homeMenuItem.icon" 
-        :title="homeMenuItem.title" 
+        :prepend-icon="homeMenuItem.icon"
+        :title="homeMenuItem.title"
         :value="homeMenuItem.route"
         @click="$router.push(homeMenuItem.route)"
       ></v-list-item>
-      <v-list-item 
+      <v-list-item
         v-if="orderMenuItem"
-        :prepend-icon="orderMenuItem.icon" 
-        :title="orderMenuItem.title" 
+        :prepend-icon="orderMenuItem.icon"
+        :title="orderMenuItem.title"
         :value="orderMenuItem.route"
         @click="$router.push(orderMenuItem.route)"
       ></v-list-item>
 
-      <v-list-group
-        value="Cadastros"
-        prepend-icon="mdi-folder"
-      >
+      <v-list-group value="Cadastros" prepend-icon="mdi-folder">
         <template v-slot:activator="{ props: groupProps }">
           <v-list-item v-bind="groupProps" title="Cadastros"></v-list-item>
         </template>
@@ -55,7 +52,7 @@
           @click="$router.push(item.route)"
         ></v-list-item>
       </v-list-group>
-      
+
       <v-list-group
         v-if="adminMenuItems.length"
         value="Administração"
@@ -89,47 +86,90 @@ export default defineComponent({
     },
     drawerOpen: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const rail = ref(true);
 
     const menuItems = [
       { title: 'Tela inicial', route: '/home', admin: false, icon: 'mdi-home' },
-      { title: 'Orçamentos', route: '/orders', admin: false, icon: 'mdi-checkbook' },
-      { title: 'Materiais', route: '/materials', admin: false, icon: 'mdi-cube' },
-      { title: 'Chapas', route: '/sheets', admin: false, icon: 'mdi-animation-outline' },
-      { title: 'Barras', route: '/bars', admin: false, icon: 'mdi-color-helper' },
-      { title: 'Componentes', route: '/components', admin: false, icon: 'mdi-screw-lag' },
-      { title: 'Processos', route: '/processes', admin: false, icon: 'mdi-cogs' },
-      { title: 'Clientes', route: '/customers', admin: false, icon: 'mdi-account-multiple' },
+      {
+        title: 'Orçamentos',
+        route: '/orders',
+        admin: false,
+        icon: 'mdi-checkbook',
+      },
+      {
+        title: 'Materiais',
+        route: '/materials',
+        admin: false,
+        icon: 'mdi-cube',
+      },
+      {
+        title: 'Chapas',
+        route: '/sheets',
+        admin: false,
+        icon: 'mdi-animation-outline',
+      },
+      {
+        title: 'Barras',
+        route: '/bars',
+        admin: false,
+        icon: 'mdi-color-helper',
+      },
+      {
+        title: 'Componentes',
+        route: '/components',
+        admin: false,
+        icon: 'mdi-screw-lag',
+      },
+      {
+        title: 'Processos',
+        route: '/processes',
+        admin: false,
+        icon: 'mdi-cogs',
+      },
+      {
+        title: 'Clientes',
+        route: '/customers',
+        admin: false,
+        icon: 'mdi-account-multiple',
+      },
       { title: 'Usuários', route: '/users', admin: true, icon: 'mdi-account' },
-      { title: 'Grupos', route: '/groups', admin: true, icon: 'mdi-account-group' },
+      {
+        title: 'Grupos',
+        route: '/groups',
+        admin: true,
+        icon: 'mdi-account-group',
+      },
     ];
 
-    const homeMenuItem = computed(() => menuItems.find(item => item.route === '/home'));
-    const orderMenuItem = computed(() => menuItems.find(item => item.route === '/orders'));
+    const homeMenuItem = computed(() =>
+      menuItems.find(item => item.route === '/home')
+    );
+    const orderMenuItem = computed(() =>
+      menuItems.find(item => item.route === '/orders')
+    );
 
     const basicMenuItems = computed(() =>
-      menuItems.filter(item =>
-        !item.admin && item.route !== '/orders' && item.route !== '/home'
+      menuItems.filter(
+        item =>
+          !item.admin && item.route !== '/orders' && item.route !== '/home'
       )
     );
 
     const adminMenuItems = computed(() =>
-      props.user && props.user.admin
-        ? menuItems.filter(item => item.admin)
-        : []
+      props.user && props.user.admin ? menuItems.filter(item => item.admin) : []
     );
 
-    return { 
+    return {
       homeMenuItem,
       orderMenuItem,
       basicMenuItems,
       adminMenuItems,
       rail,
-      props
+      props,
     };
   },
 });

@@ -15,7 +15,8 @@ import router from './router';
 
 import './assets/styles/global.css';
 
-const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' ?? 'dark';
+const savedTheme =
+  (localStorage.getItem('theme') as 'light' | 'dark') ?? 'dark';
 const isDark = savedTheme ? savedTheme === 'dark' : true;
 
 document.documentElement.setAttribute('data-theme', savedTheme);

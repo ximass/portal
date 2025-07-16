@@ -1,6 +1,11 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Usuários</h2>
     </v-row>
     <v-data-table :items="users" :headers="headers" class="elevation-1">
@@ -13,7 +18,8 @@
             <v-btn icon v-bind="props" variant="text">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
-          </template> <v-list>
+          </template>
+          <v-list>
             <v-list-item @click="editUser(item)">
               <v-list-item-title>
                 <v-icon class="me-2">mdi-pencil</v-icon>
@@ -31,10 +37,20 @@
       </template>
     </v-data-table>
 
-    <UserForm :dialog="isFormOpen" :userData="selectedUser" @close="isFormOpen = false" @saved="handleUserSaved" />
+    <UserForm
+      :dialog="isFormOpen"
+      :userData="selectedUser"
+      @close="isFormOpen = false"
+      @saved="handleUserSaved"
+    />
 
-    <ConfirmDialog :show="isConfirmDialogOpen" :title="confirmTitle" :message="confirmMessage" @confirm="handleConfirm"
-      @cancel="closeConfirm" />
+    <ConfirmDialog
+      :show="isConfirmDialogOpen"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      @confirm="handleConfirm"
+      @cancel="closeConfirm"
+    />
   </v-container>
 </template>
 
@@ -53,7 +69,14 @@ export default defineComponent({
   setup() {
     const isFormOpen = ref(false);
     const { showToast } = useToast();
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
 
     const users = ref<User[]>([]);
     const selectedUser = ref<User>({
@@ -87,8 +110,8 @@ export default defineComponent({
     const handleUserSaved = () => {
       isFormOpen.value = false;
       fetchUsers();
-    }; 
-    
+    };
+
     const deleteUser = async (id: number) => {
       openConfirm(
         'Tem certeza que deseja excluir este usuário?',
@@ -107,8 +130,8 @@ export default defineComponent({
 
     onMounted(() => {
       fetchUsers();
-    }); 
-    
+    });
+
     return {
       users,
       isFormOpen,

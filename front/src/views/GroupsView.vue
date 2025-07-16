@@ -1,16 +1,21 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Grupos</h2>
       <v-btn color="primary" @click="openForm">Novo</v-btn>
     </v-row>
-    <v-data-table 
-      :items="groups" 
+    <v-data-table
+      :items="groups"
       :headers="[
         { title: 'Nome', value: 'name', sortable: true },
         { title: 'Usuários', value: 'users', sortable: false },
-        { title: 'Ações', value: 'actions', sortable: false }
-      ]" 
+        { title: 'Ações', value: 'actions', sortable: false },
+      ]"
       class="elevation-1"
     >
       <template #item.users="{ item }">
@@ -22,7 +27,8 @@
             <v-btn icon v-bind="props" variant="text">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
-          </template>          <v-list>
+          </template>
+          <v-list>
             <v-list-item @click="editGroup(item)">
               <v-list-item-title>
                 <v-icon class="me-2">mdi-pencil</v-icon>
@@ -38,10 +44,15 @@
           </v-list>
         </v-menu>
       </template>
-    </v-data-table>    
-    
-    <GroupForm :dialog="isFormOpen" :groupData="selectedGroup" @close="isFormOpen = false" @saved="fetchGroups" />
-    
+    </v-data-table>
+
+    <GroupForm
+      :dialog="isFormOpen"
+      :groupData="selectedGroup"
+      @close="isFormOpen = false"
+      @saved="fetchGroups"
+    />
+
     <ConfirmDialog
       :show="isConfirmDialogOpen"
       :title="confirmTitle"
@@ -70,12 +81,19 @@ export default defineComponent({
     const selectedGroup = ref<Group | null>(null);
 
     const { showToast } = useToast();
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
 
     const fetchGroups = async () => {
       try {
         const response = await axios.get('/api/groups');
-        
+
         groups.value = response.data.map((group: any) => ({
           ...group,
           users: group.users ?? [],
@@ -93,8 +111,8 @@ export default defineComponent({
     const editGroup = (group: Group) => {
       selectedGroup.value = group;
       isFormOpen.value = true;
-    };    
-    
+    };
+
     const deleteGroup = async (id: number) => {
       openConfirm(
         'Deseja realmente excluir este grupo?',
@@ -113,7 +131,8 @@ export default defineComponent({
 
     onMounted(() => {
       fetchGroups();
-    });    return {
+    });
+    return {
       groups,
       isFormOpen,
       selectedGroup,

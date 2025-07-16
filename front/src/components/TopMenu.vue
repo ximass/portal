@@ -3,7 +3,7 @@
     <v-app-bar-nav-icon @click="toggleDrawer" />
     <v-spacer />
     <div class="logo-header">
-      <v-img :src="logo" alt="Logo" contain/>
+      <v-img :src="logo" alt="Logo" contain />
     </div>
     <v-menu v-model="menu" offset-y>
       <template #activator="{ props }">
@@ -26,7 +26,7 @@
             <v-col>
               <v-list-item-title>Modo escuro</v-list-item-title>
             </v-col>
-            <v-col style="margin-top: -15px;">
+            <v-col style="margin-top: -15px">
               <v-switch v-model="isDark" @change="toggleDarkMode"></v-switch>
             </v-col>
           </v-row>
@@ -81,7 +81,10 @@ export default defineComponent({
         theme.global.name.value = 'light';
         localStorage.setItem('theme', 'light');
       }
-      document.documentElement.setAttribute('data-theme', theme.global.name.value);
+      document.documentElement.setAttribute(
+        'data-theme',
+        theme.global.name.value
+      );
     };
 
     onMounted(() => {

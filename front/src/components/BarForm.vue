@@ -2,50 +2,58 @@
   <v-dialog v-model="internalDialog" max-width="600px">
     <v-card>
       <v-card-title>
-        <span class="text-h5">{{ isEdit ? 'Editar barra' : 'Nova barra' }}</span>
+        <span class="text-h5">{{
+          isEdit ? 'Editar barra' : 'Nova barra'
+        }}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form" @submit.prevent="submitForm">
-          <v-text-field 
-            label="Nome" 
-            v-model="formData.name" 
-            :rules="[v => !!v || 'Nome é obrigatório']" 
-            required 
+          <v-text-field
+            label="Nome"
+            v-model="formData.name"
+            :rules="[v => !!v || 'Nome é obrigatório']"
+            required
           />
-          <v-text-field 
-            label="Comprimento (mm)" 
-            v-model="formData.length" 
+          <v-text-field
+            label="Comprimento (mm)"
+            v-model="formData.length"
             type="number"
             :rules="[
               v => !!v || 'Comprimento é obrigatório',
-              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
-            ]" 
-            required 
-            suffix="mm" 
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
+            ]"
+            required
+            suffix="mm"
             @blur="formData.length = roundValue(formData.length, 2)"
           />
-          <v-text-field 
-            label="Peso (kg)" 
-            v-model="formData.weight" 
-            type="number" 
+          <v-text-field
+            label="Peso (kg)"
+            v-model="formData.weight"
+            type="number"
             :rules="[
               v => !!v || 'Peso é obrigatório',
-              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
             ]"
-            required 
-            suffix="kg" 
+            required
+            suffix="kg"
             @blur="formData.weight = roundValue(formData.weight, 2)"
           />
-          <v-text-field 
-            label="Preço (R$/kg)" 
-            v-model="formData.price_kg" 
+          <v-text-field
+            label="Preço (R$/kg)"
+            v-model="formData.price_kg"
             type="number"
             :rules="[
               v => !!v || 'Preço é obrigatório',
-              v => /^\d+(\.\d{1,4})?$/.test(String(v)) || 'Máximo 2 casas decimais'
-            ]" 
-            required 
-            suffix="R$/kg" 
+              v =>
+                /^\d+(\.\d{1,4})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
+            ]"
+            required
+            suffix="R$/kg"
             @blur="formData.price_kg = roundValue(formData.price_kg, 2)"
           />
         </v-form>
@@ -74,7 +82,13 @@ export default defineComponent({
     dialog: { type: Boolean, required: true },
     barData: {
       type: Object as PropType<Bar>,
-      default: () => ({ id: null, name: '', length: null, weight: null, price_kg: null }),
+      default: () => ({
+        id: null,
+        name: '',
+        length: null,
+        weight: null,
+        price_kg: null,
+      }),
     },
     isEdit: { type: Boolean, default: false },
   },
@@ -92,13 +106,20 @@ export default defineComponent({
     const { showToast } = useToast();
     const { roundValue } = useMisc();
 
-    watch(() => props.barData, (newVal) => {
-      formData.value = { ...newVal };
-    }, { immediate: true });
+    watch(
+      () => props.barData,
+      newVal => {
+        formData.value = { ...newVal };
+      },
+      { immediate: true }
+    );
 
-    watch(() => props.dialog, (newVal) => {
-      internalDialog.value = newVal;
-    });
+    watch(
+      () => props.dialog,
+      newVal => {
+        internalDialog.value = newVal;
+      }
+    );
 
     const closeDialog = () => emit('close');
 
@@ -117,11 +138,21 @@ export default defineComponent({
         showToast('Barra salva com sucesso!', 'success');
         emit('saved');
       } catch (error: any) {
-        showToast('Erro ao salvar barra: ' + error.response?.data?.message, 'error');
+        showToast(
+          'Erro ao salvar barra: ' + error.response?.data?.message,
+          'error'
+        );
       }
     };
 
-    return { internalDialog, form, formData, closeDialog, submitForm, roundValue };
+    return {
+      internalDialog,
+      form,
+      formData,
+      closeDialog,
+      submitForm,
+      roundValue,
+    };
   },
 });
 </script>

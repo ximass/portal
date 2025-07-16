@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from 'vue-router';
 import { useAuth } from '../composables/auth';
 
 import Login from '../views/Login.vue';

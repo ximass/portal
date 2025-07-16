@@ -8,13 +8,11 @@
               {{ set.name }}
             </v-card-title>
           </v-card>
-          <v-table 
-            density="compact"
-          >
+          <v-table density="compact">
             <thead>
               <tr>
-                <th class="font-weight-bold" style="width:30%;">Peça</th>
-                <th class="font-weight-bold" style="width:40px;">Imagem</th>
+                <th class="font-weight-bold" style="width: 30%">Peça</th>
+                <th class="font-weight-bold" style="width: 40px">Imagem</th>
                 <th class="font-weight-bold">Tipo</th>
                 <th class="font-weight-bold">Qtd.</th>
                 <th class="font-weight-bold">Peso líq. unit.</th>
@@ -28,20 +26,40 @@
             <tbody>
               <template v-for="part in set.parts" :key="part.id">
                 <tr>
-                  <td style="width:30%;">{{ part.obs ? part.obs : part.title }}</td>
+                  <td style="width: 30%">
+                    {{ part.obs ? part.obs : part.title }}
+                  </td>
                   <td>
                     <span v-if="part.secondary_content">
                       <img
                         :src="getPartImageUrl(part.secondary_content)"
                         alt="Secundária"
-                        style="width:100%;height:100%;object-fit:contain;display:block;"
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          object-fit: contain;
+                          display: block;
+                        "
                       />
                     </span>
-                    <span v-else style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
-                      <v-icon size="32" color="grey-lighten-1">mdi-image-off</v-icon>
+                    <span
+                      v-else
+                      style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 100%;
+                        height: 100%;
+                      "
+                    >
+                      <v-icon size="32" color="grey-lighten-1"
+                        >mdi-image-off</v-icon
+                      >
                     </span>
                   </td>
-                  <td>{{ part.type ? (partTypes[part.type] ?? part.type) : '' }}</td>
+                  <td>
+                    {{ part.type ? (partTypes[part.type] ?? part.type) : '' }}
+                  </td>
                   <td>{{ part.quantity }}</td>
                   <td>{{ formatNumber(part.unit_net_weight) }} KG</td>
                   <td>{{ formatNumber(part.net_weight) }} KG</td>
@@ -50,26 +68,44 @@
                   <td>{{ formatCurrency(part.unit_value) }}</td>
                   <td>{{ formatCurrency(part.final_value) }}</td>
                 </tr>
-                <tr v-if="part.processes && part.processes.length" class="process-row">
+                <tr
+                  v-if="part.processes && part.processes.length"
+                  class="process-row"
+                >
                   <td :colspan="2" class="arrow-cell">
                     <div class="d-flex align-center gap-1">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M8 4v6c0 2.21 1.79 4 4 4h3.17l-2.59-2.59L14 10l5 5-5 5-1.41-1.41L15.17 16H12c-3.31 0-6-2.69-6-6V4h2z" fill="#888"/>
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M8 4v6c0 2.21 1.79 4 4 4h3.17l-2.59-2.59L14 10l5 5-5 5-1.41-1.41L15.17 16H12c-3.31 0-6-2.69-6-6V4h2z"
+                          fill="#888"
+                        />
                       </svg>
                       <span>Processos</span>
                     </div>
                   </td>
                   <td :colspan="8" class="process-info-cell">
                     <span>
-                      <template v-for="(proc, idx) in part.processes" :key="proc.id">
-                        {{ proc.title }} ({{ proc.pivot?.time ?? '-' }} min, {{ formatCurrency(proc.pivot?.final_value ?? 0) }})<span v-if="idx < part.processes.length - 1">;&nbsp;</span>
+                      <template
+                        v-for="(proc, idx) in part.processes"
+                        :key="proc.id"
+                      >
+                        {{ proc.title }} ({{ proc.pivot?.time ?? '-' }} min,
+                        {{ formatCurrency(proc.pivot?.final_value ?? 0) }})<span
+                          v-if="idx < part.processes.length - 1"
+                          >;&nbsp;</span
+                        >
                       </template>
                     </span>
                   </td>
                 </tr>
               </template>
-              <tr v-if="set.parts?.length" style="font-weight: bold;">
-                <td colspan="2" style="width:30%;">Totais</td>
+              <tr v-if="set.parts?.length" style="font-weight: bold">
+                <td colspan="2" style="width: 30%">Totais</td>
                 <td></td>
                 <td>{{ totalQuantity(set) }}</td>
                 <td>{{ total(set, 'unit_net_weight', false) }}</td>
@@ -109,7 +145,9 @@ export default defineComponent({
         data.map(async (part: Part) => {
           if (!part.processes) {
             try {
-              const response = await axios.get(`/api/sets/${set.id}/parts/${part.id}/processes`);
+              const response = await axios.get(
+                `/api/sets/${set.id}/parts/${part.id}/processes`
+              );
               part.processes = response.data;
             } catch {
               part.processes = [];
@@ -131,7 +169,7 @@ export default defineComponent({
 
       if (orderId) {
         const { data: setsData } = await axios.get(`/api/orders/${orderId}`);
-        
+
         if (setsData.sets && Array.isArray(setsData.sets)) {
           const setsWithParts = await Promise.all(
             setsData.sets.map(async (set: Set) => await fetchPartsForSet(set))
@@ -156,11 +194,17 @@ export default defineComponent({
     });
 
     function formatNumber(value: number) {
-      return Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return Number(value || 0).toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
     }
 
     function formatCurrency(value: number) {
-      return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      return Number(value || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
     }
 
     function total(set: Set, field: string, isCurrency = false) {
@@ -185,31 +229,35 @@ export default defineComponent({
       return Array.isArray(sets.value) ? sets.value : [sets.value];
     });
 
-    return { 
-      setsArray, 
+    return {
+      setsArray,
       partTypes,
-      total, 
-      totalQuantity, 
-      formatNumber, 
+      total,
+      totalQuantity,
+      formatNumber,
       formatCurrency,
       getPartImageUrl,
     };
-  }
+  },
 });
 </script>
 
 <style scoped>
-.v-table th, .v-table td {
+.v-table th,
+.v-table td {
   font-size: 13px;
   padding: 4px 8px;
 }
 
-body, html {
+body,
+html {
   margin: 0 !important;
   padding: 0 !important;
   background: #fff !important;
 }
-.v-container, .v-row, .v-col {
+.v-container,
+.v-row,
+.v-col {
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -218,7 +266,8 @@ body, html {
   border-collapse: collapse !important;
   font-size: 12px !important;
 }
-.v-table th, .v-table td {
+.v-table th,
+.v-table td {
   border: 1px solid #333 !important;
   padding: 4px 8px !important;
   color: #222 !important;
@@ -265,7 +314,8 @@ body, html {
   letter-spacing: 1px;
 }
 
-.v-table tr, .process-row {
+.v-table tr,
+.process-row {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }

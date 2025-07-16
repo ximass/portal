@@ -1,6 +1,11 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Clientes</h2>
       <v-btn color="primary" @click="openForm">Novo</v-btn>
     </v-row>
@@ -32,7 +37,7 @@
       @close="dialog = false"
       @saved="handleSaved"
     />
-    
+
     <ConfirmDialog
       :show="isConfirmDialogOpen"
       :title="confirmTitle"
@@ -53,12 +58,20 @@ import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 export default defineComponent({
   name: 'CustomersView',
-  components: { CustomerView, ConfirmDialog },  setup() {
+  components: { CustomerView, ConfirmDialog },
+  setup() {
     const customers = ref<any[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
     const formData = ref<any>({});
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
     const { showToast } = useToast();
 
     const headers = [
@@ -90,8 +103,8 @@ export default defineComponent({
     const handleSaved = () => {
       dialog.value = false;
       fetchCustomers();
-    };    
-    
+    };
+
     const deleteCustomer = async (id: number) => {
       openConfirm(
         'Tem certeza que deseja excluir este cliente?',
@@ -108,8 +121,8 @@ export default defineComponent({
       );
     };
 
-    onMounted(() => fetchCustomers());    
-    
+    onMounted(() => fetchCustomers());
+
     return {
       customers,
       headers,

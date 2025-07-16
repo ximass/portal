@@ -2,42 +2,49 @@
   <v-dialog v-model="internalDialog" max-width="600px">
     <v-card>
       <v-card-title>
-        <span class="text-h5">{{ isEdit ? 'Editar chapa' : 'Nova chapa' }}</span>
+        <span class="text-h5">{{
+          isEdit ? 'Editar chapa' : 'Nova chapa'
+        }}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form" @submit.prevent="submitForm">
-          <v-select 
-            label="Material" 
-            v-model="formData.material_id" 
+          <v-select
+            label="Material"
+            v-model="formData.material_id"
             :items="materials"
             item-title="name"
             item-value="id"
-            :rules="[v => !!v || 'Material é obrigatório']" 
-            required />
+            :rules="[v => !!v || 'Material é obrigatório']"
+            required
+          />
           <v-text-field
             label="Nome da chapa"
             v-model="formData.name"
             :rules="[v => !!v || 'Nome é obrigatório']"
             required
           />
-          <v-text-field 
-            label="Largura (mm)" 
-            v-model="formData.width" 
+          <v-text-field
+            label="Largura (mm)"
+            v-model="formData.width"
             type="number"
             :rules="[
               v => !!v || 'Largura é obrigatória',
-              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
             ]"
             required
             @blur="formData.width = roundValue(formData.width, 2)"
           />
-          <v-text-field 
-            label="Comprimento (mm)" 
-            v-model="formData.length" 
+          <v-text-field
+            label="Comprimento (mm)"
+            v-model="formData.length"
             type="number"
             :rules="[
               v => !!v || 'Comprimento é obrigatório',
-              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
             ]"
             required
             @blur="formData.length = roundValue(formData.length, 2)"
@@ -47,7 +54,9 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="closeDialog">Cancelar</v-btn>
-        <v-btn color="primary" @click="submitForm">{{ isEdit ? 'Atualizar' : 'Salvar' }}</v-btn>
+        <v-btn color="primary" @click="submitForm">{{
+          isEdit ? 'Atualizar' : 'Salvar'
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -99,13 +108,16 @@ export default defineComponent({
 
         materials.value = data;
       } catch (error: any) {
-        showToast(error.response?.data?.message || 'Erro ao buscar materiais', 'error');
+        showToast(
+          error.response?.data?.message || 'Erro ao buscar materiais',
+          'error'
+        );
       }
     };
 
     watch(
       () => props.sheetData,
-      (newVal) => {
+      newVal => {
         formData.value = { ...newVal };
       },
       { immediate: true }
@@ -113,7 +125,7 @@ export default defineComponent({
 
     watch(
       () => props.dialog,
-      (newVal) => {
+      newVal => {
         internalDialog.value = newVal;
       }
     );
@@ -137,7 +149,10 @@ export default defineComponent({
         showToast('Chapa salva com sucesso!', 'success');
         emit('saved');
       } catch (error: any) {
-        showToast('Erro ao salvar chapa: ' + error.response.data.message, 'error');
+        showToast(
+          'Erro ao salvar chapa: ' + error.response.data.message,
+          'error'
+        );
       }
     };
 

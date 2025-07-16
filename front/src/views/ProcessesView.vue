@@ -1,6 +1,11 @@
 <template>
-  <v-container style="padding: 50px;">
-    <v-row justify="space-between" align="center" class="mb-4" style="margin: 0;">
+  <v-container style="padding: 50px">
+    <v-row
+      justify="space-between"
+      align="center"
+      class="mb-4"
+      style="margin: 0"
+    >
       <h2>Processos</h2>
       <v-btn color="primary" @click="openForm">Novo</v-btn>
     </v-row>
@@ -29,7 +34,7 @@
         </v-menu>
       </template>
     </v-data-table>
-    
+
     <ConfirmDialog
       :show="isConfirmDialogOpen"
       :title="confirmTitle"
@@ -63,7 +68,14 @@ export default defineComponent({
     ];
 
     const { showToast } = useToast();
-    const { isConfirmDialogOpen, confirmTitle, confirmMessage, openConfirm, closeConfirm, handleConfirm } = useConfirm();
+    const {
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      openConfirm,
+      closeConfirm,
+      handleConfirm,
+    } = useConfirm();
 
     const fetchProcesses = async () => {
       const { data } = await axios.get('/api/processes');
@@ -73,11 +85,11 @@ export default defineComponent({
     const openForm = () => {
       router.push({ name: 'ProcessView', params: { id: 'new' } });
     };
-    
+
     const editProcess = (process: Process) => {
       router.push({ name: 'ProcessView', params: { id: process.id } });
-    };    
-    
+    };
+
     const deleteProcess = async (id: number) => {
       openConfirm(
         'Tem certeza que deseja excluir este processo?',
@@ -92,21 +104,21 @@ export default defineComponent({
         },
         'Excluir processo'
       );
-    };    
-    
+    };
+
     onMounted(() => fetchProcesses());
-    
-    return { 
-      processes, 
-      headers, 
-      openForm, 
-      editProcess, 
-      deleteProcess, 
-      isConfirmDialogOpen, 
-      confirmTitle, 
-      confirmMessage, 
-      closeConfirm, 
-      handleConfirm 
+
+    return {
+      processes,
+      headers,
+      openForm,
+      editProcess,
+      deleteProcess,
+      isConfirmDialogOpen,
+      confirmTitle,
+      confirmMessage,
+      closeConfirm,
+      handleConfirm,
     };
   },
 });

@@ -2,7 +2,9 @@
   <v-dialog v-model="internalDialog" max-width="600px">
     <v-card>
       <v-card-title>
-        <span class="text-h5">{{ isEdit ? 'Editar componente' : 'Novo componente' }}</span>
+        <span class="text-h5">{{
+          isEdit ? 'Editar componente' : 'Novo componente'
+        }}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form" @submit.prevent="submitForm">
@@ -12,17 +14,16 @@
             :rules="[v => !!v || 'Nome é obrigatório']"
             required
           />
-          <v-textarea
-            label="Especificações"
-            v-model="formData.specification"
-          />
+          <v-textarea label="Especificações" v-model="formData.specification" />
           <v-text-field
             label="Valor unitário (BRL)"
             v-model="formData.unit_value"
             type="number"
             :rules="[
               v => !!v || 'Valor unitário é obrigatório',
-              v => /^\d+(\.\d{1,2})?$/.test(String(v)) || 'Máximo 2 casas decimais'
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
             ]"
             required
             hint="Em BRL"
@@ -57,7 +58,10 @@ export default defineComponent({
   name: 'ComponentForm',
   props: {
     dialog: { type: Boolean, required: true },
-    componentData: { type: Object as PropType<ComponentType>, default: () => ({} as ComponentType) },
+    componentData: {
+      type: Object as PropType<ComponentType>,
+      default: () => ({}) as ComponentType,
+    },
     isEdit: { type: Boolean, default: false },
   },
   emits: ['close', 'saved'],
@@ -74,13 +78,20 @@ export default defineComponent({
     const { showToast } = useToast();
     const { roundValue } = useMisc();
 
-    watch(() => props.componentData, (newVal) => {
-      formData.value = { ...newVal };
-    }, { immediate: true });
+    watch(
+      () => props.componentData,
+      newVal => {
+        formData.value = { ...newVal };
+      },
+      { immediate: true }
+    );
 
-    watch(() => props.dialog, (newVal) => {
-      internalDialog.value = newVal;
-    });
+    watch(
+      () => props.dialog,
+      newVal => {
+        internalDialog.value = newVal;
+      }
+    );
 
     const closeDialog = () => {
       emit('close');
@@ -91,18 +102,31 @@ export default defineComponent({
         const valid = await form.value?.validate();
         if (!valid) return;
         if (props.isEdit) {
-          await axios.put(`/api/components/${props.componentData.id}`, formData.value);
+          await axios.put(
+            `/api/components/${props.componentData.id}`,
+            formData.value
+          );
         } else {
           await axios.post('/api/components', formData.value);
         }
         showToast('Componente salvo com sucesso!', 'success');
         emit('saved');
       } catch (error: any) {
-        showToast(error.response?.data?.message || 'Erro ao salvar componente', 'error');
+        showToast(
+          error.response?.data?.message || 'Erro ao salvar componente',
+          'error'
+        );
       }
     };
 
-    return { internalDialog, form, formData, closeDialog, submitForm, roundValue };
+    return {
+      internalDialog,
+      form,
+      formData,
+      closeDialog,
+      submitForm,
+      roundValue,
+    };
   },
 });
 </script>
