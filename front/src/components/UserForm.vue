@@ -2,29 +2,44 @@
   <v-dialog v-model="internalDialog" max-width="500px">
     <v-card>
       <v-card-title>
-        <span class="text-h5">Editar Usuário</span>
+        <span class="text-h5">Editar usuário</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form" @submit.prevent="submitForm">
-          <v-text-field
-            label="Nome"
-            v-model="user.name"
-            :rules="[v => !!v || 'Nome é obrigatório']"
-            required
-          ></v-text-field>
-          <v-text-field
-            label="Email"
-            v-model="user.email"
-            :rules="[v => !!v || 'Email é obrigatório']"
-            required
-          ></v-text-field>
-          <v-switch v-model="user.admin" label="Administrador"></v-switch>
+          <v-row dense>
+            <v-col cols="12">
+              <v-text-field
+                label="Nome"
+                v-model="user.name"
+                :rules="[v => !!v || 'Nome é obrigatório']"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col cols="12">
+              <v-text-field
+                label="Email"
+                v-model="user.email"
+                :rules="[v => !!v || 'Email é obrigatório']"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col cols="6">
+              <v-switch v-model="user.admin" label="Administrador"></v-switch>
+            </v-col>
+            <v-col cols="6">
+              <v-switch v-model="user.enabled" label="Habilitado"></v-switch>
+            </v-col>
+          </v-row>
         </v-form>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="close">Cancelar</v-btn>
-        <v-btn color="primary" @click="submitForm">Salvar</v-btn>
+        <v-btn color="primary" @click="submitForm">Atualizar</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -44,7 +59,13 @@ export default defineComponent({
   emits: ['close', 'saved'],
   setup(props, { emit }) {
     const { showToast } = useToast();
-    const user = ref({ id: 0, name: '', email: '', admin: false });
+    const user = ref({
+      id: 0,
+      name: '',
+      email: '',
+      admin: false,
+      enabled: false,
+    });
     const internalDialog = ref(props.dialog);
     const form = ref();
 

@@ -68,8 +68,11 @@ export default defineComponent({
 
         await login(email.value, password.value);
         router.push('/');
-      } catch (err) {
-        showToast('Credenciais inválidas');
+      } catch (err: any) {
+        showToast(
+          err.response?.data?.message || 'Erro ao fazer login',
+          'error'
+        );
       }
     };
 

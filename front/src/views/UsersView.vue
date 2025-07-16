@@ -12,6 +12,15 @@
       <template #item.admin="{ item }">
         {{ item.admin ? 'Sim' : 'Não' }}
       </template>
+      <template #item.enabled="{ item }">
+        <v-chip
+          :color="item.enabled ? 'success' : 'error'"
+          variant="flat"
+          size="small"
+        >
+          {{ item.enabled ? 'Habilitado' : 'Desabilitado' }}
+        </v-chip>
+      </template>
       <template #item.actions="{ item }">
         <v-menu offset-y>
           <template #activator="{ props }">
@@ -84,12 +93,14 @@ export default defineComponent({
       name: '',
       email: '',
       admin: false,
+      enabled: false,
     });
 
     const headers = [
       { title: 'Nome', value: 'name', sortable: true },
       { title: 'Email', value: 'email', sortable: true },
       { title: 'Administrador', value: 'admin', sortable: true },
+      { title: 'Habilitado', value: 'enabled', sortable: true },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 

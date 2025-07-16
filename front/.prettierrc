@@ -9,5 +9,10 @@
   "bracketSpacing": true,
   "arrowParens": "avoid",
   "vueIndentScriptAndStyle": false,
-  "htmlWhitespaceSensitivity": "css"
+  "htmlWhitespaceSensitivity": "css",
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
+  "jsxSingleQuote": true,
+  "bracketSameLine": false,
+  "embeddedLanguageFormatting": "auto"
 }

@@ -119,6 +119,7 @@ export interface User {
   name: string;
   email: string;
   admin: boolean;
+  enabled: boolean;
 }
 
 export interface Group {
