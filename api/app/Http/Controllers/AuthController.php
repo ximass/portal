@@ -21,6 +21,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, true)) {
             $user = Auth::user();
+            
+            if (!$user->enabled && !$user->admin) {
+                Auth::logout();
+                return response()->json(['message' => 'Usuário desabilitado. Entre em contato com o administrador.'], 403);
+            }
+
             $token = $user->createToken('login')->plainTextToken;
 
             return response()->json([
@@ -30,7 +36,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        return response()->json(['message' => 'Credenciais inválidas'], 401);
     }
 
     public function logout(Request $request)
@@ -55,10 +61,11 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'enabled' => false
         ]);
 
-        Auth::login($user);
-
-        return response()->json(['message' => 'User registered successfully']);
+        return response()->json([
+            'message' => 'Usuário registrado com sucesso. Aguarde a aprovação de um administrador para realizar o login.'
+        ]);
     }
 }
