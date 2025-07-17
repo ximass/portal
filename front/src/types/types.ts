@@ -1,5 +1,12 @@
 export type OrderType = 'pre_order' | 'order';
 
+export interface OrderFilters {
+  search: string;
+  type: OrderType | null;
+  dateFrom: string;
+  dateTo: string;
+}
+
 export interface OrderForm {
   type: OrderType;
   customer_id: string;
@@ -20,6 +27,10 @@ export interface Order {
   delivery_date: string | null;
   estimated_delivery_date: string | null;
   payment_obs: string | null;
+  customer?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface OrderSet {

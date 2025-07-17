@@ -3,13 +3,70 @@
     <v-row
       justify="space-between"
       align="center"
-      class="mb-4"
       style="margin: 0"
     >
       <h2>Orçamentos</h2>
-      <v-btn color="primary" @click="openForm">Novo</v-btn>
+      <div>
+        <v-btn
+          color="secondary"
+          @click="clearFilters"
+          class="mr-2"
+        >
+          Limpar filtros
+        </v-btn>
+        <v-btn color="primary" @click="openForm">Novo</v-btn>
+      </div>
     </v-row>
-    <v-data-table :items="orders" :headers="headers" class="elevation-1">
+
+    <!-- Filtros -->
+    <v-row>
+      <v-col cols="12" md="3">
+        <v-text-field
+          v-model="filters.search"
+          label="Pesquisar por código ou cliente"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          clearable
+          @input="applyFilters"
+          density="compact"
+        />
+      </v-col>
+      <v-col cols="12" md="3">
+        <v-select
+          v-model="filters.type"
+          :items="orderTypes"
+          label="Tipo"
+          variant="outlined"
+          clearable
+          density="compact"
+          @update:model-value="applyFilters"
+        />
+      </v-col>
+      <v-col cols="12" md="3">
+        <v-text-field
+          v-model="filters.dateFrom"
+          label="Data de entrega (de)"
+          type="datetime-local"
+          variant="outlined"
+          clearable
+          density="compact"
+          @input="applyFilters"
+        />
+      </v-col>
+      <v-col cols="12" md="3">
+        <v-text-field
+          v-model="filters.dateTo"
+          label="Data de entrega (até)"
+          type="datetime-local"
+          variant="outlined"
+          clearable
+          density="compact"
+          @input="applyFilters"
+        />
+      </v-col>
+    </v-row>
+
+    <v-data-table :items="filteredOrders" :headers="headers" class="elevation-1">
       <template #item.delivery_date="{ item }">
         {{ formatDateBR(item.delivery_date ?? '') }}
       </template>
@@ -48,14 +105,14 @@
   </v-container>
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useRouter } from 'vue-router';
 import { useMisc } from '../composables/misc';
 import { useConfirm } from '../composables/useConfirm';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
-import type { Order } from '../types/types';
+import type { Order, OrderFilters } from '../types/types';
 
 export default defineComponent({
   name: 'OrdersView',
@@ -75,6 +132,48 @@ export default defineComponent({
       closeConfirm,
       handleConfirm,
     } = useConfirm();
+
+    const filters = ref<OrderFilters>({
+      search: '',
+      type: null,
+      dateFrom: '',
+      dateTo: '',
+    });
+
+    const orderTypes = ref([
+      { title: 'Orçamento', value: 'pre_order' },
+      { title: 'Pedido', value: 'order' },
+    ]);
+
+    const filteredOrders = computed(() => {
+      let filtered = orders.value;
+
+      if (filters.value.search) {
+        const searchTerm = filters.value.search.toLowerCase();
+        filtered = filtered.filter(order => 
+          order.id.toString().includes(searchTerm) ||
+          (order.customer?.name && order.customer.name.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      if (filters.value.type) {
+        filtered = filtered.filter(order => order.type === filters.value.type);
+      }
+
+      if (filters.value.dateFrom) {
+        filtered = filtered.filter(order => 
+          order.delivery_date && order.delivery_date >= filters.value.dateFrom
+        );
+      }
+
+      if (filters.value.dateTo) {
+        filtered = filtered.filter(order => 
+          order.delivery_date && order.delivery_date <= filters.value.dateTo
+        );
+      }
+
+      return filtered;
+    });
 
     const headers = [
       { title: 'Código', value: 'id', sortable: true },
@@ -116,6 +215,18 @@ export default defineComponent({
       );
     };
 
+    const applyFilters = () => {
+    };
+
+    const clearFilters = () => {
+      filters.value = {
+        search: '',
+        type: null,
+        dateFrom: '',
+        dateTo: '',
+      };
+    };
+
     onMounted(() => {
       fetchOrders();
     });
@@ -133,6 +244,11 @@ export default defineComponent({
       confirmMessage,
       closeConfirm,
       handleConfirm,
+      filters,
+      filteredOrders,
+      orderTypes,
+      applyFilters,
+      clearFilters,
     };
   },
 });
