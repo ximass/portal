@@ -21,6 +21,15 @@
           ></v-text-field>
           <v-text-field label="CNPJ" v-model="formData.cnpj"></v-text-field>
           <v-text-field label="CPF" v-model="formData.cpf"></v-text-field>
+          <v-select
+            label="Estado"
+            v-model="formData.state_id"
+            :items="states"
+            item-title="name"
+            item-value="id"
+            clearable
+            hint="Selecione o estado do cliente"
+          />
           <v-textarea label="Endereço" v-model="formData.address"></v-textarea>
         </v-form>
       </v-card-text>
@@ -34,11 +43,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
 import type { VForm } from 'vuetify/components';
+import type { State, Customer } from '../types/types';
 
 export default defineComponent({
   name: 'CustomerView',
@@ -50,11 +60,30 @@ export default defineComponent({
   emits: ['close', 'saved'],
   setup(props, { emit }) {
     const form = ref<VForm | null>(null);
-    const formData = ref<any>({});
+    const formData = ref<Customer>({
+      id: null,
+      name: '',
+      email: null,
+      phone: null,
+      cnpj: null,
+      cpf: null,
+      address: null,
+      state_id: null,
+    });
     const internalDialog = ref(props.dialog);
+    const states = ref<State[]>([]);
 
     const { formatPhone, formatCnpj, formatCpf } = useMisc();
     const { showToast } = useToast();
+
+    const fetchStates = async () => {
+      try {
+        const { data } = await axios.get('/api/states');
+        states.value = data;
+      } catch (error) {
+        showToast('Erro ao buscar estados', 'error');
+      }
+    };
 
     watch(
       formData,
@@ -76,10 +105,23 @@ export default defineComponent({
     watch(
       () => props.customerData,
       newVal => {
-        formData.value = { ...newVal };
+        formData.value = {
+          id: newVal.id || null,
+          name: newVal.name || '',
+          email: newVal.email || null,
+          phone: newVal.phone || null,
+          cnpj: newVal.cnpj || null,
+          cpf: newVal.cpf || null,
+          address: newVal.address || null,
+          state_id: newVal.state_id || null,
+        };
       },
       { immediate: true }
     );
+
+    onMounted(() => {
+      fetchStates();
+    });
 
     const closeDialog = () => {
       emit('close');
@@ -120,6 +162,7 @@ export default defineComponent({
       internalDialog,
       form,
       formData,
+      states,
       closeDialog,
       submitForm,
     };

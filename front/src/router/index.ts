@@ -20,6 +20,7 @@ import SheetsView from '../views/SheetsView.vue';
 import BarsView from '../views/BarsView.vue';
 import ComponentsView from '../views/ComponentsView.vue';
 import MercosurCommonNomenclatureView from '../views/MercosurCommonNomenclatureView.vue';
+import StatesView from '../views/StatesView.vue';
 import SetPrint from '../views/SetPrint.vue';
 import PartPrint from '../views/PartPrint.vue';
 
@@ -70,6 +71,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/mercosur-common-nomenclatures',
     name: 'MercosurCommonNomenclatureView',
     component: MercosurCommonNomenclatureView,
+    meta: { requiresAuth: true, requiresAdmin: false },
+  },
+  {
+    path: '/states',
+    name: 'StatesView',
+    component: StatesView,
     meta: { requiresAuth: true, requiresAdmin: false },
   },
   {

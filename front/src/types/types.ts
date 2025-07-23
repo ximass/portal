@@ -170,3 +170,38 @@ export type MercosurCommonNomenclatureForm = {
   code: string;
   ipi: number;
 };
+
+export interface State {
+  id: number | null;
+  name: string;
+  abbreviation: string;
+  icms: number;
+}
+
+export type StateForm = {
+  name: string;
+  abbreviation: string;
+  icms: number;
+};
+
+export interface Customer {
+  id: number | null;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  cnpj: string | null;
+  cpf: string | null;
+  address: string | null;
+  state_id: number | null;
+  state?: State;
+}
+
+export type CustomerForm = {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  cnpj: string | null;
+  cpf: string | null;
+  address: string | null;
+  state_id: number | null;
+};

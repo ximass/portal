@@ -11,6 +11,9 @@
     </v-row>
 
     <v-data-table :items="customers" :headers="headers">
+      <template #item.state.name="{ item }">
+        {{ item.state?.name || '-' }}
+      </template>
       <template #item.actions="{ item }">
         <v-menu offset-y>
           <template #activator="{ props }">
@@ -80,6 +83,7 @@ export default defineComponent({
       { title: 'Telefone', value: 'phone' },
       { title: 'CNPJ', value: 'cnpj' },
       { title: 'CPF', value: 'cpf' },
+      { title: 'Estado', value: 'state.name' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 

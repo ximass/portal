@@ -125,16 +125,22 @@ export default defineComponent({
         icon: 'mdi-screw-lag',
       },
       {
+        title: 'Processos',
+        route: '/processes',
+        admin: false,
+        icon: 'mdi-cogs',
+      },
+      {
         title: 'NCM',
         route: '/mercosur-common-nomenclatures',
         admin: false,
         icon: 'mdi-file-document-outline',
       },
       {
-        title: 'Processos',
-        route: '/processes',
+        title: 'Estados',
+        route: '/states',
         admin: false,
-        icon: 'mdi-cogs',
+        icon: 'mdi-map',
       },
       {
         title: 'Clientes',
