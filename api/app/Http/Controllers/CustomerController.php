@@ -9,7 +9,7 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        return response()->json(Customer::all());
+        return response()->json(Customer::with('state')->get());
     }
 
     public function store(Request $request)
@@ -21,15 +21,17 @@ class CustomerController extends Controller
             'cnpj' => 'string|nullable',
             'cpf' => 'string|nullable',
             'address' => 'string|nullable',
+            'state_id' => 'nullable|exists:states,id',
         ]);
 
         $customer = Customer::create($data);
-        return response()->json($customer, 201);
+        
+        return response()->json($customer->load('state'), 201);
     }
 
     public function show(Customer $customer)
     {
-        return response()->json($customer);
+        return response()->json($customer->load('state'));
     }
 
     public function update(Request $request, Customer $customer)
@@ -41,10 +43,11 @@ class CustomerController extends Controller
             'cnpj' => 'string|nullable',
             'cpf' => 'string|nullable',
             'address' => 'string|nullable',
+            'state_id' => 'nullable|exists:states,id',
         ]);
 
         $customer->update($data);
-        return response()->json($customer);
+        return response()->json($customer->load('state'));
     }
 
     public function destroy(Customer $customer)

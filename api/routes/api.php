@@ -17,6 +17,7 @@ use App\Http\Controllers\SheetController;
 use App\Http\Controllers\BarController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MercosurCommonNomenclatureController;
+use App\Http\Controllers\StateController;
 
 #GET#
 Route::get('/user', function (Request $request) {
@@ -50,6 +51,7 @@ Route::apiResource('/bars', BarController::class);
 Route::apiResource('/components', ComponentController::class);
 Route::apiResource('/customers', CustomerController::class);
 Route::apiResource('/mercosur-common-nomenclatures', MercosurCommonNomenclatureController::class);
+Route::apiResource('/states', StateController::class);
 
 #LOGIN#
 Route::middleware('web')->group(function () {

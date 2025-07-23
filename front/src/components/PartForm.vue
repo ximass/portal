@@ -590,9 +590,12 @@ export default defineComponent({
       }
     };
 
-    const fetchSheets = async () => {
+    const fetchSheets = async (materialId?: number | null) => {
       try {
-        const { data } = await axios.get('/api/sheets');
+        const url = materialId
+          ? `/api/sheets?material_id=${materialId}`
+          : '/api/sheets';
+        const { data } = await axios.get(url);
         sheets.value = data;
       } catch (error) {
         showToast('Erro ao buscar chapas', 'error');
@@ -623,6 +626,15 @@ export default defineComponent({
       try {
         const { data } = await axios.get(`/api/materials/${materialId}`);
         localPart.value.material_id = data.id;
+
+        if (localPart.value.type === 'sheet') {
+          selectedSheet.value = null;
+          localPart.value.sheet_id = null;
+
+          await fetchSheets(materialId);
+        }
+
+        await calculateProperties();
       } catch (error) {
         showToast('Erro ao buscar material', 'error');
       }
@@ -630,12 +642,15 @@ export default defineComponent({
 
     const fillSheetDetails = async (sheetId: number | null) => {
       if (!sheetId) return;
+
       try {
         const { data } = await axios.get(`/api/sheets/${sheetId}`);
         localPart.value.sheet_id = data.id;
         localPart.value.thickness = data.thickness;
         localPart.value.width = data.width;
         localPart.value.length = data.length;
+
+        await calculateProperties();
       } catch (error) {
         showToast('Erro ao buscar chapa', 'error');
       }
@@ -648,6 +663,8 @@ export default defineComponent({
 
         localPart.value.bar_id = data.id;
         localPart.value.length = data.length;
+
+        await calculateProperties();
       } catch (error) {
         showToast('Erro ao buscar barra', 'error');
       }
@@ -660,6 +677,8 @@ export default defineComponent({
 
         localPart.value.component_id = data.id;
         localPart.value.unit_value = data.unit_value;
+
+        await calculateProperties();
       } catch (error) {
         showToast('Erro ao buscar componente', 'error');
       }
@@ -822,7 +841,7 @@ export default defineComponent({
         await fetchMaterials();
       }
       if (part.type === 'sheet') {
-        await fetchSheets();
+        await fetchSheets(part.material_id);
       }
       if (part.type === 'bar') {
         await fetchBars();

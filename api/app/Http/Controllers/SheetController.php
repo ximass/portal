@@ -7,9 +7,15 @@ use App\Models\Sheet;
 
 class SheetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Sheet::with('material')->get());
+        $query = Sheet::with('material');
+        
+        if ($request->has('material_id') && $request->material_id) {
+            $query->where('material_id', $request->material_id);
+        }
+        
+        return response()->json($query->get());
     }
 
     public function store(Request $request)

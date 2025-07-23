@@ -16,6 +16,12 @@ class Customer extends Model
         'phone',
         'cnpj',
         'cpf',
-        'address'
+        'address',
+        'state_id'
     ];
+
+    public function state()
+    {
+        return $this->belongsTo(State::class);
+    }
 }
