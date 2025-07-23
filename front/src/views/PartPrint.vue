@@ -203,24 +203,6 @@
                     >
                   </v-list-item>
                 </v-col>
-                <v-col cols="6">
-                  <v-list-item>
-                    <v-list-item-title>Valor unitário</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      formatCurrency(part?.unit_value)
-                    }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
-              </v-row>
-              <v-row dense>
-                <v-col cols="6">
-                  <v-list-item>
-                    <v-list-item-title>Valor final</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      formatCurrency(part?.final_value)
-                    }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
                 <v-col cols="6"></v-col>
               </v-row>
             </v-list>
@@ -229,8 +211,7 @@
               <strong>Processos:</strong>
               <ul>
                 <li v-for="proc in part.processes" :key="proc.id">
-                  {{ proc.title }} ({{ proc.pivot?.time ?? '-' }} min,
-                  {{ formatCurrency(proc.pivot?.final_value ?? 0) }})
+                  {{ proc.title }} ({{ proc.pivot?.time ?? '-' }} min)
                 </li>
               </ul>
             </div>
