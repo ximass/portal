@@ -15,20 +15,6 @@
             required
           />
           <v-text-field
-            label="Espessura"
-            v-model="formData.thickness"
-            :rules="[
-              v => !!v || 'Espessura é obrigatória',
-              v =>
-                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
-                'Máximo 2 casas decimais',
-            ]"
-            type="number"
-            required
-            hint="Em mm"
-            @blur="formData.thickness = roundValue(formData.thickness, 2)"
-          />
-          <v-text-field
             label="Peso específico"
             v-model="formData.specific_weight"
             :rules="[
@@ -94,7 +80,6 @@ export default defineComponent({
     const formData = ref<Material>({
       id: null,
       name: '',
-      thickness: 0,
       specific_weight: 0,
       price_kg: 0,
     });

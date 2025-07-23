@@ -83,7 +83,6 @@ export default defineComponent({
     const selectedMaterial = ref<Material>({
       id: null,
       name: '',
-      thickness: 0,
       specific_weight: 0,
       price_kg: 0,
     });
@@ -91,7 +90,6 @@ export default defineComponent({
     const headers = [
       { title: 'Código', value: 'id', sortable: true },
       { title: 'Nome', value: 'name', sortable: true },
-      { title: 'Espessura (mm)', value: 'thickness', sortable: true },
       {
         title: 'Peso específico (g/cm³)',
         value: 'specific_weight',
@@ -114,7 +112,6 @@ export default defineComponent({
       selectedMaterial.value = {
         id: null,
         name: '',
-        thickness: 0,
         specific_weight: 0,
         price_kg: 0,
       };

@@ -31,6 +31,7 @@ class SetPart extends Model
         'final_value',
 
         // bar and sheet
+        'thickness',
         'width',
         'length',
         'loss',

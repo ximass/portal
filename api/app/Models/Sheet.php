@@ -17,6 +17,7 @@ class Sheet extends Model
     protected $fillable = [
         'material_id',
         'name',
+        'thickness',
         'width',
         'length',
     ];

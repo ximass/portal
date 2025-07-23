@@ -12,7 +12,6 @@ class Material extends Model
 
     protected $fillable = [
         'name',
-        'thickness',
         'specific_weight',
         'price_kg'
     ];

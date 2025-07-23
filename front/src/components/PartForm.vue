@@ -212,6 +212,18 @@
                       localPart.type === 'sheet'
                     "
                   >
+                    <v-col cols="12" md="4" small="6" v-if="localPart.type === 'material'">
+                      <v-text-field
+                        label="Espessura"
+                        v-model="localPart.thickness"
+                        type="number"
+                        required
+                        density="compact"
+                        @change="calculateProperties"
+                        @blur="localPart.thickness = roundValue(localPart.thickness ?? 0, 2)"
+                        suffix="mm"
+                      />
+                    </v-col>
                     <v-col cols="12" md="4" small="6">
                       <v-text-field
                         label="Largura"
@@ -611,6 +623,7 @@ export default defineComponent({
       try {
         const { data } = await axios.get(`/api/sheets/${sheetId}`);
         localPart.value.sheet_id = data.id;
+        localPart.value.thickness = data.thickness;
         localPart.value.width = data.width;
         localPart.value.length = data.length;
       } catch (error) {
@@ -652,6 +665,7 @@ export default defineComponent({
       localPart.value.sheet_id = null;
       localPart.value.bar_id = null;
       localPart.value.component_id = null;
+      localPart.value.thickness = undefined;
 
       if (newType === 'material' || newType === 'sheet') {
         fetchMaterials();

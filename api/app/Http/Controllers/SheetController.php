@@ -17,6 +17,7 @@ class SheetController extends Controller
         $data = $request->validate([
             'material_id'     => 'required|exists:materials,id',
             'name'            => 'required|string|max:255',
+            'thickness'       => 'required|numeric',
             'width'           => 'required|numeric',
             'length'          => 'required|numeric',
         ]);
@@ -39,6 +40,7 @@ class SheetController extends Controller
         $data = $request->validate([
             'material_id'     => 'sometimes|required|exists:materials,id',
             'name'            => 'sometimes|required|string|max:255',
+            'thickness'       => 'sometimes|required|numeric',
             'width'           => 'sometimes|required|numeric',
             'length'          => 'sometimes|required|numeric',
         ]);

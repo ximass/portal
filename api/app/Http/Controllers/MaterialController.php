@@ -18,7 +18,6 @@ class MaterialController extends Controller
     {
         $data = $request->validate([
             'name'            => 'required|string|max:100',
-            'thickness'       => 'required|numeric',
             'specific_weight' => 'required|numeric',
             'price_kg'        => 'required|numeric'
         ]);
@@ -37,7 +36,6 @@ class MaterialController extends Controller
     {
         $data = $request->validate([
             'name'            => 'sometimes|required|string|max:100',
-            'thickness'       => 'sometimes|required|numeric',
             'specific_weight' => 'sometimes|required|numeric',
             'price_kg'        => 'sometimes|required|numeric'
         ]);

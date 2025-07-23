@@ -48,7 +48,6 @@ export interface SetPartType {
 export interface Material {
   id: number | null;
   name: string;
-  thickness: number;
   specific_weight: number;
   price_kg: number;
 }
@@ -58,6 +57,7 @@ export interface Sheet {
   id: number | null;
   name: string;
   material_id: number;
+  thickness: number;
   width: number;
   length: number;
 }
@@ -66,6 +66,7 @@ export interface SheetForm {
   id: number | null;
   name: string;
   material_id: number | null;
+  thickness: number;
   width: number;
   length: number;
 }
@@ -110,6 +111,7 @@ export interface Part {
   gross_weight: number;
   unit_value: number;
   final_value: number;
+  thickness?: number;
   width: number;
   length: number;
   loss: number | null;

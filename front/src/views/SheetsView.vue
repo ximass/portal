@@ -85,8 +85,9 @@ export default defineComponent({
     const headers = [
       { title: 'Código', value: 'id' },
       { title: 'Material', value: 'material.name' },
-      { title: 'Largura', value: 'width' },
-      { title: 'Comprimento', value: 'length' },
+      { title: 'Espessura (mm)', value: 'thickness' },
+      { title: 'Largura (mm)', value: 'width' },
+      { title: 'Comprimento (mm)', value: 'length' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 
@@ -104,6 +105,7 @@ export default defineComponent({
         id: null,
         name: '',
         material_id: null,
+        thickness: 0,
         width: 0,
         length: 0,
       };

@@ -24,6 +24,19 @@
             required
           />
           <v-text-field
+            label="Espessura (mm)"
+            v-model="formData.thickness"
+            type="number"
+            :rules="[
+              v => !!v || 'Espessura é obrigatória',
+              v =>
+                /^\d+(\.\d{1,2})?$/.test(String(v)) ||
+                'Máximo 2 casas decimais',
+            ]"
+            required
+            @blur="formData.thickness = roundValue(formData.thickness, 2)"
+          />
+          <v-text-field
             label="Largura (mm)"
             v-model="formData.width"
             type="number"
@@ -79,6 +92,7 @@ export default defineComponent({
         id: null,
         material_id: 0,
         name: '',
+        thickness: 0,
         width: 0,
         length: 0,
       }),
@@ -96,6 +110,7 @@ export default defineComponent({
       id: 0,
       name: '',
       material_id: 0,
+      thickness: 0,
       width: 0,
       length: 0,
     });

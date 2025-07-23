@@ -58,6 +58,7 @@ class SetPartController extends Controller
             'component_id'     => 'sometimes|nullable|integer|exists:components,id',
             'quantity'         => 'sometimes|nullable|integer',
             'loss'             => 'sometimes|nullable|numeric',
+            'thickness'        => 'sometimes|nullable|numeric',
             'unit_net_weight'  => 'sometimes|nullable|numeric',
             'net_weight'       => 'sometimes|nullable|numeric',
             'unit_gross_weight'=> 'sometimes|nullable|numeric',
@@ -83,6 +84,7 @@ class SetPartController extends Controller
             'component_id'     => $request->input('component_id'),
             'quantity'         => $request->input('quantity'),
             'loss'             => $request->input('loss'),
+            'thickness'        => $request->input('thickness'),
             'unit_net_weight'  => $request->input('unit_net_weight'),
             'net_weight'       => $request->input('net_weight'),
             'unit_gross_weight'=> $request->input('unit_gross_weight'),
@@ -135,6 +137,7 @@ class SetPartController extends Controller
             'component_id'     => 'sometimes|nullable|integer|exists:components,id',
             'quantity'         => 'sometimes|nullable|integer',
             'loss'             => 'sometimes|nullable|numeric',
+            'thickness'        => 'sometimes|nullable|numeric',
             'unit_net_weight'  => 'sometimes|nullable|numeric',
             'net_weight'       => 'sometimes|nullable|numeric',
             'unit_gross_weight'=> 'sometimes|nullable|numeric',
@@ -160,6 +163,7 @@ class SetPartController extends Controller
             'component_id',
             'quantity',
             'loss',
+            'thickness',
             'unit_net_weight',
             'net_weight',
             'unit_gross_weight',
@@ -341,17 +345,20 @@ class SetPartController extends Controller
         if ($onlyMaterial)
         {
             $material = Material::findOrFail($part->material_id);
+            // Para material, precisa ter thickness definida no part
+            $thickness = isset($part->thickness) ? $part->thickness : 0;
         }
         else
         {
             $sheet = Sheet::findOrFail($part->sheet_id);
             $material = $sheet->material;
+            $thickness = $sheet->thickness;
         }
 
         // Converte medidas de mm para m e aplica arredondamento para width e length se necessário
         $widthInMeters     = $part->width / 1000;
         $lengthInMeters    = $part->length / 1000;
-        $thicknessInMeters = $material->thickness / 1000;
+        $thicknessInMeters = $thickness / 1000;
         
         // Peso específico de g/mm³ em kg/m³
         $specificWeight = $material->specific_weight * 1000 * 1000;
