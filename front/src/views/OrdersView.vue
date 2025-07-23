@@ -1,17 +1,9 @@
 <template>
   <v-container style="padding: 50px">
-    <v-row
-      justify="space-between"
-      align="center"
-      style="margin: 0"
-    >
+    <v-row justify="space-between" align="center" style="margin: 0">
       <h2>Orçamentos</h2>
       <div>
-        <v-btn
-          color="secondary"
-          @click="clearFilters"
-          class="mr-2"
-        >
+        <v-btn color="secondary" @click="clearFilters" class="mr-2">
           Limpar filtros
         </v-btn>
         <v-btn color="primary" @click="openForm">Novo</v-btn>
@@ -66,7 +58,11 @@
       </v-col>
     </v-row>
 
-    <v-data-table :items="filteredOrders" :headers="headers" class="elevation-1">
+    <v-data-table
+      :items="filteredOrders"
+      :headers="headers"
+      class="elevation-1"
+    >
       <template #item.delivery_date="{ item }">
         {{ formatDateBR(item.delivery_date ?? '') }}
       </template>
@@ -150,9 +146,11 @@ export default defineComponent({
 
       if (filters.value.search) {
         const searchTerm = filters.value.search.toLowerCase();
-        filtered = filtered.filter(order => 
-          order.id.toString().includes(searchTerm) ||
-          (order.customer?.name && order.customer.name.toLowerCase().includes(searchTerm))
+        filtered = filtered.filter(
+          order =>
+            order.id.toString().includes(searchTerm) ||
+            (order.customer?.name &&
+              order.customer.name.toLowerCase().includes(searchTerm))
         );
       }
 
@@ -161,14 +159,16 @@ export default defineComponent({
       }
 
       if (filters.value.dateFrom) {
-        filtered = filtered.filter(order => 
-          order.delivery_date && order.delivery_date >= filters.value.dateFrom
+        filtered = filtered.filter(
+          order =>
+            order.delivery_date && order.delivery_date >= filters.value.dateFrom
         );
       }
 
       if (filters.value.dateTo) {
-        filtered = filtered.filter(order => 
-          order.delivery_date && order.delivery_date <= filters.value.dateTo
+        filtered = filtered.filter(
+          order =>
+            order.delivery_date && order.delivery_date <= filters.value.dateTo
         );
       }
 
@@ -215,8 +215,7 @@ export default defineComponent({
       );
     };
 
-    const applyFilters = () => {
-    };
+    const applyFilters = () => {};
 
     const clearFilters = () => {
       filters.value = {

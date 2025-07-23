@@ -212,7 +212,12 @@
                       localPart.type === 'sheet'
                     "
                   >
-                    <v-col cols="12" md="4" small="6" v-if="localPart.type === 'material'">
+                    <v-col
+                      cols="12"
+                      md="4"
+                      small="6"
+                      v-if="localPart.type === 'material'"
+                    >
                       <v-text-field
                         label="Espessura"
                         v-model="localPart.thickness"
@@ -220,7 +225,12 @@
                         required
                         density="compact"
                         @change="calculateProperties"
-                        @blur="localPart.thickness = roundValue(localPart.thickness ?? 0, 2)"
+                        @blur="
+                          localPart.thickness = roundValue(
+                            localPart.thickness ?? 0,
+                            2
+                          )
+                        "
                         suffix="mm"
                       />
                     </v-col>

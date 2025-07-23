@@ -159,3 +159,14 @@ export interface ProcessPivot {
   time: number;
   final_value: number;
 }
+
+export interface MercosurCommonNomenclature {
+  id: number | null;
+  code: string;
+  ipi: number;
+}
+
+export type MercosurCommonNomenclatureForm = {
+  code: string;
+  ipi: number;
+};

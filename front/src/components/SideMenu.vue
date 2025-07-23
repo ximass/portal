@@ -125,6 +125,12 @@ export default defineComponent({
         icon: 'mdi-screw-lag',
       },
       {
+        title: 'NCM',
+        route: '/mercosur-common-nomenclatures',
+        admin: false,
+        icon: 'mdi-file-document-outline',
+      },
+      {
         title: 'Processos',
         route: '/processes',
         admin: false,

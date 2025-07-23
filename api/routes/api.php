@@ -16,6 +16,7 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\SheetController;
 use App\Http\Controllers\BarController;
 use App\Http\Controllers\ComponentController;
+use App\Http\Controllers\MercosurCommonNomenclatureController;
 
 #GET#
 Route::get('/user', function (Request $request) {
@@ -48,6 +49,7 @@ Route::apiResource('/sheets', SheetController::class);
 Route::apiResource('/bars', BarController::class);
 Route::apiResource('/components', ComponentController::class);
 Route::apiResource('/customers', CustomerController::class);
+Route::apiResource('/mercosur-common-nomenclatures', MercosurCommonNomenclatureController::class);
 
 #LOGIN#
 Route::middleware('web')->group(function () {
