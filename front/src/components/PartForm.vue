@@ -196,6 +196,28 @@
                 </v-col>
               </v-row>
 
+              <!-- Campo NCM (para todos os tipos de parte) -->
+              <v-row dense>
+                <v-col cols="12">
+                  <v-select
+                    label="NCM"
+                    :items="ncms"
+                    item-title="code"
+                    item-value="id"
+                    v-model="localPart.ncm_id"
+                    density="compact"
+                    clearable
+                    @update:modelValue="onNcmChange"
+                  >
+                    <template #item="{ item, props }">
+                      <v-list-item v-bind="props">
+                        <v-list-item-subtitle>IPI: {{ item.raw.ipi }}%</v-list-item-subtitle>
+                      </v-list-item>
+                    </template>
+                  </v-select>
+                </v-col>
+              </v-row>
+
               <!-- Campos Complementares para material, sheet e bar -->
               <template
                 v-if="
@@ -470,6 +492,61 @@
                 </v-row>
               </v-sheet>
 
+              <!-- Informações do IPI e ICMS -->
+              <v-sheet
+                v-if="localPart.ncm_id || getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0"
+                class="pa-4 ma-2"
+                color="grey lighten-4"
+                rounded
+                border="sm"
+              >
+                <!-- Informações do IPI -->
+                <div v-if="localPart.ncm_id" class="mb-3">
+                  <v-row>
+                    <v-col cols="12" md="4">
+                      <div class="text-body-2">
+                        <strong>Percentual IPI:</strong> {{ localPart.ncm?.ipi || 0 }}%
+                      </div>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <div class="text-body-2">
+                        <strong>Valor IPI unitário:</strong> 
+                        R$ {{ getUnitIpiValue().toFixed(2) }}
+                      </div>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <div class="text-body-2">
+                        <strong>Valor IPI total:</strong> 
+                        R$ {{ getTotalIpiValue().toFixed(2) }}
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <!-- Informações do ICMS -->
+                <div v-if="getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0">
+                  <v-row>
+                    <v-col cols="12" md="4">
+                      <div class="text-body-2">
+                        <strong>Percentual ICMS:</strong> {{ getStateIcmsPercentage() }}%
+                      </div>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <div class="text-body-2">
+                        <strong>Valor ICMS unitário:</strong> 
+                        R$ {{ getUnitIcmsValue().toFixed(2) }}
+                      </div>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <div class="text-body-2">
+                        <strong>Valor ICMS total:</strong> 
+                        R$ {{ getTotalIcmsValue().toFixed(2) }}
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-sheet>
+
               <ProcessMultiField
                 v-model="localPart.processes"
                 @process-updated="calculateProperties"
@@ -513,7 +590,7 @@ import {
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
-import type { Part, Material, Sheet, Bar, Component } from '../types/types';
+import type { Part, Material, Sheet, Bar, Component, MercosurCommonNomenclature } from '../types/types';
 import ProcessMultiField from '../components/ProcessMultiField.vue';
 
 export default defineComponent({
@@ -533,7 +610,7 @@ export default defineComponent({
   emits: ['part-saved', 'close', 'navigate-to-part'],
   setup(props, { emit }) {
     const { showToast } = useToast();
-    const { roundValue } = useMisc();
+    const { roundValue, ensureNumber } = useMisc();
 
     const setPartTypes = [
       { name: 'Material', value: 'material' },
@@ -552,6 +629,7 @@ export default defineComponent({
     const sheets = ref<Sheet[]>([]);
     const bars = ref<Bar[]>([]);
     const components = ref<Component[]>([]);
+    const ncms = ref<MercosurCommonNomenclature[]>([]);
 
     const selectedMaterial = ref<number | null>(null);
     const selectedSheet = ref<number | null>(null);
@@ -567,6 +645,10 @@ export default defineComponent({
         gross_weight: roundValue(part.gross_weight, 2),
         unit_value: roundValue(part.unit_value, 2),
         final_value: roundValue(part.final_value, 2),
+        unit_ipi_value: roundValue(part.unit_ipi_value, 2),
+        total_ipi_value: roundValue(part.total_ipi_value, 2),
+        unit_icms_value: roundValue(part.unit_icms_value, 2),
+        total_icms_value: roundValue(part.total_icms_value, 2),
         width: roundValue(part.width, 2),
         length: roundValue(part.length, 2),
         loss:
@@ -618,6 +700,28 @@ export default defineComponent({
       } catch (error) {
         showToast('Erro ao buscar componentes', 'error');
       }
+    };
+
+    const fetchNCMs = async () => {
+      try {
+        const { data } = await axios.get('/api/mercosur-common-nomenclatures');
+        ncms.value = data;
+      } catch (error) {
+        showToast('Erro ao buscar NCMs', 'error');
+      }
+    };
+
+    const onNcmChange = async (ncmId: number | null) => {
+      if (ncmId) {
+        const selectedNcm = ncms.value.find(ncm => ncm.id === ncmId);
+        if (selectedNcm) {
+          localPart.value.ncm = selectedNcm;
+        }
+      } else {
+        localPart.value.ncm = undefined;
+      }
+      
+      calculateProperties();
     };
 
     const fillMaterialDetails = async (materialId: number | null) => {
@@ -773,6 +877,10 @@ export default defineComponent({
         localPart.value.gross_weight = rounded.gross_weight;
         localPart.value.unit_value = rounded.unit_value;
         localPart.value.final_value = rounded.final_value;
+        localPart.value.unit_ipi_value = rounded.unit_ipi_value;
+        localPart.value.total_ipi_value = rounded.total_ipi_value;
+        localPart.value.unit_icms_value = rounded.unit_icms_value;
+        localPart.value.total_icms_value = rounded.total_icms_value;
         localPart.value.width = rounded.width;
         localPart.value.length = rounded.length;
         localPart.value.loss = rounded.loss;
@@ -854,6 +962,13 @@ export default defineComponent({
       selectedSheet.value = part.sheet_id;
       selectedBar.value = part.bar_id;
       selectedComponent.value = part.component_id;
+
+      if (part.ncm_id && ncms.value.length > 0) {
+        const selectedNcm = ncms.value.find(ncm => ncm.id === part.ncm_id);
+        if (selectedNcm) {
+          localPart.value.ncm = selectedNcm;
+        }
+      }
     };
 
     // Atualiza o formulário quando a prop "part" é modificada
@@ -876,6 +991,8 @@ export default defineComponent({
 
     onMounted(async () => {
       isMounted.value = true;
+
+      await fetchNCMs();
 
       if (localPart.value.type) {
         await loadDataBasedOnPartType(localPart.value);
@@ -927,6 +1044,29 @@ export default defineComponent({
       return filePath.toLowerCase().endsWith('.pdf');
     };
 
+    const getUnitIpiValue = (): number => {
+      return ensureNumber(localPart.value.unit_ipi_value);
+    };
+
+    const getTotalIpiValue = (): number => {
+      return ensureNumber(localPart.value.total_ipi_value);
+    };
+
+    const getUnitIcmsValue = (): number => {
+      return ensureNumber(localPart.value.unit_icms_value);
+    };
+
+    const getTotalIcmsValue = (): number => {
+      return ensureNumber(localPart.value.total_icms_value);
+    };
+
+    const getStateIcmsPercentage = (): number => {
+      if (localPart.value.set?.order?.customer?.state?.icms) {
+        return localPart.value.set.order.customer.state.icms;
+      }
+      return 0;
+    };
+
     const isFirstPart = computed(() => {
       return props.currentPartIndex <= 0;
     });
@@ -958,6 +1098,7 @@ export default defineComponent({
       sheets,
       bars,
       components,
+      ncms,
       selectedMaterial,
       selectedSheet,
       selectedBar,
@@ -977,6 +1118,7 @@ export default defineComponent({
       savePart,
       closeDialog,
       calculateProperties,
+      onNcmChange,
       onUnitValueChange,
       onFinalValueChange,
       onUnitNetWeightChange,
@@ -988,6 +1130,11 @@ export default defineComponent({
       onSecondaryFileChange,
       onSecondaryFileDelete,
       isPdf,
+      getUnitIpiValue,
+      getTotalIpiValue,
+      getUnitIcmsValue,
+      getTotalIcmsValue,
+      getStateIcmsPercentage,
       navigateToPrevious,
       navigateToNext,
     };

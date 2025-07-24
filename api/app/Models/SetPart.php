@@ -22,6 +22,7 @@ class SetPart extends Model
         'sheet_id',
         'bar_id',
         'component_id',
+        'ncm_id',
         'quantity',
         'unit_net_weight',
         'net_weight',
@@ -29,6 +30,10 @@ class SetPart extends Model
         'gross_weight',
         'unit_value',
         'final_value',
+        'unit_ipi_value',
+        'total_ipi_value',
+        'unit_icms_value',
+        'total_icms_value',
 
         // bar and sheet
         'thickness',
@@ -74,6 +79,11 @@ class SetPart extends Model
     public function component()
     {
         return $this->hasOne(Component::class);
+    }
+
+    public function ncm()
+    {
+        return $this->belongsTo(MercosurCommonNomenclature::class, 'ncm_id');
     }
 
     public function processes()

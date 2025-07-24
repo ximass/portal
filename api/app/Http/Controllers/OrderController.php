@@ -84,7 +84,7 @@ class OrderController extends Controller
         DB::transaction(function () use ($request, $orderId) {
             $markup = $request->input('markup');
 
-            $order         = Order::with(['sets.setParts'])->findOrFail($orderId);
+            $order         = Order::with(['sets.setParts', 'customer.state'])->findOrFail($orderId);
             $order->markup = $markup;
             $order->save();
 

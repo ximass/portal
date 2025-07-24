@@ -37,7 +37,7 @@ class SetPartController extends Controller
     public function getSetParts($setId)
     {
         $setParts = SetPart::where('set_id', $setId)
-            ->with('processes')
+            ->with(['processes', 'ncm', 'set.order.customer.state'])
             ->orderBy('id', 'asc')
             ->get();
 
@@ -47,7 +47,7 @@ class SetPartController extends Controller
     public function store(Request $request, $setId)
     {
         $request->validate([
-            'title'            => 'required|string|max:255',
+            'title'            => 'sometimes|required|string|max:255',
             'content'          => 'sometimes|nullable|string',
             'secondary_content'=> 'sometimes|nullable|string',
             'obs'              => 'sometimes|nullable|string',
@@ -56,6 +56,7 @@ class SetPartController extends Controller
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
             'component_id'     => 'sometimes|nullable|integer|exists:components,id',
+            'ncm_id'           => 'sometimes|nullable|integer|exists:mercosur_common_nomenclatures,id',
             'quantity'         => 'sometimes|nullable|integer',
             'loss'             => 'sometimes|nullable|numeric',
             'thickness'        => 'sometimes|nullable|numeric',
@@ -65,6 +66,8 @@ class SetPartController extends Controller
             'gross_weight'     => 'sometimes|nullable|numeric',
             'unit_value'       => 'sometimes|nullable|numeric',
             'final_value'      => 'sometimes|nullable|numeric',
+            'unit_ipi_value'   => 'sometimes|nullable|numeric',
+            'total_ipi_value'  => 'sometimes|nullable|numeric',
             'markup'           => 'sometimes|nullable|numeric',
             'width'            => 'sometimes|nullable|numeric',
             'length'           => 'sometimes|nullable|numeric',
@@ -82,6 +85,7 @@ class SetPartController extends Controller
             'sheet_id'         => $request->input('sheet_id'),
             'bar_id'           => $request->input('bar_id'),
             'component_id'     => $request->input('component_id'),
+            'ncm_id'           => $request->input('ncm_id'),
             'quantity'         => $request->input('quantity'),
             'loss'             => $request->input('loss'),
             'thickness'        => $request->input('thickness'),
@@ -91,6 +95,10 @@ class SetPartController extends Controller
             'gross_weight'     => $request->input('gross_weight'),
             'unit_value'       => $request->input('unit_value'),
             'final_value'      => $request->input('final_value'),
+            'unit_ipi_value'   => $request->input('unit_ipi_value'),
+            'total_ipi_value'  => $request->input('total_ipi_value'),
+            'unit_icms_value'  => $request->input('unit_icms_value'),
+            'total_icms_value' => $request->input('total_icms_value'),
             'markup'           => $request->input('markup'),
             'width'            => $request->input('width'),
             'length'           => $request->input('length'),
@@ -118,7 +126,7 @@ class SetPartController extends Controller
 
     public function show($id)
     {
-        $setPart = SetPart::with('processes')->findOrFail($id);
+        $setPart = SetPart::with(['processes', 'ncm', 'set.order.customer.state'])->findOrFail($id);
 
         return response()->json($setPart->toArray());
     }
@@ -135,6 +143,7 @@ class SetPartController extends Controller
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
             'component_id'     => 'sometimes|nullable|integer|exists:components,id',
+            'ncm_id'           => 'sometimes|nullable|integer|exists:mercosur_common_nomenclatures,id',
             'quantity'         => 'sometimes|nullable|integer',
             'loss'             => 'sometimes|nullable|numeric',
             'thickness'        => 'sometimes|nullable|numeric',
@@ -144,6 +153,10 @@ class SetPartController extends Controller
             'gross_weight'     => 'sometimes|nullable|numeric',
             'unit_value'       => 'sometimes|nullable|numeric',
             'final_value'      => 'sometimes|nullable|numeric',
+            'unit_ipi_value'   => 'sometimes|nullable|numeric',
+            'total_ipi_value'  => 'sometimes|nullable|numeric',
+            'unit_icms_value'  => 'sometimes|nullable|numeric',
+            'total_icms_value' => 'sometimes|nullable|numeric',
             'markup'           => 'sometimes|nullable|numeric',
             'width'            => 'sometimes|nullable|numeric',
             'length'           => 'sometimes|nullable|numeric',
@@ -161,6 +174,7 @@ class SetPartController extends Controller
             'sheet_id',
             'bar_id',
             'component_id',
+            'ncm_id',
             'quantity',
             'loss',
             'thickness',
@@ -170,6 +184,10 @@ class SetPartController extends Controller
             'gross_weight',
             'unit_value',
             'final_value',
+            'unit_ipi_value',
+            'total_ipi_value',
+            'unit_icms_value',
+            'total_icms_value',
             'markup',
             'width',
             'length',
@@ -304,6 +322,10 @@ class SetPartController extends Controller
             $part->gross_weight      = 0;
             $part->unit_value        = 0;
             $part->final_value       = 0;
+            $part->unit_ipi_value    = 0;
+            $part->total_ipi_value   = 0;
+            $part->unit_icms_value   = 0;
+            $part->total_icms_value  = 0;
             
             return $part;
         }
@@ -319,10 +341,17 @@ class SetPartController extends Controller
         } else if ($part->type === 'process') {
             $part->unit_value = 0;
             $part->final_value = 0;
+            $part->unit_ipi_value = 0;
+            $part->total_ipi_value = 0;
+            $part->unit_icms_value = 0;
+            $part->total_icms_value = 0;
         } else {
             throw new \InvalidArgumentException('Invalid part type');
         }
 
+        $part = self::calculateIpiValues($part);
+        $part = self::calculateIcmsValues($part);
+        $part = self::applyIpiToUnitValue($part);
         $part = self::calculatePartProcesses($part);
 
         return $part;
@@ -580,6 +609,89 @@ class SetPartController extends Controller
         $part->unit_value  = $baseUnitValue + $processUnit;
         $part->final_value = $baseFinalValue + $processFinal;
         
+        return $part;
+    }
+
+    public static function calculateIpiValues(object $part): object
+    {
+        $part->unit_ipi_value = 0;
+        $part->total_ipi_value = 0;
+
+        if (!isset($part->ncm_id) || !$part->ncm_id || !isset($part->unit_value) || !$part->unit_value) {
+            return $part;
+        }
+
+        try {
+            $ncm = \App\Models\MercosurCommonNomenclature::findOrFail($part->ncm_id);
+            
+            if ($ncm && $ncm->ipi > 0) {
+                $ipiPercentage = $ncm->ipi / 100;
+                
+                $part->unit_ipi_value = $part->unit_value * $ipiPercentage;
+                
+                $quantity = isset($part->quantity) ? $part->quantity : 0;
+                $part->total_ipi_value = $part->unit_ipi_value * $quantity;
+            }
+        } catch (\Exception $e) {
+            $part->unit_ipi_value = 0;
+            $part->total_ipi_value = 0;
+        }
+
+        return $part;
+    }
+
+    public static function calculateIcmsValues(object $part): object
+    {
+        $part->unit_icms_value = 0;
+        $part->total_icms_value = 0;
+
+        if (!isset($part->unit_value) || !$part->unit_value) {
+            return $part;
+        }
+
+        try {
+            $state = null;
+            
+            if (isset($part->set) && isset($part->set->order) && isset($part->set->order->customer) && isset($part->set->order->customer->state)) {
+                $state = $part->set->order->customer->state;
+            } 
+            elseif (isset($part->set_id)) {
+                $setPart = \App\Models\SetPart::with('set.order.customer.state')->find($part->id ?? null);
+                if ($setPart && $setPart->set && $setPart->set->order && $setPart->set->order->customer && $setPart->set->order->customer->state) {
+                    $state = $setPart->set->order->customer->state;
+                }
+            }
+            
+            if ($state && $state->icms > 0) {
+                $icmsPercentage = $state->icms / 100;
+                
+                $part->unit_icms_value = $part->unit_value * $icmsPercentage;
+                
+                $quantity = isset($part->quantity) ? $part->quantity : 0;
+                $part->total_icms_value = $part->unit_icms_value * $quantity;
+            }
+        } catch (\Exception $e) {
+            $part->unit_icms_value = 0;
+            $part->total_icms_value = 0;
+        }
+
+        return $part;
+    }
+
+    public static function applyIpiToUnitValue(object $part): object
+    {
+        if (!isset($part->ncm_id) || !$part->ncm_id || !isset($part->unit_value) || !$part->unit_value) {
+            return $part;
+        }
+
+        try {
+            $part->unit_value = $part->unit_value + $part->unit_ipi_value;
+            
+            $quantity = isset($part->quantity) ? $part->quantity : 0;
+            $part->final_value = $part->unit_value * $quantity;
+        } catch (\Exception $e) {
+        }
+
         return $part;
     }
 }
