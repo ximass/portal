@@ -59,6 +59,14 @@ export function useMisc() {
     return `${baseUrl}${content}`;
   };
 
+  const ensureNumber = (value: any): number => {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    return isNaN(numValue) ? 0 : numValue;
+  };
+
   return {
     formatPhone,
     formatCnpj,
@@ -66,5 +74,6 @@ export function useMisc() {
     formatDateBR,
     getPartImageUrl,
     roundValue,
+    ensureNumber,
   };
 }

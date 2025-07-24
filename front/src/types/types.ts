@@ -101,6 +101,18 @@ export interface Part {
   bar?: Bar;
   component_id: number | null;
   component?: Component;
+  ncm_id: number | null;
+  ncm?: MercosurCommonNomenclature;
+  set?: {
+    id: number;
+    order?: {
+      id: number;
+      customer?: {
+        id: number;
+        state?: State;
+      };
+    };
+  };
   title: string;
   content: string | null;
   secondary_content?: string | null;
@@ -111,6 +123,10 @@ export interface Part {
   gross_weight: number;
   unit_value: number;
   final_value: number;
+  unit_ipi_value: number;
+  total_ipi_value: number;
+  unit_icms_value: number;
+  total_icms_value: number;
   thickness?: number;
   width: number;
   length: number;
