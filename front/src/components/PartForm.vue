@@ -53,539 +53,561 @@
         <v-card-text>
           <v-row>
             <!-- Left: Image panel -->
-            <v-col cols="6">
-              <v-responsive
-                max-height="60vh"
-                max-width="40vw"
-                min-height="50vh"
-              >
-                <template v-if="localPart.content">
-                  <template v-if="isPdf(localPart.content)">
-                    <iframe
-                      :src="getPartImageUrl(localPart.content)"
-                      width="100%"
-                      height="100%"
-                    />
-                  </template>
-                  <template v-else>
-                    <v-img
-                      :src="getPartImageUrl(localPart.content)"
-                      contain
-                      max-width="100%"
-                    />
-                  </template>
-                </template>
-                <div v-else>Sem imagem para exibir</div>
-              </v-responsive>
-              <!-- Upload secundário-->
-              <div class="mt-4">
-                <v-file-input
-                  v-model="secondaryFile"
-                  accept="image/*,.pdf"
-                  density="compact"
-                  show-size
-                  prepend-icon="mdi-upload"
-                  label="Imagem secundária"
-                  @change="onSecondaryFileChange"
-                  clearable
-                  @click:clear="onSecondaryFileDelete"
-                >
-                  <template #selection>
-                    <span v-if="localPart.secondary_content">
-                      Imagem carregada.
-                    </span>
-                  </template>
-                </v-file-input>
-              </div>
+            <v-col cols="7">
+              <v-card variant="flat" class="h-100">
+                <v-card-title>
+                  <v-icon class="me-2">mdi-image</v-icon>
+                  Imagem da peça
+                </v-card-title>
+                <v-card-text>
+                  <v-responsive
+                    max-height="50vh"
+                    min-height="30vh"
+                  >
+                    <template v-if="localPart.content">
+                      <template v-if="isPdf(localPart.content)">
+                        <iframe
+                          :src="getPartImageUrl(localPart.content)"
+                          width="100%"
+                          height="100%"
+                        />
+                      </template>
+                      <template v-else>
+                        <v-img
+                          :src="getPartImageUrl(localPart.content)"
+                          contain
+                          max-width="100%"
+                        />
+                      </template>
+                    </template>
+                    <div v-else class="d-flex align-center justify-center h-100 text-center text-grey">
+                      <div>
+                        <v-icon size="64" color="grey-lighten-1">mdi-image-outline</v-icon>
+                        <div class="mt-2">Nenhuma imagem disponível</div>
+                      </div>
+                    </div>
+                  </v-responsive>
+                  
+                  <!-- Upload secundário-->
+                  <div class="mt-4">
+                    <v-file-input
+                      v-model="secondaryFile"
+                      accept="image/*,.pdf"
+                      density="compact"
+                      show-size
+                      prepend-icon="mdi-upload"
+                      label="Imagem secundária"
+                      @change="onSecondaryFileChange"
+                      clearable
+                      @click:clear="onSecondaryFileDelete"
+                    >
+                      <template #selection>
+                        <span v-if="localPart.secondary_content">
+                          Imagem carregada.
+                        </span>
+                      </template>
+                    </v-file-input>
+                  </div>
+                </v-card-text>
+              </v-card>
             </v-col>
 
             <!-- Right: Form panel -->
-            <v-col cols="6">
-              <v-row dense style="margin-top: -40px">
-                <v-col cols="12">
-                  <v-text-field
-                    label="Referência"
-                    v-model="localPart.reference"
-                    variant="underlined"
-                    clearable
-                    hide-details="auto"
-                    density="compact"
-                  />
-                </v-col>
-              </v-row>
-              <v-row dense>
-                <v-col cols="12">
-                  <v-text-field
-                    label="Observações"
-                    v-model="localPart.obs"
-                    variant="underlined"
-                    clearable
-                    hide-details="auto"
-                    density="compact"
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row dense>
-                <v-col cols="12">
-                  <v-select
-                    label="Tipo da peça"
-                    :items="setPartTypes"
-                    item-title="name"
-                    item-value="value"
-                    v-model="localPart.type"
-                    required
-                    density="compact"
-                    hide-details="auto"
-                    @update:modelValue="onTypeChange"
-                  />
-                </v-col>
-              </v-row>
-
-              <!-- Para 'material', 'sheet' e 'bar', exibe seletor de Material -->
-              <v-row
-                dense
-                v-if="
-                  localPart.type === 'material' || localPart.type === 'sheet'
-                "
-              >
-                <v-col cols="12">
-                  <v-select
-                    label="Material"
-                    :items="materials"
-                    item-title="name"
-                    item-value="id"
-                    v-model="selectedMaterial"
-                    required
-                    density="compact"
-                    hide-details="auto"
-                    @update:modelValue="fillMaterialDetails(selectedMaterial)"
-                  />
-                </v-col>
-              </v-row>
-
-              <!-- Para 'sheet' exibe seletor de Chapa -->
-              <v-row dense v-if="localPart.type === 'sheet'">
-                <v-col cols="12">
-                  <v-select
-                    label="Chapa"
-                    :items="sheets"
-                    item-title="name"
-                    item-value="id"
-                    v-model="selectedSheet"
-                    required
-                    density="compact"
-                    hide-details="auto"
-                    @update:modelValue="fillSheetDetails(selectedSheet)"
-                  />
-                </v-col>
-              </v-row>
-
-              <!-- Para 'bar' exibe seletor de Barra -->
-              <v-row dense v-if="localPart.type === 'bar'">
-                <v-col cols="12">
-                  <v-select
-                    label="Barra"
-                    :items="bars"
-                    item-title="name"
-                    item-value="id"
-                    v-model="selectedBar"
-                    required
-                    density="compact"
-                    hide-details="auto"
-                    @update:modelValue="fillBarDetails(selectedBar)"
-                  />
-                </v-col>
-              </v-row>
-
-              <!-- Para 'component' exibe seletor de Componente -->
-              <v-row dense v-if="localPart.type === 'component'">
-                <v-col cols="12">
-                  <v-select
-                    label="Componente"
-                    :items="components"
-                    item-title="name"
-                    item-value="id"
-                    v-model="selectedComponent"
-                    required
-                    density="compact"
-                    hide-details="auto"
-                    @update:modelValue="fillComponentDetails(selectedComponent)"
-                  />
-                </v-col>
-              </v-row>
-
-              <!-- Campo NCM (para todos os tipos de parte) -->
-              <v-row dense>
-                <v-col cols="12">
-                  <v-select
-                    label="NCM"
-                    :items="ncms"
-                    item-title="code"
-                    item-value="id"
-                    v-model="localPart.ncm_id"
-                    density="compact"
-                    clearable
-                    hide-details="auto"
-                    @update:modelValue="onNcmChange"
-                  >
-                    <template #item="{ item, props }">
-                      <v-list-item v-bind="props">
-                        <v-list-item-subtitle
-                          >IPI: {{ item.raw.ipi }}%</v-list-item-subtitle
-                        >
-                      </v-list-item>
-                    </template>
-                  </v-select>
-                </v-col>
-              </v-row>
-
-              <!-- Campos Complementares para material, sheet e bar -->
-              <template
-                v-if="
-                  localPart.type === 'material' ||
-                  localPart.type === 'sheet' ||
-                  localPart.type === 'bar'
-                "
-              >
-                <v-row dense>
-                  <template
-                    v-if="
-                      localPart.type === 'material' ||
-                      localPart.type === 'sheet'
-                    "
-                  >
-                    <v-col
-                      cols="12"
-                      md="4"
-                      small="6"
-                      v-if="localPart.type === 'material'"
-                    >
+            <v-col cols="5">
+              <!-- Informações Básicas -->
+              <v-card variant="outlined" class="mb-4">
+                <v-card-title>
+                  <v-icon class="me-2">mdi-information</v-icon>
+                  Informações básicas
+                </v-card-title>
+                <v-card-text>
+                  <v-row dense>
+                    <v-col cols="12" md="6">
                       <v-text-field
-                        label="Espessura"
-                        v-model="localPart.thickness"
-                        type="number"
-                        required
+                        label="Referência"
+                        v-model="localPart.reference"
+                        variant="outlined"
+                        clearable
+                        hide-details="auto"
                         density="compact"
-                        hide-details
-                        @change="calculateProperties"
-                        @blur="
-                          localPart.thickness = roundValue(
-                            localPart.thickness ?? 0,
-                            2
-                          )
-                        "
-                        suffix="mm"
                       />
                     </v-col>
-                    <v-col cols="12" md="4" small="6">
-                      <v-text-field
-                        label="Largura"
-                        v-model="localPart.width"
-                        type="number"
+                    <v-col cols="12" md="6">
+                      <v-select
+                        label="Tipo da peça"
+                        :items="setPartTypes"
+                        item-title="name"
+                        item-value="value"
+                        v-model="localPart.type"
                         required
                         density="compact"
-                        hide-details
-                        @change="calculateProperties"
-                        @blur="localPart.width = roundValue(localPart.width, 2)"
-                        suffix="mm"
+                        variant="outlined"
+                        hide-details="auto"
+                        @update:modelValue="onTypeChange"
                       />
                     </v-col>
-                  </template>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Comprimento"
-                      v-model="localPart.length"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="calculateProperties"
-                      @blur="localPart.length = roundValue(localPart.length, 2)"
-                      suffix="mm"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Perda"
-                      v-model="localPart.loss"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="calculateProperties"
-                      @blur="
-                        localPart.loss = roundValue(localPart.loss ?? 0, 2)
-                      "
-                      suffix="%"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Peso líquido unitário"
-                      v-model="localPart.unit_net_weight"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onUnitNetWeightChange"
-                      @blur="
-                        localPart.unit_net_weight = roundValue(
-                          localPart.unit_net_weight,
-                          2
-                        )
-                      "
-                      suffix="KG"
-                    >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('unit_net_weight')"
-                      >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Peso bruto unitário"
-                      v-model="localPart.unit_gross_weight"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onUnitGrossWeightChange"
-                      @blur="
-                        localPart.unit_gross_weight = roundValue(
-                          localPart.unit_gross_weight,
-                          2
-                        )
-                      "
-                      suffix="KG"
-                    >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('unit_gross_weight')"
-                      >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Peso líquido"
-                      v-model="localPart.net_weight"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onNetWeightChange"
-                      @blur="
-                        localPart.net_weight = roundValue(
-                          localPart.net_weight,
-                          2
-                        )
-                      "
-                      suffix="KG"
-                    >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('net_weight')"
-                      >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Peso bruto"
-                      v-model="localPart.gross_weight"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onGrossWeightChange"
-                      @blur="
-                        localPart.gross_weight = roundValue(
-                          localPart.gross_weight,
-                          2
-                        )
-                      "
-                      suffix="KG"
-                    >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('gross_weight')"
-                      >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                </v-row>
-              </template>
-
-              <!-- Campo Complementar para component -->
-              <template v-if="localPart.type === 'component'">
-                <v-row dense>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Markup"
-                      v-model="localPart.markup"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="calculateProperties"
-                      @blur="
-                        localPart.markup = roundValue(localPart.markup ?? 0, 3);
-                        calculateProperties();
-                      "
-                      suffix="%"
-                    />
-                  </v-col>
-                </v-row>
-              </template>
-
-              <!-- Campos que sempre estarão presentes -->
-                <v-row dense>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Quantidade"
-                      v-model="localPart.quantity"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="calculateProperties"
-                      @blur="
-                        localPart.quantity = roundValue(localPart.quantity, 0)
-                      "
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Valor unitário"
-                      v-model="localPart.unit_value"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onUnitValueChange"
-                      prefix="R$"
-                    >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('unit_value')"
-                      >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Valor final"
-                      v-model="localPart.final_value"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onFinalValueChange"
-                      @blur="
-                        localPart.final_value = roundValue(
-                          localPart.final_value,
-                          2
-                        )
-                      "
-                      prefix="R$"
-                    >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('final_value')"
-                      >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                </v-row>
-
-              <!-- Informações do IPI e ICMS -->
-              <v-sheet
-                v-if="
-                  localPart.ncm_id ||
-                  getUnitIcmsValue() > 0 ||
-                  getStateIcmsPercentage() > 0
-                "
-                class="pa-4 ma-2"
-                color="grey lighten-4"
-                rounded
-                border="sm"
-              >
-                <!-- Informações do IPI -->
-                <div v-if="localPart.ncm_id" class="mb-3">
-                  <v-row>
-                    <v-col cols="12" md="4">
-                      <div class="text-body-2">
-                        <strong>Percentual IPI:</strong>
-                        {{ localPart.ncm?.ipi || 0 }}%
-                      </div>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <div class="text-body-2">
-                        <strong>Valor IPI unitário:</strong>
-                        R$ {{ getUnitIpiValue().toFixed(2) }}
-                      </div>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <div class="text-body-2">
-                        <strong>Valor IPI total:</strong>
-                        R$ {{ getTotalIpiValue().toFixed(2) }}
-                      </div>
+                    <v-col cols="12">
+                      <v-textarea
+                        label="Observações"
+                        v-model="localPart.obs"
+                        variant="outlined"
+                        clearable
+                        hide-details="auto"
+                        density="compact"
+                        rows="2"
+                        auto-grow
+                      />
                     </v-col>
                   </v-row>
-                </div>
+                </v-card-text>
+              </v-card>
 
-                <!-- Informações do ICMS -->
-                <div
-                  v-if="getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0"
-                >
-                  <v-row>
-                    <v-col cols="12" md="4">
-                      <div class="text-body-2">
-                        <strong>Percentual ICMS:</strong>
-                        {{ getStateIcmsPercentage() }}%
-                      </div>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <div class="text-body-2">
-                        <strong>Valor ICMS unitário:</strong>
-                        R$ {{ getUnitIcmsValue().toFixed(2) }}
-                      </div>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <div class="text-body-2">
-                        <strong>Valor ICMS total:</strong>
-                        R$ {{ getTotalIcmsValue().toFixed(2) }}
-                      </div>
-                    </v-col>
-                  </v-row>
-                </div>
-              </v-sheet>
+              <!-- Abas para organização do conteúdo -->
+              <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="mb-4">
+                <v-tab value="specs">Especificações</v-tab>
+                <v-tab value="values">Valores</v-tab>
+                <v-tab value="taxes">Impostos</v-tab>
+                <v-tab value="processes">Processos</v-tab>
+              </v-tabs>
 
-              <ProcessMultiField
-                v-model="localPart.processes"
-                @process-updated="calculateProperties"
-              />
+              <v-tabs-window v-model="activeTab">
+                <!-- Aba Especificações -->
+                <v-tabs-window-item value="specs">
+                  <v-card variant="flat">
+                    <v-card-text>
+                      <!-- Seleção de Material/Chapa/Barra/Componente -->
+                      <template v-if="localPart.type === 'material' || localPart.type === 'sheet'">
+                        <v-row dense class="mb-4">
+                          <v-col cols="12">
+                            <v-select
+                              label="Material"
+                              :items="materials"
+                              item-title="name"
+                              item-value="id"
+                              v-model="selectedMaterial"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details="auto"
+                              @update:modelValue="fillMaterialDetails(selectedMaterial)"
+                            />
+                          </v-col>
+                        </v-row>
+                      </template>
+
+                      <template v-if="localPart.type === 'sheet'">
+                        <v-row dense class="mb-4">
+                          <v-col cols="12">
+                            <v-select
+                              label="Chapa"
+                              :items="sheets"
+                              item-title="name"
+                              item-value="id"
+                              v-model="selectedSheet"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details="auto"
+                              @update:modelValue="fillSheetDetails(selectedSheet)"
+                            />
+                          </v-col>
+                        </v-row>
+                      </template>
+
+                      <template v-if="localPart.type === 'bar'">
+                        <v-row dense class="mb-4">
+                          <v-col cols="12">
+                            <v-select
+                              label="Barra"
+                              :items="bars"
+                              item-title="name"
+                              item-value="id"
+                              v-model="selectedBar"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details="auto"
+                              @update:modelValue="fillBarDetails(selectedBar)"
+                            />
+                          </v-col>
+                        </v-row>
+                      </template>
+
+                      <template v-if="localPart.type === 'component'">
+                        <v-row dense class="mb-4">
+                          <v-col cols="12">
+                            <v-select
+                              label="Componente"
+                              :items="components"
+                              item-title="name"
+                              item-value="id"
+                              v-model="selectedComponent"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details="auto"
+                              @update:modelValue="fillComponentDetails(selectedComponent)"
+                            />
+                          </v-col>
+                        </v-row>
+                      </template>
+
+                      <!-- Dimensões para Material/Chapa/Barra -->
+                      <template v-if="localPart.type === 'material' || localPart.type === 'sheet' || localPart.type === 'bar'">
+                        <v-row dense>
+                          <v-col cols="12" class="mb-2">
+                            <div class="text-subtitle-2 text-primary">
+                              <v-icon class="me-1">mdi-ruler</v-icon>
+                              Dimensões
+                            </div>
+                          </v-col>
+                          <v-col cols="12" md="4" v-if="localPart.type === 'material'">
+                            <v-text-field
+                              label="Espessura"
+                              v-model="localPart.thickness"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="calculateProperties"
+                              @blur="localPart.thickness = roundValue(localPart.thickness ?? 0, 2)"
+                              suffix="mm"
+                            />
+                          </v-col>
+                          <v-col cols="12" md="4" v-if="localPart.type === 'material' || localPart.type === 'sheet'">
+                            <v-text-field
+                              label="Largura"
+                              v-model="localPart.width"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="calculateProperties"
+                              @blur="localPart.width = roundValue(localPart.width, 2)"
+                              suffix="mm"
+                            />
+                          </v-col>
+                          <v-col cols="12" md="4">
+                            <v-text-field
+                              label="Comprimento"
+                              v-model="localPart.length"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="calculateProperties"
+                              @blur="localPart.length = roundValue(localPart.length, 2)"
+                              suffix="mm"
+                            />
+                          </v-col>
+                          <v-col cols="12" md="4">
+                            <v-text-field
+                              label="Perda"
+                              v-model="localPart.loss"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="calculateProperties"
+                              @blur="localPart.loss = roundValue(localPart.loss ?? 0, 2)"
+                              suffix="%"
+                            />
+                          </v-col>
+                        </v-row>
+
+                        <!-- Pesos -->
+                        <v-row dense class="mt-4">
+                          <v-col cols="12" class="mb-2">
+                            <div class="text-subtitle-2 text-primary">
+                              <v-icon class="me-1">mdi-scale</v-icon>
+                              Pesos
+                            </div>
+                          </v-col>
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              label="Peso líquido unitário"
+                              v-model="localPart.unit_net_weight"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="onUnitNetWeightChange"
+                              @blur="localPart.unit_net_weight = roundValue(localPart.unit_net_weight, 2)"
+                              suffix="KG"
+                            >
+                              <template #append-inner v-if="lockedValues.includes('unit_net_weight')">
+                                <v-icon title="Valor travado devido à edição manual" color="warning">mdi-lock</v-icon>
+                              </template>
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              label="Peso bruto unitário"
+                              v-model="localPart.unit_gross_weight"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="onUnitGrossWeightChange"
+                              @blur="localPart.unit_gross_weight = roundValue(localPart.unit_gross_weight, 2)"
+                              suffix="KG"
+                            >
+                              <template #append-inner v-if="lockedValues.includes('unit_gross_weight')">
+                                <v-icon title="Valor travado devido à edição manual" color="warning">mdi-lock</v-icon>
+                              </template>
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              label="Peso líquido total"
+                              v-model="localPart.net_weight"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="onNetWeightChange"
+                              @blur="localPart.net_weight = roundValue(localPart.net_weight, 2)"
+                              suffix="KG"
+                            >
+                              <template #append-inner v-if="lockedValues.includes('net_weight')">
+                                <v-icon title="Valor travado devido à edição manual" color="warning">mdi-lock</v-icon>
+                              </template>
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              label="Peso bruto total"
+                              v-model="localPart.gross_weight"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="onGrossWeightChange"
+                              @blur="localPart.gross_weight = roundValue(localPart.gross_weight, 2)"
+                              suffix="KG"
+                            >
+                              <template #append-inner v-if="lockedValues.includes('gross_weight')">
+                                <v-icon title="Valor travado devido à edição manual" color="warning">mdi-lock</v-icon>
+                              </template>
+                            </v-text-field>
+                          </v-col>
+                        </v-row>
+                      </template>
+
+                      <!-- Markup para Componente -->
+                      <template v-if="localPart.type === 'component'">
+                        <v-row dense>
+                          <v-col cols="12" md="6">
+                            <v-text-field
+                              label="Markup"
+                              v-model="localPart.markup"
+                              type="number"
+                              required
+                              density="compact"
+                              variant="outlined"
+                              hide-details
+                              @change="calculateProperties"
+                              @blur="localPart.markup = roundValue(localPart.markup ?? 0, 3); calculateProperties();"
+                              suffix="%"
+                            />
+                          </v-col>
+                        </v-row>
+                      </template>
+                    </v-card-text>
+                  </v-card>
+                </v-tabs-window-item>
+
+                <!-- Aba Valores -->
+                <v-tabs-window-item value="values">
+                  <v-card variant="flat">
+                    <v-card-text>
+                      <v-row dense>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            label="Quantidade"
+                            v-model="localPart.quantity"
+                            type="number"
+                            required
+                            density="compact"
+                            variant="outlined"
+                            hide-details
+                            @change="calculateProperties"
+                            @blur="localPart.quantity = roundValue(localPart.quantity, 0)"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            label="Valor unitário"
+                            v-model="localPart.unit_value"
+                            type="number"
+                            required
+                            density="compact"
+                            variant="outlined"
+                            hide-details
+                            @change="onUnitValueChange"
+                            prefix="R$"
+                          >
+                            <template #append-inner v-if="lockedValues.includes('unit_value')">
+                              <v-icon title="Valor travado devido à edição manual" color="warning">mdi-lock</v-icon>
+                            </template>
+                          </v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            label="Valor final"
+                            v-model="localPart.final_value"
+                            type="number"
+                            required
+                            density="compact"
+                            variant="outlined"
+                            hide-details
+                            @change="onFinalValueChange"
+                            @blur="localPart.final_value = roundValue(localPart.final_value, 2)"
+                            prefix="R$"
+                          >
+                            <template #append-inner v-if="lockedValues.includes('final_value')">
+                              <v-icon title="Valor travado devido à edição manual" color="warning">mdi-lock</v-icon>
+                            </template>
+                          </v-text-field>
+                        </v-col>
+                      </v-row>
+                    </v-card-text>
+                  </v-card>
+                </v-tabs-window-item>
+
+                <!-- Aba Impostos -->
+                <v-tabs-window-item value="taxes">
+                  <v-card variant="flat">
+                    <v-card-text>
+                      <!-- Campo NCM -->
+                      <v-row dense class="mb-4">
+                        <v-col cols="12">
+                          <v-select
+                            label="NCM"
+                            :items="ncms"
+                            item-title="code"
+                            item-value="id"
+                            v-model="localPart.ncm_id"
+                            density="compact"
+                            variant="outlined"
+                            clearable
+                            hide-details="auto"
+                            @update:modelValue="onNcmChange"
+                          >
+                            <template #item="{ item, props }">
+                              <v-list-item v-bind="props">
+                                <v-list-item-subtitle>IPI: {{ item.raw.ipi }}%</v-list-item-subtitle>
+                              </v-list-item>
+                            </template>
+                          </v-select>
+                        </v-col>
+                      </v-row>
+
+                      <!-- Informações de Impostos -->
+                      <template v-if="localPart.ncm_id || getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0">
+                        <!-- Informações do IPI -->
+                        <template v-if="localPart.ncm_id">
+                          <div class="text-subtitle-2 text-primary mb-3">
+                            <v-icon class="me-1">mdi-percent</v-icon>
+                            IPI
+                          </div>
+                          <v-row dense class="mb-4">
+                            <v-col cols="12" md="4">
+                              <v-card variant="tonal" color="info">
+                                <v-card-text class="text-center">
+                                  <div class="text-h6">{{ localPart.ncm?.ipi || 0 }}%</div>
+                                  <div class="text-caption">Percentual IPI</div>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                              <v-card variant="tonal" color="success">
+                                <v-card-text class="text-center">
+                                  <div class="text-h6">R$ {{ getUnitIpiValue().toFixed(2) }}</div>
+                                  <div class="text-caption">Valor IPI unitário</div>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                              <v-card variant="tonal" color="warning">
+                                <v-card-text class="text-center">
+                                  <div class="text-h6">R$ {{ getTotalIpiValue().toFixed(2) }}</div>
+                                  <div class="text-caption">Valor IPI total</div>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                          </v-row>
+                        </template>
+
+                        <!-- Informações do ICMS -->
+                        <template v-if="getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0">
+                          <div class="text-subtitle-2 text-primary mb-3">
+                            <v-icon class="me-1">mdi-percent</v-icon>
+                            ICMS
+                          </div>
+                          <v-row dense>
+                            <v-col cols="12" md="4">
+                              <v-card variant="tonal" color="info">
+                                <v-card-text class="text-center">
+                                  <div class="text-h6">{{ getStateIcmsPercentage() }}%</div>
+                                  <div class="text-caption">Percentual ICMS</div>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                              <v-card variant="tonal" color="success">
+                                <v-card-text class="text-center">
+                                  <div class="text-h6">R$ {{ getUnitIcmsValue().toFixed(2) }}</div>
+                                  <div class="text-caption">Valor ICMS unitário</div>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                              <v-card variant="tonal" color="warning">
+                                <v-card-text class="text-center">
+                                  <div class="text-h6">R$ {{ getTotalIcmsValue().toFixed(2) }}</div>
+                                  <div class="text-caption">Valor ICMS total</div>
+                                </v-card-text>
+                              </v-card>
+                            </v-col>
+                          </v-row>
+                        </template>
+                      </template>
+
+                      <template v-else>
+                        <v-alert type="info" variant="tonal">
+                          <v-icon>mdi-information</v-icon>
+                          Selecione um NCM para visualizar as informações de impostos.
+                        </v-alert>
+                      </template>
+                    </v-card-text>
+                  </v-card>
+                </v-tabs-window-item>
+
+                <!-- Aba Processos -->
+                <v-tabs-window-item value="processes">
+                  <v-card variant="flat">
+                    <v-card-title>
+                      <v-icon class="me-2">mdi-cogs</v-icon>
+                      Processos de fabricação
+                    </v-card-title>
+                    <v-card-text>
+                      <ProcessMultiField
+                        v-model="localPart.processes"
+                        @process-updated="calculateProperties"
+                      />
+                    </v-card-text>
+                  </v-card>
+                </v-tabs-window-item>
+              </v-tabs-window>
             </v-col>
           </v-row>
         </v-card-text>
@@ -677,6 +699,8 @@ export default defineComponent({
     const selectedSheet = ref<number | null>(null);
     const selectedBar = ref<number | null>(null);
     const selectedComponent = ref<number | null>(null);
+
+    const activeTab = ref('specs');
 
     function roundPartValues(part: Part): Part {
       return {
@@ -1179,6 +1203,7 @@ export default defineComponent({
       getStateIcmsPercentage,
       navigateToPrevious,
       navigateToNext,
+      activeTab,
     };
   },
 });
@@ -1233,5 +1258,85 @@ export default defineComponent({
 
 .close-btn:hover svg {
   color: white;
+}
+
+/* Melhorias visuais para as abas */
+:deep(.v-tabs) {
+  background-color: rgba(var(--v-theme-surface-variant), 0.1);
+  border-radius: 8px;
+}
+
+:deep(.v-tab) {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Cards com melhor espaçamento */
+:deep(.v-card) {
+  transition: all 0.3s ease;
+}
+
+:deep(.v-card:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Campos com bordas arredondadas */
+:deep(.v-text-field .v-field),
+:deep(.v-select .v-field),
+:deep(.v-textarea .v-field) {
+  border-radius: 8px;
+}
+
+/* Cards de informações de impostos */
+:deep(.v-card[color="info"] .v-card-text),
+:deep(.v-card[color="success"] .v-card-text),
+:deep(.v-card[color="warning"] .v-card-text) {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Ícones de seções com cores personalizadas */
+.text-primary .v-icon {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+/* Melhorar aparência dos ícones de lock */
+:deep(.v-icon[color="warning"]) {
+  opacity: 0.8;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .navigation-arrow {
+    display: none;
+  }
+  
+  :deep(.v-tabs) {
+    flex-direction: column;
+  }
+  
+  :deep(.v-tab) {
+    min-height: 40px;
+  }
+}
+
+/* Animações suaves para transições de abas */
+:deep(.v-tabs-window-item) {
+  transition: all 0.3s ease;
+}
+
+/* Destaque para campos obrigatórios */
+:deep(.v-text-field[required] .v-field),
+:deep(.v-select[required] .v-field) {
+  border-left: 3px solid rgba(var(--v-theme-primary), 0.3);
+}
+
+/* Estilo para alertas informativos */
+:deep(.v-alert[type="info"]) {
+  border-radius: 12px;
+  border-left: 4px solid rgb(var(--v-theme-info));
 }
 </style>
