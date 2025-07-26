@@ -691,10 +691,14 @@ class SetPartController extends Controller
         }
 
         try {
-            $part->unit_value = $part->unit_value + $part->unit_ipi_value;
+            if (!in_array('unit_value', $part->locked_values ?? [])) {
+                $part->unit_value = $part->unit_value + $part->unit_ipi_value;
+            }
             
-            $quantity = isset($part->quantity) ? $part->quantity : 0;
-            $part->final_value = $part->unit_value * $quantity;
+            if (!in_array('final_value', $part->locked_values ?? [])) {
+                $quantity = isset($part->quantity) ? $part->quantity : 0;
+                $part->final_value = $part->unit_value * $quantity;
+            }
         } catch (\Exception $e) {
         }
 
