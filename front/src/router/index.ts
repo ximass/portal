@@ -21,7 +21,6 @@ import BarsView from '../views/BarsView.vue';
 import ComponentsView from '../views/ComponentsView.vue';
 import MercosurCommonNomenclatureView from '../views/MercosurCommonNomenclatureView.vue';
 import StatesView from '../views/StatesView.vue';
-import SetPrint from '../views/SetPrint.vue';
 import PartPrint from '../views/PartPrint.vue';
 
 const routes: Array<RouteRecordRaw> = [
@@ -120,18 +119,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Register',
     component: Register,
     meta: { requiresGuest: true },
-  },
-  {
-    path: '/sets/:id/print',
-    name: 'SetPrint',
-    component: SetPrint,
-    props: true,
-  },
-  {
-    path: '/order/sets/print',
-    name: 'SetPrintAll',
-    component: SetPrint,
-    props: route => ({ order_id: route.query.order_id }),
   },
   {
     path: '/parts/:id/print',

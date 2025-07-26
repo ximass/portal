@@ -63,6 +63,13 @@
       :headers="headers"
       class="elevation-1"
     >
+      <template #item.delivery_value="{ item }">
+        {{
+          item.delivery_value
+            ? `R$ ${item.delivery_value.toFixed(2).replace('.', ',')}`
+            : '-'
+        }}
+      </template>
       <template #item.delivery_date="{ item }">
         {{ formatDateBR(item.delivery_date ?? '') }}
       </template>
@@ -178,6 +185,7 @@ export default defineComponent({
     const headers = [
       { title: 'Código', value: 'id', sortable: true },
       { title: 'Cliente', value: 'customer.name', sortable: true },
+      { title: 'Valor do frete', value: 'delivery_value', sortable: true },
       { title: 'Data de entrega', value: 'delivery_date', sortable: true },
       { title: 'Ações', value: 'actions', sortable: false },
     ];

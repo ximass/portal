@@ -98,20 +98,34 @@
                 </v-file-input>
               </div>
             </v-col>
+
             <!-- Right: Form panel -->
-            <v-col cols="6" class="dense-form">
+            <v-col cols="6">
               <v-row dense style="margin-top: -40px">
                 <v-col cols="12">
                   <v-text-field
                     label="Referência"
+                    v-model="localPart.reference"
+                    variant="underlined"
+                    clearable
+                    hide-details="auto"
+                    density="compact"
+                  />
+                </v-col>
+              </v-row>
+              <v-row dense>
+                <v-col cols="12">
+                  <v-text-field
+                    label="Observações"
                     v-model="localPart.obs"
                     variant="underlined"
                     clearable
+                    hide-details="auto"
+                    density="compact"
                   />
                 </v-col>
               </v-row>
 
-              <!-- Card 0: Seletor do tipo de part -->
               <v-row dense>
                 <v-col cols="12">
                   <v-select
@@ -122,6 +136,7 @@
                     v-model="localPart.type"
                     required
                     density="compact"
+                    hide-details="auto"
                     @update:modelValue="onTypeChange"
                   />
                 </v-col>
@@ -143,6 +158,7 @@
                     v-model="selectedMaterial"
                     required
                     density="compact"
+                    hide-details="auto"
                     @update:modelValue="fillMaterialDetails(selectedMaterial)"
                   />
                 </v-col>
@@ -159,6 +175,7 @@
                     v-model="selectedSheet"
                     required
                     density="compact"
+                    hide-details="auto"
                     @update:modelValue="fillSheetDetails(selectedSheet)"
                   />
                 </v-col>
@@ -175,6 +192,7 @@
                     v-model="selectedBar"
                     required
                     density="compact"
+                    hide-details="auto"
                     @update:modelValue="fillBarDetails(selectedBar)"
                   />
                 </v-col>
@@ -191,6 +209,7 @@
                     v-model="selectedComponent"
                     required
                     density="compact"
+                    hide-details="auto"
                     @update:modelValue="fillComponentDetails(selectedComponent)"
                   />
                 </v-col>
@@ -207,11 +226,14 @@
                     v-model="localPart.ncm_id"
                     density="compact"
                     clearable
+                    hide-details="auto"
                     @update:modelValue="onNcmChange"
                   >
                     <template #item="{ item, props }">
                       <v-list-item v-bind="props">
-                        <v-list-item-subtitle>IPI: {{ item.raw.ipi }}%</v-list-item-subtitle>
+                        <v-list-item-subtitle
+                          >IPI: {{ item.raw.ipi }}%</v-list-item-subtitle
+                        >
                       </v-list-item>
                     </template>
                   </v-select>
@@ -225,7 +247,6 @@
                   localPart.type === 'sheet' ||
                   localPart.type === 'bar'
                 "
-                class="pa-4"
               >
                 <v-row dense>
                   <template
@@ -246,6 +267,7 @@
                         type="number"
                         required
                         density="compact"
+                        hide-details
                         @change="calculateProperties"
                         @blur="
                           localPart.thickness = roundValue(
@@ -263,6 +285,7 @@
                         type="number"
                         required
                         density="compact"
+                        hide-details
                         @change="calculateProperties"
                         @blur="localPart.width = roundValue(localPart.width, 2)"
                         suffix="mm"
@@ -276,6 +299,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="calculateProperties"
                       @blur="localPart.length = roundValue(localPart.length, 2)"
                       suffix="mm"
@@ -288,6 +312,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="calculateProperties"
                       @blur="
                         localPart.loss = roundValue(localPart.loss ?? 0, 2)
@@ -295,8 +320,6 @@
                       suffix="%"
                     />
                   </v-col>
-                </v-row>
-                <v-row dense>
                   <v-col cols="12" md="4" small="6">
                     <v-text-field
                       label="Peso líquido unitário"
@@ -304,6 +327,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="onUnitNetWeightChange"
                       @blur="
                         localPart.unit_net_weight = roundValue(
@@ -330,6 +354,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="onUnitGrossWeightChange"
                       @blur="
                         localPart.unit_gross_weight = roundValue(
@@ -356,6 +381,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="onNetWeightChange"
                       @blur="
                         localPart.net_weight = roundValue(
@@ -375,8 +401,6 @@
                       </template>
                     </v-text-field>
                   </v-col>
-                </v-row>
-                <v-row dense>
                   <v-col cols="12" md="4" small="6">
                     <v-text-field
                       label="Peso bruto"
@@ -384,6 +408,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="onGrossWeightChange"
                       @blur="
                         localPart.gross_weight = roundValue(
@@ -407,15 +432,16 @@
               </template>
 
               <!-- Campo Complementar para component -->
-              <template v-if="localPart.type === 'component'" class="pa-4">
+              <template v-if="localPart.type === 'component'">
                 <v-row dense>
-                  <v-col cols="12">
+                  <v-col cols="12" md="4" small="6">
                     <v-text-field
                       label="Markup"
                       v-model="localPart.markup"
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="calculateProperties"
                       @blur="
                         localPart.markup = roundValue(localPart.markup ?? 0, 3);
@@ -428,7 +454,6 @@
               </template>
 
               <!-- Campos que sempre estarão presentes -->
-              <v-sheet>
                 <v-row dense>
                   <v-col cols="12" md="4" small="6">
                     <v-text-field
@@ -437,6 +462,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="calculateProperties"
                       @blur="
                         localPart.quantity = roundValue(localPart.quantity, 0)
@@ -450,6 +476,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="onUnitValueChange"
                       prefix="R$"
                     >
@@ -470,6 +497,7 @@
                       type="number"
                       required
                       density="compact"
+                      hide-details
                       @change="onFinalValueChange"
                       @blur="
                         localPart.final_value = roundValue(
@@ -490,11 +518,14 @@
                     </v-text-field>
                   </v-col>
                 </v-row>
-              </v-sheet>
 
               <!-- Informações do IPI e ICMS -->
               <v-sheet
-                v-if="localPart.ncm_id || getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0"
+                v-if="
+                  localPart.ncm_id ||
+                  getUnitIcmsValue() > 0 ||
+                  getStateIcmsPercentage() > 0
+                "
                 class="pa-4 ma-2"
                 color="grey lighten-4"
                 rounded
@@ -505,18 +536,19 @@
                   <v-row>
                     <v-col cols="12" md="4">
                       <div class="text-body-2">
-                        <strong>Percentual IPI:</strong> {{ localPart.ncm?.ipi || 0 }}%
+                        <strong>Percentual IPI:</strong>
+                        {{ localPart.ncm?.ipi || 0 }}%
                       </div>
                     </v-col>
                     <v-col cols="12" md="4">
                       <div class="text-body-2">
-                        <strong>Valor IPI unitário:</strong> 
+                        <strong>Valor IPI unitário:</strong>
                         R$ {{ getUnitIpiValue().toFixed(2) }}
                       </div>
                     </v-col>
                     <v-col cols="12" md="4">
                       <div class="text-body-2">
-                        <strong>Valor IPI total:</strong> 
+                        <strong>Valor IPI total:</strong>
                         R$ {{ getTotalIpiValue().toFixed(2) }}
                       </div>
                     </v-col>
@@ -524,22 +556,25 @@
                 </div>
 
                 <!-- Informações do ICMS -->
-                <div v-if="getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0">
+                <div
+                  v-if="getUnitIcmsValue() > 0 || getStateIcmsPercentage() > 0"
+                >
                   <v-row>
                     <v-col cols="12" md="4">
                       <div class="text-body-2">
-                        <strong>Percentual ICMS:</strong> {{ getStateIcmsPercentage() }}%
+                        <strong>Percentual ICMS:</strong>
+                        {{ getStateIcmsPercentage() }}%
                       </div>
                     </v-col>
                     <v-col cols="12" md="4">
                       <div class="text-body-2">
-                        <strong>Valor ICMS unitário:</strong> 
+                        <strong>Valor ICMS unitário:</strong>
                         R$ {{ getUnitIcmsValue().toFixed(2) }}
                       </div>
                     </v-col>
                     <v-col cols="12" md="4">
                       <div class="text-body-2">
-                        <strong>Valor ICMS total:</strong> 
+                        <strong>Valor ICMS total:</strong>
                         R$ {{ getTotalIcmsValue().toFixed(2) }}
                       </div>
                     </v-col>
@@ -590,7 +625,14 @@ import {
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
-import type { Part, Material, Sheet, Bar, Component, MercosurCommonNomenclature } from '../types/types';
+import type {
+  Part,
+  Material,
+  Sheet,
+  Bar,
+  Component,
+  MercosurCommonNomenclature,
+} from '../types/types';
 import ProcessMultiField from '../components/ProcessMultiField.vue';
 
 export default defineComponent({
@@ -720,7 +762,7 @@ export default defineComponent({
       } else {
         localPart.value.ncm = undefined;
       }
-      
+
       calculateProperties();
     };
 
@@ -1163,10 +1205,6 @@ export default defineComponent({
 
 .navigation-arrow-right {
   right: 30px;
-}
-
-.dense-form .v-row {
-  margin-bottom: -20px;
 }
 
 .secondary-preview {

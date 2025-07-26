@@ -33,6 +33,7 @@ class OrderController extends Controller
             'customer_id'   => 'nullable|integer',
             'markup'        => 'nullable|numeric',
             'delivery_type' => 'nullable|in:CIF,FOB',
+            'delivery_value' => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string'
@@ -58,6 +59,7 @@ class OrderController extends Controller
             'customer_id'   => 'nullable|integer',
             'markup'        => 'nullable|numeric',
             'delivery_type' => 'nullable|in:CIF,FOB',
+            'delivery_value' => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string'

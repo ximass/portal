@@ -106,11 +106,11 @@ class TestDataSeeder extends Seeder
 
         // Popular tabela orders
         DB::table('orders')->insert([
-            ['final_value' => 15000.00, 'customer_id' => 1, 'type' => 'order', 'delivery_type' => 'CIF', 'markup' => 1.250, 'delivery_date' => '2025-08-15 10:00:00', 'estimated_delivery_date' => '15 dias úteis', 'payment_obs' => 'Pagamento em 30 dias', 'created_at' => now(), 'updated_at' => now()],
-            ['final_value' => null, 'customer_id' => 2, 'type' => 'pre_order', 'delivery_type' => 'FOB', 'markup' => 1.300, 'delivery_date' => null, 'estimated_delivery_date' => '20 dias úteis', 'payment_obs' => 'À vista com desconto', 'created_at' => now(), 'updated_at' => now()],
-            ['final_value' => 8500.00, 'customer_id' => 3, 'type' => 'order', 'delivery_type' => 'CIF', 'markup' => 1.200, 'delivery_date' => '2025-08-20 14:30:00', 'estimated_delivery_date' => '10 dias úteis', 'payment_obs' => 'Pagamento parcelado', 'created_at' => now(), 'updated_at' => now()],
-            ['final_value' => null, 'customer_id' => 4, 'type' => 'pre_order', 'delivery_type' => 'FOB', 'markup' => 1.180, 'delivery_date' => null, 'estimated_delivery_date' => '25 dias úteis', 'payment_obs' => 'Aguardando aprovação', 'created_at' => now(), 'updated_at' => now()],
-            ['final_value' => 22000.00, 'customer_id' => 5, 'type' => 'order', 'delivery_type' => 'CIF', 'markup' => 1.400, 'delivery_date' => '2025-09-01 08:00:00', 'estimated_delivery_date' => '30 dias úteis', 'payment_obs' => 'Pagamento via boleto', 'created_at' => now(), 'updated_at' => now()],
+            ['final_value' => 15000.00, 'customer_id' => 1, 'type' => 'order', 'delivery_type' => 'CIF', 'delivery_value' => 500.00, 'markup' => 1.250, 'delivery_date' => '2025-08-15 10:00:00', 'estimated_delivery_date' => '15 dias úteis', 'payment_obs' => 'Pagamento em 30 dias', 'created_at' => now(), 'updated_at' => now()],
+            ['final_value' => null, 'customer_id' => 2, 'type' => 'pre_order', 'delivery_type' => 'FOB', 'delivery_value' => null, 'markup' => 1.300, 'delivery_date' => null, 'estimated_delivery_date' => '20 dias úteis', 'payment_obs' => 'À vista com desconto', 'created_at' => now(), 'updated_at' => now()],
+            ['final_value' => 8500.00, 'customer_id' => 3, 'type' => 'order', 'delivery_type' => 'CIF', 'delivery_value' => 350.00, 'markup' => 1.200, 'delivery_date' => '2025-08-20 14:30:00', 'estimated_delivery_date' => '10 dias úteis', 'payment_obs' => 'Pagamento parcelado', 'created_at' => now(), 'updated_at' => now()],
+            ['final_value' => null, 'customer_id' => 4, 'type' => 'pre_order', 'delivery_type' => 'FOB', 'delivery_value' => null, 'markup' => 1.180, 'delivery_date' => null, 'estimated_delivery_date' => '25 dias úteis', 'payment_obs' => 'Aguardando aprovação', 'created_at' => now(), 'updated_at' => now()],
+            ['final_value' => 22000.00, 'customer_id' => 5, 'type' => 'order', 'delivery_type' => 'CIF', 'delivery_value' => 800.00, 'markup' => 1.400, 'delivery_date' => '2025-09-01 08:00:00', 'estimated_delivery_date' => '30 dias úteis', 'payment_obs' => 'Pagamento via boleto', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // Popular tabela mercosur_common_nomenclatures
