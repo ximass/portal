@@ -11,6 +11,7 @@ export interface OrderForm {
   type: OrderType;
   customer_id: string;
   delivery_type: string;
+  delivery_value: string;
   markup: string;
   delivery_date: string;
   estimated_delivery_date: string;
@@ -23,14 +24,13 @@ export interface Order {
   customer_id: number | null;
   final_value: number | null;
   delivery_type: string | null;
+  delivery_value: number | null;
   markup: number | null;
   delivery_date: string | null;
   estimated_delivery_date: string | null;
   payment_obs: string | null;
-  customer?: {
-    id: number;
-    name: string;
-  };
+  customer?: Customer;
+  sets?: Set[];
 }
 
 export interface OrderSet {
@@ -133,6 +133,7 @@ export interface Part {
   loss: number | null;
   markup: number | null;
   obs?: string;
+  reference?: string;
   processes?: any[];
   locked_values?: string[];
 }

@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('set_parts', function (Blueprint $table) {
-            $table->decimal('unit_ipi_value', 15, 2)->nullable()->after('unit_value');
-            $table->decimal('total_ipi_value', 15, 2)->nullable()->after('final_value');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->decimal('delivery_value', 10, 2)->nullable()->after('delivery_type');
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('set_parts', function (Blueprint $table) {
-            $table->dropColumn(['unit_ipi_value', 'total_ipi_value']);
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('delivery_value');
         });
     }
 };

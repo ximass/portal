@@ -13,12 +13,20 @@ class Order extends Model
     protected $fillable = [
         'customer_id',
         'type',
+        'markup',
         'final_value',
         'delivery_type',
-        'markup',
+        'delivery_value',
         'delivery_date',
         'estimated_delivery_date',
         'payment_obs',
+    ];
+
+    protected $casts = [
+        'final_value' => 'float',
+        'delivery_value' => 'float',
+        'markup' => 'float',
+        'delivery_date' => 'datetime',
     ];
 
     public function customer()

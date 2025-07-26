@@ -46,6 +46,16 @@
             </v-col>
             <v-col cols="12" md="3" sm="12">
               <v-text-field
+                label="Valor do frete"
+                placeholder="Digite o valor do frete"
+                v-model="form.delivery_value"
+                type="number"
+                step="1"
+                prefix="R$"
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-text-field
                 label="Data estimada de entrega"
                 v-model="form.estimated_delivery_date"
                 type="text"
@@ -111,17 +121,6 @@
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item
-                  @click.stop="
-                    printSet({
-                      id: setItem.id!,
-                      name: setItem.name ?? '',
-                      parts: setItem.setParts,
-                    })
-                  "
-                >
-                  <v-list-item-title>Imprimir</v-list-item-title>
-                </v-list-item>
                 <v-list-item @click.stop="deleteSet(setIndex)">
                   <v-list-item-title>Excluir</v-list-item-title>
                 </v-list-item>
@@ -258,10 +257,41 @@
     />
 
     <v-row class="justify-end pa-4">
-      <v-btn v-if="!isNew" color="success" class="me-2" @click="printOrder">
-        <v-icon class="me-2">mdi-printer</v-icon>
-        Orçamento
-      </v-btn>
+      <v-menu
+        v-if="!isNew"
+        v-model="showDocumentsMenu"
+        location="bottom"
+        transition="scale-transition"
+      >
+        <template v-slot:activator="{ props }">
+          <v-btn
+            color="success"
+            class="me-2"
+            v-bind="props"
+            :disabled="loadingDocument"
+          >
+            <v-icon class="me-2">mdi-file-document</v-icon>
+            Documentos
+          </v-btn>
+        </template>
+        <v-card min-width="200">
+          <v-card-title class="text-subtitle-1">Documentos</v-card-title>
+          <v-divider></v-divider>
+          <v-list density="compact">
+            <v-list-item
+              v-for="document in availableDocuments"
+              :key="document.value"
+              @click="generateDocument(document.value)"
+              :disabled="loadingDocument"
+            >
+              <v-list-item-title>{{ document.title }}</v-list-item-title>
+              <template v-slot:prepend>
+                <v-icon>{{ document.icon }}</v-icon>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
       <v-btn
         v-if="!isNew"
         color="secondary"
@@ -305,6 +335,7 @@ export default defineComponent({
       type: 'pre_order',
       customer_id: '',
       delivery_type: '',
+      delivery_value: '',
       markup: '',
       delivery_date: '',
       estimated_delivery_date: '',
@@ -335,6 +366,16 @@ export default defineComponent({
     ];
 
     const uploadingIndex = ref<number | null>(null);
+
+    const showDocumentsMenu = ref(false);
+    const loadingDocument = ref(false);
+    const availableDocuments = ref([
+      {
+        title: 'Orçamento',
+        value: 'quote',
+        icon: 'mdi-file-document-outline'
+      }
+    ]);
 
     const updatePartInList = (updatedPart: Part) => {
       sets.value.forEach(set => {
@@ -377,6 +418,7 @@ export default defineComponent({
           form.value.type = data.type;
           form.value.customer_id = data.customer_id;
           form.value.delivery_type = data.delivery_type;
+          form.value.delivery_value = data.delivery_value;
           form.value.markup = data.markup;
           form.value.delivery_date = data.delivery_date;
           form.value.estimated_delivery_date = data.estimated_delivery_date;
@@ -406,6 +448,7 @@ export default defineComponent({
           type: form.value.type,
           customer_id: form.value.customer_id,
           delivery_type: form.value.delivery_type,
+          delivery_value: form.value.delivery_value,
           markup: form.value.markup,
           delivery_date: form.value.delivery_date,
           estimated_delivery_date: form.value.estimated_delivery_date,
@@ -602,31 +645,6 @@ export default defineComponent({
 
     const groupByValuesTable = [{ key: 'setName', order: 'asc' }];
 
-    function printSet(set: Set) {
-      const url = router.resolve({
-        name: 'SetPrint',
-        params: { id: set.id },
-      }).href;
-      const printWindow = window.open(url, '_blank');
-      if (printWindow) {
-        const onPrintReady = () => {
-          printWindow.removeEventListener('print-ready', onPrintReady);
-          printWindow.focus();
-          printWindow.print();
-        };
-        printWindow.addEventListener('print-ready', onPrintReady);
-      }
-    }
-
-    function printOrder() {
-      const url = router.resolve({
-        path: '/order/sets/print',
-        query: { order_id: route.params.id as string },
-      }).href;
-
-      window.open(url, '_blank');
-    }
-
     function printPart(part: Part) {
       const url = router.resolve({
         name: 'PartPrint',
@@ -665,6 +683,50 @@ export default defineComponent({
       }
     };
 
+    // Documents methods
+    const generateDocument = async (documentType: string) => {
+      if (!route.params.id || route.params.id === 'new') return;
+      
+      loadingDocument.value = true;
+      showDocumentsMenu.value = false;
+      
+      try {
+        let endpoint = '';
+        let filename = '';
+        
+        switch (documentType) {
+          case 'quote':
+            endpoint = `/api/orders/${route.params.id}/pdf`;
+            filename = `orcamento-${String(route.params.id).padStart(6, '0')}.pdf`;
+            break;
+          default:
+            showToast('Tipo de documento não reconhecido', 'error');
+            return;
+        }
+
+        const response = await axios.get(endpoint, {
+          responseType: 'blob'
+        });
+        
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Documento gerado com sucesso!', 'success');
+      } catch (error) {
+        console.error('Erro ao gerar documento:', error);
+        showToast('Erro ao gerar documento', 'error');
+      } finally {
+        loadingDocument.value = false;
+      }
+    };
+
     return {
       isNew,
       form,
@@ -691,13 +753,16 @@ export default defineComponent({
       getPartImageUrl,
       openPartModal,
       closePartModal,
-      printSet,
-      printOrder,
       printPart,
       printAllParts,
       onMarkupChange,
       handleFileUpload,
       handlePartNavigation,
+      // Documents
+      showDocumentsMenu,
+      loadingDocument,
+      availableDocuments,
+      generateDocument,
     };
   },
 });

@@ -18,6 +18,7 @@ use App\Http\Controllers\BarController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MercosurCommonNomenclatureController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\PdfController;
 
 #GET#
 Route::get('/user', function (Request $request) {
@@ -37,6 +38,9 @@ Route::post('/sets/{set}/parts', [SetPartController::class, 'store']);
 #PUT#
 Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update']);
 Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange']);
+
+#PDF#
+Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
 
 #RESOURCES#
 Route::apiResource('/groups', GroupController::class);

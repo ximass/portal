@@ -11,10 +11,11 @@ class SetPart extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'title',
-        'content',
-        'secondary_content',
-        'obs',
+        'title', // Nome do arquivo
+        'content', // Foto primária
+        'secondary_content', // Foto secundária
+        'reference', // Referência
+        'obs', // Observações
         'set_id',
         'type',
         'locked_values',
@@ -63,22 +64,22 @@ class SetPart extends Model
 
     public function material()
     {
-        return $this->hasOne(Material::class);
+        return $this->belongsTo(Material::class);
     }
 
     public function sheet()
     {
-        return $this->hasOne(Sheet::class);
+        return $this->belongsTo(Sheet::class);
     }
 
     public function bar()
     {
-        return $this->hasOne(Bar::class);
+        return $this->belongsTo(Bar::class);
     }
 
     public function component()
     {
-        return $this->hasOne(Component::class);
+        return $this->belongsTo(Component::class);
     }
 
     public function ncm()

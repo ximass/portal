@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('set_parts', function (Blueprint $table) {
-            $table->decimal('unit_ipi_value', 15, 2)->nullable()->after('unit_value');
-            $table->decimal('total_ipi_value', 15, 2)->nullable()->after('final_value');
+            $table->string('reference')->nullable()->after('obs');
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('set_parts', function (Blueprint $table) {
-            $table->dropColumn(['unit_ipi_value', 'total_ipi_value']);
+            $table->dropColumn('reference');
         });
     }
 };
