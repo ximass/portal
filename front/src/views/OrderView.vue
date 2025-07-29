@@ -373,8 +373,8 @@ export default defineComponent({
       {
         title: 'Orçamento',
         value: 'quote',
-        icon: 'mdi-file-document-outline'
-      }
+        icon: 'mdi-file-document-outline',
+      },
     ]);
 
     const updatePartInList = (updatedPart: Part) => {
@@ -686,14 +686,14 @@ export default defineComponent({
     // Documents methods
     const generateDocument = async (documentType: string) => {
       if (!route.params.id || route.params.id === 'new') return;
-      
+
       loadingDocument.value = true;
       showDocumentsMenu.value = false;
-      
+
       try {
         let endpoint = '';
         let filename = '';
-        
+
         switch (documentType) {
           case 'quote':
             endpoint = `/api/orders/${route.params.id}/pdf`;
@@ -705,9 +705,9 @@ export default defineComponent({
         }
 
         const response = await axios.get(endpoint, {
-          responseType: 'blob'
+          responseType: 'blob',
         });
-        
+
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -717,7 +717,7 @@ export default defineComponent({
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        
+
         showToast('Documento gerado com sucesso!', 'success');
       } catch (error) {
         console.error('Erro ao gerar documento:', error);

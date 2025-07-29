@@ -10,6 +10,7 @@
             font-size: 12px;
             margin: 0;
             padding: 20px;
+            padding-bottom: 120px;
             color: #333;
         }
         
@@ -111,12 +112,13 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            page-break-inside: avoid;
         }
         
         .items-table th,
         .items-table td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 6px;
             font-size: 10px;
             text-align: left;
         }
@@ -200,10 +202,16 @@
         
         .footer {
             border-top: 2px dashed #000;
-            margin-top: 40px;
-            padding-top: 20px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 20px;
             text-align: center;
             font-size: 10px;
+            background-color: white;
+            box-sizing: border-box;
         }
         
         .footer-company {
@@ -320,6 +328,10 @@
             <div class="conditions-row">
                 <div class="conditions-cell conditions-label">Prazo de entrega:</div>
                 <div class="conditions-cell">{{ $order->estimated_delivery_date ? $order->estimated_delivery_date : '-' }}</div>
+            </div>
+            <div class="conditions-row">
+                <div class="conditions-cell conditions-label">Pagamento:</div>
+                <div class="conditions-cell">{{ $order->payment_obs ? $order->payment_obs : '-' }}</div>
             </div>
         </div>
     </div>

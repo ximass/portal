@@ -257,7 +257,22 @@ class SetPartController extends Controller
             $partId = $request->input('part_id');
 
             $setPart = SetPart::findOrFail($partId);
-            $setPart->secondary_content = Storage::url($path);
+            
+            // If pdf, convert to webp
+            if ($file->getClientOriginalExtension() === 'pdf') {
+                $pdfService = new PdfToWebpService();
+                $webpPaths = $pdfService->convert($path, 'uploads/order-parts');
+
+                // Use the first page of the converted PDF
+                if (!empty($webpPaths)) {
+                    $setPart->secondary_content = Storage::url($webpPaths[0]);
+                } else {
+                    $setPart->secondary_content = Storage::url($path);
+                }
+            } else {
+                $setPart->secondary_content = Storage::url($path);
+            }
+            
             $setPart->save();
 
             return response()->json($setPart->toArray(), 200);
@@ -612,8 +627,13 @@ class SetPartController extends Controller
             $processFinal += $value * $part->quantity;
         }
         
-        $part->unit_value  = $baseUnitValue + $processUnit;
-        $part->final_value = $baseFinalValue + $processFinal;
+        if (!in_array('unit_value', $part->locked_values ?? [])) {
+            $part->unit_value = $baseUnitValue + $processUnit;
+        }
+        
+        if (!in_array('final_value', $part->locked_values ?? [])) {
+            $part->final_value = $baseFinalValue + $processFinal;
+        }
         
         return $part;
     }

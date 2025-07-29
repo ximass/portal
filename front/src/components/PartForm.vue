@@ -75,7 +75,14 @@
                     />
                   </template>
                 </template>
-                <div v-else>Sem imagem para exibir</div>
+                <div v-else class="no-image-placeholder">
+                  <v-icon size="120" color="grey-lighten-2"
+                    >mdi-image-off-outline</v-icon
+                  >
+                  <div class="text-grey-lighten-1 text-body-2 mt-4">
+                    Nenhuma imagem disponível
+                  </div>
+                </div>
               </v-responsive>
               <!-- Upload secundário-->
               <div class="mt-4">
@@ -454,70 +461,70 @@
               </template>
 
               <!-- Campos que sempre estarão presentes -->
-                <v-row dense>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Quantidade"
-                      v-model="localPart.quantity"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="calculateProperties"
-                      @blur="
-                        localPart.quantity = roundValue(localPart.quantity, 0)
-                      "
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Valor unitário"
-                      v-model="localPart.unit_value"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onUnitValueChange"
-                      prefix="R$"
+              <v-row dense>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field
+                    label="Quantidade"
+                    v-model="localPart.quantity"
+                    type="number"
+                    required
+                    density="compact"
+                    hide-details
+                    @change="calculateProperties"
+                    @blur="
+                      localPart.quantity = roundValue(localPart.quantity, 0)
+                    "
+                  />
+                </v-col>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field
+                    label="Valor unitário"
+                    v-model="localPart.unit_value"
+                    type="number"
+                    required
+                    density="compact"
+                    hide-details
+                    @change="onUnitValueChange"
+                    prefix="R$"
+                  >
+                    <template
+                      #append-inner
+                      v-if="lockedValues.includes('unit_value')"
                     >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('unit_value')"
+                      <v-icon title="Valor travado devido à edição manual"
+                        >mdi-lock</v-icon
                       >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="4" small="6">
-                    <v-text-field
-                      label="Valor final"
-                      v-model="localPart.final_value"
-                      type="number"
-                      required
-                      density="compact"
-                      hide-details
-                      @change="onFinalValueChange"
-                      @blur="
-                        localPart.final_value = roundValue(
-                          localPart.final_value,
-                          2
-                        )
-                      "
-                      prefix="R$"
+                    </template>
+                  </v-text-field>
+                </v-col>
+                <v-col cols="12" md="4" small="6">
+                  <v-text-field
+                    label="Valor final"
+                    v-model="localPart.final_value"
+                    type="number"
+                    required
+                    density="compact"
+                    hide-details
+                    @change="onFinalValueChange"
+                    @blur="
+                      localPart.final_value = roundValue(
+                        localPart.final_value,
+                        2
+                      )
+                    "
+                    prefix="R$"
+                  >
+                    <template
+                      #append-inner
+                      v-if="lockedValues.includes('final_value')"
                     >
-                      <template
-                        #append-inner
-                        v-if="lockedValues.includes('final_value')"
+                      <v-icon title="Valor travado devido à edição manual"
+                        >mdi-lock</v-icon
                       >
-                        <v-icon title="Valor travado devido à edição manual"
-                          >mdi-lock</v-icon
-                        >
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                </v-row>
+                    </template>
+                  </v-text-field>
+                </v-col>
+              </v-row>
 
               <!-- Informações do IPI e ICMS -->
               <v-sheet
@@ -526,7 +533,7 @@
                   getUnitIcmsValue() > 0 ||
                   getStateIcmsPercentage() > 0
                 "
-                class="pa-4 ma-2"
+                class="pa-4 ma-2 mt-4"
                 color="grey lighten-4"
                 rounded
                 border="sm"
@@ -899,6 +906,16 @@ export default defineComponent({
       calculateProperties();
     };
 
+    const resetLockedValues = () => {
+      if (props.part?.locked_values) {
+        lockedValues.value = Array.isArray(props.part.locked_values)
+          ? [...props.part.locked_values]
+          : [];
+      } else {
+        lockedValues.value = [];
+      }
+    };
+
     const calculateProperties = async () => {
       try {
         const { data } = await axios.post(
@@ -976,6 +993,7 @@ export default defineComponent({
     };
 
     const closeDialog = () => {
+      resetLockedValues();
       emit('close');
     };
 
@@ -1028,7 +1046,27 @@ export default defineComponent({
 
           await loadDataBasedOnPartType(newVal);
         }
+      },
+      { immediate: true, deep: true }
+    );
+
+    // Recarrega locked_values sempre que a modal for aberta
+    watch(
+      () => props.show,
+      (newShow, oldShow) => {
+        if (newShow && !oldShow) {
+          resetLockedValues();
+        }
       }
+    );
+
+    // Monitora mudanças na propriedade locked_values da part independentemente
+    watch(
+      () => props.part?.locked_values,
+      () => {
+        resetLockedValues();
+      },
+      { immediate: true, deep: true }
     );
 
     onMounted(async () => {
@@ -1121,6 +1159,7 @@ export default defineComponent({
       if (!isFirstPart.value) {
         const newIndex = props.currentPartIndex - 1;
         const targetPart = props.allParts[newIndex];
+        resetLockedValues();
         emit('navigate-to-part', targetPart, newIndex);
       }
     };
@@ -1129,6 +1168,7 @@ export default defineComponent({
       if (!isLastPart.value) {
         const newIndex = props.currentPartIndex + 1;
         const targetPart = props.allParts[newIndex];
+        resetLockedValues();
         emit('navigate-to-part', targetPart, newIndex);
       }
     };
@@ -1168,6 +1208,7 @@ export default defineComponent({
       onNetWeightChange,
       onGrossWeightChange,
       recalculatePart,
+      resetLockedValues,
       getPartImageUrl: props.getPartImageUrl,
       onSecondaryFileChange,
       onSecondaryFileDelete,
@@ -1233,5 +1274,14 @@ export default defineComponent({
 
 .close-btn:hover svg {
   color: white;
+}
+
+.no-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
 }
 </style>
