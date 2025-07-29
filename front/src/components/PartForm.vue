@@ -222,8 +222,7 @@
                 </v-col>
               </v-row>
 
-              <!-- Campo NCM (para todos os tipos de parte) -->
-              <v-row dense>
+              <v-row dense v-if="localPart.type !== 'process'">
                 <v-col cols="12">
                   <v-select
                     label="NCM"
@@ -529,9 +528,11 @@
               <!-- Informações do IPI e ICMS -->
               <v-sheet
                 v-if="
-                  localPart.ncm_id ||
-                  getUnitIcmsValue() > 0 ||
-                  getStateIcmsPercentage() > 0
+                  localPart.type !== 'process' && (
+                    localPart.ncm_id ||
+                    getUnitIcmsValue() > 0 ||
+                    getStateIcmsPercentage() > 0
+                  )
                 "
                 class="pa-4 ma-2 mt-4"
                 color="grey lighten-4"

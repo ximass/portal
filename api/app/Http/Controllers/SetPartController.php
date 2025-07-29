@@ -653,7 +653,7 @@ class SetPartController extends Controller
             if ($ncm && $ncm->ipi > 0) {
                 $ipiPercentage = $ncm->ipi / 100;
                 
-                $part->unit_ipi_value = $part->unit_value * $ipiPercentage;
+                $part->unit_ipi_value = round($part->unit_value * $ipiPercentage, 2);
                 
                 $quantity = isset($part->quantity) ? $part->quantity : 0;
                 $part->total_ipi_value = $part->unit_ipi_value * $quantity;
@@ -691,7 +691,7 @@ class SetPartController extends Controller
             if ($state && $state->icms > 0) {
                 $icmsPercentage = $state->icms / 100;
                 
-                $part->unit_icms_value = $part->unit_value * $icmsPercentage;
+                $part->unit_icms_value = round($part->unit_value * $icmsPercentage, 2);
                 
                 $quantity = isset($part->quantity) ? $part->quantity : 0;
                 $part->total_icms_value = $part->unit_icms_value * $quantity;
