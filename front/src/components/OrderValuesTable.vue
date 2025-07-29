@@ -33,13 +33,13 @@
           R$ {{ item.unit_value ?? 0 }}
         </template>
         <template #item.final_value="{ item }">
-          R$ {{ item.unit_value * item.quantity }}
+          R$ {{ item.final_value }}
         </template>
         <template #item.net_weight="{ item }">
-          {{ item.unit_net_weight * item.quantity }}
+          {{ item.unit_net_weight * item.quantity }} KG
         </template>
         <template #item.gross_weight="{ item }">
-          {{ item.unit_gross_weight * item.quantity }}
+          {{ item.unit_gross_weight * item.quantity }} KG
         </template>
         <template #body.append>
           <tr>
@@ -54,7 +54,7 @@
               {{
                 computedTotalValue(
                   items,
-                  part => part.unit_value * part.quantity
+                  part => part.final_value
                 )
               }}
             </td>
@@ -65,6 +65,7 @@
                   part => part.unit_gross_weight * part.quantity
                 )
               }}
+              KG
             </td>
             <td class="font-weight-bold">
               {{
@@ -73,6 +74,7 @@
                   part => part.unit_net_weight * part.quantity
                 )
               }}
+              KG
             </td>
           </tr>
         </template>
