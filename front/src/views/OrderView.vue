@@ -313,7 +313,7 @@ import { useMisc } from '../composables/misc';
 import axios from 'axios';
 import PartForm from '../components/PartForm.vue';
 import OrderValuesTable from '../components/OrderValuesTable.vue';
-import type { OrderForm, OrderSet, Part, Set, OrderType } from '../types/types';
+import type { OrderForm, OrderSet, Part, OrderType } from '../types/types';
 
 export default defineComponent({
   name: 'Orders',
