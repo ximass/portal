@@ -32,24 +32,38 @@ class PdfToWebpService
 
         // Define a resolução antes de ler (importante para qualidade)
         $imagick->setResolution($resolution, $resolution);
-        $imagick->setBackgroundColor('white');
-
+        
+        // Configurações importantes para PDFs com CMYK
+        $imagick->setOption('pdf:use-cropbox', 'true');
+        $imagick->setOption('pdf:use-trimbox', 'true');
+        
+        // Define colorspace RGB para evitar problemas com CMYK
+        $imagick->setColorspace(Imagick::COLORSPACE_SRGB);
+        
         // Lê o PDF inteiro; cada página vira um frame
         $imagick->readImage($fullPdfPath);
 
         $generated = [];
 
         foreach ($imagick as $index => $page) {
+            // Força conversão para RGB se estiver em CMYK
+            if ($page->getImageColorspace() === Imagick::COLORSPACE_CMYK) {
+                $page->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+            }
+            
             // Remove canal alpha para eliminar transparência
             $page->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
             
-            // Define fundo branco para a página
+            // Define fundo branco sólido
             $page->setImageBackgroundColor('white');
+            
+            // Normaliza a imagem para melhorar o contraste
+            $page->normalizeImage();
             
             // Cria uma nova imagem com fundo branco
             $background = new Imagick();
             $background->newImage($page->getImageWidth(), $page->getImageHeight(), 'white');
-            $background->setImageFormat('webp');
+            $background->setImageColorspace(Imagick::COLORSPACE_SRGB);
             
             // Compõe a página sobre o fundo branco
             $background->compositeImage($page, Imagick::COMPOSITE_OVER, 0, 0);
@@ -60,6 +74,9 @@ class PdfToWebpService
             // Define o formato de saída e compressão
             $background->setImageFormat('webp');
             $background->setImageCompressionQuality(80);
+            
+            // Aplica uma leve redução de ruído se necessário
+            $background->despeckleImage();
 
             // Nome de arquivo: pdf-nome-página-{i}.webp
             $filename = Str::slug(pathinfo($pdfPath, PATHINFO_FILENAME))
