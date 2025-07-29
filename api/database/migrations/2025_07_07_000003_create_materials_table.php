@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
-            $table->decimal('thickness', 10, 2);
             $table->decimal('specific_weight', 10, 6);
             $table->decimal('price_kg', 10, 4);
             $table->timestamps();

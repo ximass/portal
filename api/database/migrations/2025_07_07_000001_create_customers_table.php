@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('cnpj')->nullable();
             $table->string('cpf')->nullable();
             $table->text('address')->nullable();
+            $table->foreignId('state_id')->nullable()->constrained('states')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });

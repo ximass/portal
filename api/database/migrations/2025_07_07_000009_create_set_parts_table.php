@@ -22,12 +22,15 @@ return new class extends Migration
             $table->text('content')->nullable();
             $table->text('secondary_content')->nullable();
             $table->string('obs')->nullable();
+            $table->string('reference')->nullable();
             $table->foreignId('set_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('material_id')->nullable();
             $table->unsignedBigInteger('sheet_id')->nullable();
             $table->unsignedBigInteger('bar_id')->nullable();
             $table->unsignedBigInteger('component_id')->nullable();
+            $table->foreignId('ncm_id')->nullable()->constrained('mercosur_common_nomenclatures')->onDelete('set null');
             $table->enum('type', ['material', 'sheet', 'bar', 'component', 'process'])->nullable();
+            $table->decimal('thickness', 10, 2)->nullable();
             $table->json('locked_values')->nullable();
             $table->integer('quantity')->nullable();
             $table->decimal('loss', 5, 2)->nullable(); // percentage loss
@@ -37,6 +40,10 @@ return new class extends Migration
             $table->decimal('gross_weight', 10, 2)->nullable();
             $table->decimal('unit_value', 10, 2)->nullable();
             $table->decimal('final_value', 10, 2)->nullable();
+            $table->decimal('unit_ipi_value', 15, 2)->nullable();
+            $table->decimal('total_ipi_value', 15, 2)->nullable();
+            $table->decimal('unit_icms_value', 10, 2)->nullable();
+            $table->decimal('total_icms_value', 10, 2)->nullable();
 
             // component
             $table->decimal('markup', 10, 3)->nullable();

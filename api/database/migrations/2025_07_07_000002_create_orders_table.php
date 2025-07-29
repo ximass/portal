@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->enum('type', ['pre_order', 'order'])->default('pre_order');
             $table->enum('delivery_type', ['CIF', 'FOB'])->nullable();
+            $table->decimal('delivery_value', 10, 2)->nullable();
             $table->decimal('markup', 10, 3)->nullable();
             $table->dateTime('delivery_date')->nullable();
             $table->string('estimated_delivery_date', 250)->nullable();

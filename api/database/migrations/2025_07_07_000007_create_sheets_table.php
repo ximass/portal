@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('material_id');
             $table->string('name', 255);
+            $table->decimal('thickness', 10, 2);
             $table->decimal('width', 10, 2);
             $table->decimal('length', 10, 2);
             $table->timestamps();
