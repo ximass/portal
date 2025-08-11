@@ -223,7 +223,7 @@
               </v-row>
 
               <v-row dense v-if="localPart.type !== 'process'">
-                <v-col cols="12">
+                <v-col cols="12" md="6" small="6">
                   <v-select
                     label="NCM"
                     :items="ncms"
@@ -243,6 +243,22 @@
                       </v-list-item>
                     </template>
                   </v-select>
+                </v-col>
+                <v-col cols="12" md="6" small="6">
+                  <v-select
+                    label="Unidade"
+                    :items="[
+                      { title: 'Peça', value: 'piece' },
+                      { title: 'KG', value: 'kg' },
+                      { title: 'Nenhuma', value: null }
+                    ]"
+                    item-title="title"
+                    item-value="value"
+                    v-model="localPart.unit"
+                    density="compact"
+                    hide-details
+                    clearable
+                  />
                 </v-col>
               </v-row>
 

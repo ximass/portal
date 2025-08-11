@@ -283,9 +283,9 @@
                     <th>Quantidade</th>
                     <th>Unidade de medida</th>
                     <th>Valor unitário</th>
-                    <th>Valor total</th>
                     <th>IPI</th>
                     <th>ICMS</th>
+                    <th>Valor total</th>
                 </tr>
             </thead>
             <tbody>
@@ -298,11 +298,19 @@
                         @endif
                     </td>
                     <td style="text-align: center;">{{ number_format($part->quantity ?? 0, 0) }}</td>
-                    <td style="text-align: center;">-</td>
-                    <td style="text-align: right;">R$ {{ number_format($part->unit_value ?? 0, 2, ',', '.') }}</td>
-                    <td style="text-align: right;">R$ {{ number_format($part->final_value ?? 0, 2, ',', '.') }}</td>
+                    <td style="text-align: center;">
+                        @if($part->unit === 'piece')
+                            Peça
+                        @elseif($part->unit === 'kg')
+                            KG
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td style="text-align: right;">R$ {{ number_format($part->unit_value ? ($part->unit_value - $part->unit_ipi_value) : 0, 2, ',', '.') }}</td>
                     <td style="text-align: right;">{{ $part->ncm ? number_format($part->ncm->ipi, 2, ',', '.') : '0,00' }}%</td>
                     <td style="text-align: right;">{{ $order->customer?->state?->icms ? number_format($order->customer->state->icms, 2, ',', '.') : '0,00' }}%</td>
+                    <td style="text-align: right;">R$ {{ number_format($part->final_value ?? 0, 2, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>

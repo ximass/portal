@@ -25,6 +25,7 @@ class SetPart extends Model
         'component_id',
         'ncm_id',
         'quantity',
+        'unit', // Unidade (piece ou kg)
         'unit_net_weight',
         'net_weight',
         'unit_gross_weight',

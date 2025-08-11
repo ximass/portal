@@ -117,6 +117,7 @@ export interface Part {
   content: string | null;
   secondary_content?: string | null;
   quantity: number;
+  unit: 'piece' | 'kg' | null;
   unit_net_weight: number;
   unit_gross_weight: number;
   net_weight: number;
