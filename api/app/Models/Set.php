@@ -10,7 +10,7 @@ class Set extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'order_id'];
+    protected $fillable = ['name', 'order_id', 'content'];
 
     public function order()
     {

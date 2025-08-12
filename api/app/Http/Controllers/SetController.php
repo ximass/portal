@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Set;
+use Illuminate\Support\Facades\Storage;
+use App\Services\OptimizeFileService;
 
 class SetController extends Controller
 {
@@ -17,9 +19,10 @@ class SetController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'order_id' => 'required|integer|exists:orders,id',
+            'content' => 'nullable|string',
         ]);
 
-        $set = Set::create($request->only(['name', 'order_id']));
+        $set = Set::create($request->only(['name', 'order_id', 'content']));
 
         return response()->json($set, 201);
     }
@@ -33,9 +36,37 @@ class SetController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
+            'content' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $set->update($request->only(['name']));
+        $updateData = $request->only(['name', 'content']);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($set->content && Storage::disk('public')->exists($set->content)) {
+                Storage::disk('public')->delete($set->content);
+            }
+
+            $file = $request->file('image');
+            $path = $file->store('uploads/sets', 'public');
+
+            try {
+                $optimizedImagePath = OptimizeFileService::optimize($path);
+                if (!empty($optimizedImagePath)) {
+                    // Delete original file after optimization
+                    Storage::disk('public')->delete($path);
+                    $updateData['content'] = $optimizedImagePath;
+                } else {
+                    $updateData['content'] = $path;
+                }
+            } catch (\Exception $e) {
+                $updateData['content'] = $path;
+            }
+        }
+
+        $set->update($updateData);
 
         return response()->json($set);
     }

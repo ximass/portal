@@ -98,12 +98,7 @@
       <v-card-title>
         <v-row class="d-flex flex-row">
           <v-col cols="4">
-            <v-text-field
-              v-model="setItem.name"
-              variant="underlined"
-              placeholder="Digite o nome do conjunto"
-              @change="updateSetName(setIndex)"
-            />
+            <span class="text-h6">{{ setItem.name }}</span>
           </v-col>
           <v-col cols="8" class="d-flex justify-end align-center">
             <v-menu offset-y>
@@ -120,6 +115,9 @@
                 </v-btn>
               </template>
               <v-list>
+                <v-list-item @click.stop="editSet(setIndex)">
+                  <v-list-item-title>Editar</v-list-item-title>
+                </v-list-item>
                 <v-list-item @click.stop="deleteSet(setIndex)">
                   <v-list-item-title>Excluir</v-list-item-title>
                 </v-list-item>
@@ -255,6 +253,13 @@
       @navigate-to-part="handlePartNavigation"
     />
 
+    <SetForm
+      :show="showSetModal"
+      :setData="selectedSet"
+      @close="closeSetModal"
+      @saved="updateSetInList"
+    />
+
     <v-row class="justify-end pa-4">
       <v-menu
         v-if="!isNew"
@@ -312,13 +317,15 @@ import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
 import axios from 'axios';
 import PartForm from '../components/PartForm.vue';
+import SetForm from '../components/SetForm.vue';
 import OrderValuesTable from '../components/OrderValuesTable.vue';
-import type { OrderForm, OrderSet, Part, OrderType } from '../types/types';
+import type { OrderForm, OrderSet, Part, OrderType, Set } from '../types/types';
 
 export default defineComponent({
   name: 'Orders',
   components: {
     PartForm,
+    SetForm,
     OrderValuesTable,
   },
   setup() {
@@ -354,6 +361,8 @@ export default defineComponent({
     const sets = ref<OrderSet[]>([]);
     const showPartModal = ref(false);
     const selectedPart = ref<Part | null>(null);
+    const showSetModal = ref(false);
+    const selectedSet = ref<Set | null>(null);
     const setParts = ref<Part[]>([]);
     const setPartsHeaders = [
       { title: 'Peça', value: 'title', sortable: true },
@@ -397,6 +406,25 @@ export default defineComponent({
     const closePartModal = () => {
       selectedPart.value = null;
       showPartModal.value = false;
+    };
+
+    const editSet = (setIndex: number) => {
+      const setItem = sets.value[setIndex];
+      selectedSet.value = setItem as Set;
+      showSetModal.value = true;
+    };
+
+    const closeSetModal = () => {
+      selectedSet.value = null;
+      showSetModal.value = false;
+    };
+
+    const updateSetInList = (updatedSet: Set) => {
+      const setIndex = sets.value.findIndex(s => s.id === updatedSet.id);
+      if (setIndex !== -1) {
+        sets.value[setIndex] = { ...sets.value[setIndex], ...updatedSet };
+      }
+      showToast('Conjunto atualizado com sucesso!', 'success');
     };
 
     const handlePartNavigation = (part: Part) => {
@@ -497,20 +525,6 @@ export default defineComponent({
         showToast('Conjunto excluído com sucesso.', 'success');
       } catch (error) {
         showToast('Erro ao excluir conjunto: ' + error, 'error');
-      }
-    };
-
-    const updateSetName = async (setIndex: number) => {
-      try {
-        const set = sets.value[setIndex];
-        if (set.id) {
-          await axios.put(`/api/sets/${set.id}`, {
-            name: set.name,
-          });
-        }
-        showToast('Nome do conjunto atualizado com sucesso.', 'success');
-      } catch (error) {
-        showToast('Erro ao atualizar nome do conjunto: ' + error, 'error');
       }
     };
 
@@ -745,13 +759,17 @@ export default defineComponent({
       saveOrder,
       createSet,
       deleteSet,
-      updateSetName,
       deletePart,
       addNewPart,
       updatePartInList,
       getPartImageUrl,
       openPartModal,
       closePartModal,
+      editSet,
+      closeSetModal,
+      updateSetInList,
+      showSetModal,
+      selectedSet,
       printPart,
       printAllParts,
       onMarkupChange,

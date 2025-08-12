@@ -12,8 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('DROP TYPE IF EXISTS set_part_unit');
-        DB::statement("CREATE TYPE set_part_unit AS ENUM ('piece', 'kg')");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS set_part_unit');
+            DB::statement("CREATE TYPE set_part_unit AS ENUM ('piece', 'kg')");
+        }
 
         Schema::table('set_parts', function (Blueprint $table) {
             $table->enum('unit', ['piece', 'kg'])->nullable()->after('quantity');
@@ -29,6 +31,8 @@ return new class extends Migration
             $table->dropColumn('unit');
         });
 
-        DB::statement('DROP TYPE IF EXISTS set_part_unit');
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS set_part_unit');
+        }
     }
 };
