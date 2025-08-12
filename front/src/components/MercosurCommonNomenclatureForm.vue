@@ -17,7 +17,7 @@
             label="IPI (%)"
             v-model="formData.ipi"
             :rules="[
-              v => !!v || 'IPI é obrigatório',
+              v => (v !== null && v !== undefined && v !== '') || 'IPI é obrigatório',
               v => v >= 0 || 'IPI deve ser maior ou igual a 0',
               v => v <= 100 || 'IPI deve ser menor ou igual a 100',
               v =>
