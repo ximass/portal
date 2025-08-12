@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import axios from 'axios';
+import axios from '../plugins/axios';
 import { useToast } from '../composables/useToast';
 
 export default defineComponent({

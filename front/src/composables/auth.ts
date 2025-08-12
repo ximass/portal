@@ -1,23 +1,29 @@
 import { ref } from 'vue';
-import axios from 'axios';
+import axios from '../plugins/axios';
 
 const isAuthenticated = ref(false);
 const user = ref({});
+const isUserFetched = ref(false);
 
 const fetchUser = async () => {
+  if (!localStorage.getItem('authToken')) {
+    user.value = {};
+    isAuthenticated.value = false;
+    isUserFetched.value = true;
+    return;
+  }
+
   try {
-    const authToken = localStorage.getItem('authToken');
-    const response = await axios.get('/api/user', {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+    const response = await axios.get('/api/user');
 
     user.value = response.data;
     isAuthenticated.value = true;
+    isUserFetched.value = true;
   } catch (error) {
     user.value = {};
     isAuthenticated.value = false;
+    isUserFetched.value = true;
+    localStorage.removeItem('authToken');
   }
 };
 
@@ -37,20 +43,24 @@ const login = async (email: string, password: string) => {
 };
 
 const logout = async () => {
-  await axios.post('/api/logout', {}, { withCredentials: true });
-
-  localStorage.removeItem('authToken');
-
-  user.value = {};
-  isAuthenticated.value = false;
-
-  window.location.href = '/';
+  try {
+    await axios.post('/api/logout', {}, { withCredentials: true });
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error);
+  } finally {
+    localStorage.removeItem('authToken');
+    user.value = {};
+    isAuthenticated.value = false;
+    isUserFetched.value = false;
+    window.location.href = '/';
+  }
 };
 
 export function useAuth() {
   return {
     isAuthenticated,
     user,
+    isUserFetched,
     login,
     logout,
     fetchUser,

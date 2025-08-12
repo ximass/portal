@@ -38,7 +38,7 @@ export default defineComponent({
   components: { TopMenu, SideMenu },
   setup() {
     const { isToastVisible, toastMessage, toastColor } = useToast();
-    const { fetchUser, isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const drawerOpen = ref(false);
     const route = useRoute();
     const isPrintRoute = computed(() =>
@@ -46,8 +46,6 @@ export default defineComponent({
         route.name as string
       )
     );
-
-    fetchUser();
 
     return {
       isToastVisible,

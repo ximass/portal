@@ -134,7 +134,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/',
+    redirect: '/login',
   },
 ];
 
@@ -145,8 +145,11 @@ const router = createRouter({
 
 // @ts-ignore
 router.beforeEach(async (to, from, next) => {
-  const { fetchUser, user, isAuthenticated } = useAuth();
-  await fetchUser();
+  const { fetchUser, user, isAuthenticated, isUserFetched } = useAuth();
+  
+  if (!isUserFetched.value) {
+    await fetchUser();
+  }
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);

@@ -15,6 +15,8 @@ import router from './router';
 
 import './assets/styles/global.css';
 
+import './plugins/axios';
+
 const savedTheme =
   (localStorage.getItem('theme') as 'light' | 'dark') ?? 'dark';
 const isDark = savedTheme ? savedTheme === 'dark' : true;
