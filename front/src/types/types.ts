@@ -142,7 +142,13 @@ export interface Part {
 export interface Set {
   id: number;
   name: string;
+  content?: string | null;
   parts: Part[];
+}
+
+export interface SetForm {
+  name: string;
+  content?: string | null;
 }
 
 export interface User {

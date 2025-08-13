@@ -13,8 +13,10 @@ return new class extends Migration
     public function up(): void
     {
         // Create custom enum type for PostgreSQL
-        DB::statement('DROP TYPE IF EXISTS set_part_type');
-        DB::statement("CREATE TYPE set_part_type AS ENUM ('material', 'sheet', 'bar', 'component', 'process')");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS set_part_type');
+            DB::statement("CREATE TYPE set_part_type AS ENUM ('material', 'sheet', 'bar', 'component', 'process')");
+        }
 
         Schema::create('set_parts', function (Blueprint $table) {
             $table->id();
@@ -68,6 +70,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('set_parts');
-        DB::statement('DROP TYPE IF EXISTS set_part_type');
+        
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP TYPE IF EXISTS set_part_type');
+        }
     }
 };
