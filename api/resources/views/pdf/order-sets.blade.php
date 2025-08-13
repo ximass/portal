@@ -267,21 +267,15 @@
 
     <!-- Sets Table -->
     @foreach($order->sets as $setIndex => $set)
-        @php
-            $setTotalValue = 0;
-            foreach($set->setParts as $part) {
-                $setTotalValue += $part->final_value ?? 0;
-            }
-        @endphp
-        
         <table class="sets-table">
             <thead>
                 <tr>
-                    <th class="set-header" colspan="3">{{ $set->name }}</th>
+                    <th class="set-header" colspan="4">{{ $set->name }}</th>
                 </tr>
                 <tr>
                     <th>Imagem</th>
                     <th>ICMS</th>
+                    <th>IPI</th>
                     <th>Valor total</th>
                 </tr>
             </thead>
@@ -298,7 +292,10 @@
                         {{ $order->customer?->state?->icms ? number_format($order->customer->state->icms, 2, ',', '.') : '0,00' }}%
                     </td>
                     <td style="text-align: right; vertical-align: middle;">
-                        <strong>R$ {{ number_format($setTotalValue, 2, ',', '.') }}</strong>
+                        R$ {{ number_format($totalIpi, 2, ',', '.') }}
+                    </td>
+                    <td style="text-align: right; vertical-align: middle;">
+                        <strong>R$ {{ number_format($totalValue, 2, ',', '.') }}</strong>
                     </td>
                 </tr>
             </tbody>

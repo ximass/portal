@@ -60,10 +60,12 @@ class PdfController extends Controller
         ])->findOrFail($id);
 
         $totalValue = 0;
+        $totalIpi = 0;
         
         foreach ($order->sets as $set) {
             foreach ($set->setParts as $part) {
                 $totalValue += $part->final_value ?? 0;
+                $totalIpi += $part->total_ipi_value ?? 0;
             }
         }
 
@@ -71,6 +73,8 @@ class PdfController extends Controller
 
         $data = [
             'order' => $order,
+            'totalIpi' => $totalIpi,
+            'totalValue' => $totalValue,
             'totalGeral' => $totalGeral,
             'createdDate' => now()->format('d/m/Y'),
             'orderNumber' => str_pad($order->id, 6, '0', STR_PAD_LEFT)
