@@ -381,6 +381,11 @@ export default defineComponent({
       {
         title: 'Orçamento',
         value: 'quote',
+        icon: 'mdi-file-document-multiple-outline'
+      },
+      {
+        title: 'Orçamento simples',
+        value: 'quote-sets',
         icon: 'mdi-file-document-outline',
       },
     ]);
@@ -410,6 +415,7 @@ export default defineComponent({
 
     const editSet = (setIndex: number) => {
       const setItem = sets.value[setIndex];
+      // @ts-ignore
       selectedSet.value = setItem as Set;
       showSetModal.value = true;
     };
@@ -711,6 +717,10 @@ export default defineComponent({
           case 'quote':
             endpoint = `/api/orders/${route.params.id}/pdf`;
             filename = `orcamento-${String(route.params.id).padStart(6, '0')}.pdf`;
+            break;
+          case 'quote-sets':
+            endpoint = `/api/orders/${route.params.id}/pdf-sets`;
+            filename = `orcamento-conjuntos-${String(route.params.id).padStart(6, '0')}.pdf`;
             break;
           default:
             showToast('Tipo de documento não reconhecido', 'error');

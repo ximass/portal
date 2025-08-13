@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     #PDF#
     Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
+    Route::get('/orders/{id}/pdf-sets', [PdfController::class, 'generateOrderSetsPdf']);
 
     #RESOURCES#
     Route::apiResource('/groups', GroupController::class);

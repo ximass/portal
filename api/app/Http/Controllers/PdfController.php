@@ -47,4 +47,38 @@ class PdfController extends Controller
 
         return $pdf->stream("orcamento-{$data['orderNumber']}.pdf");
     }
+
+    public function generateOrderSetsPdf($id)
+    {
+        $order = Order::with([
+            'customer.state',
+            'sets.setParts.material',
+            'sets.setParts.sheet',
+            'sets.setParts.bar',
+            'sets.setParts.component',
+            'sets.setParts.ncm'
+        ])->findOrFail($id);
+
+        $totalValue = 0;
+        
+        foreach ($order->sets as $set) {
+            foreach ($set->setParts as $part) {
+                $totalValue += $part->final_value ?? 0;
+            }
+        }
+
+        $totalGeral = $totalValue + ($order->delivery_value ?? 0);
+
+        $data = [
+            'order' => $order,
+            'totalGeral' => $totalGeral,
+            'createdDate' => now()->format('d/m/Y'),
+            'orderNumber' => str_pad($order->id, 6, '0', STR_PAD_LEFT)
+        ];
+
+        $pdf = Pdf::loadView('pdf.order-sets', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream("orcamento-conjuntos-{$data['orderNumber']}.pdf");
+    }
 }
