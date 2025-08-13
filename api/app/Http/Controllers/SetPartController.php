@@ -584,15 +584,14 @@ class SetPartController extends Controller
             $unitGrossWeight = $grossWeight / $quantity;
         }
 
-        $unitValue = $component->unit_value;
+        $markup    = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
+        $unitValue = $component->unit_value * $markup;
 
         if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
             $unitValue = $part->unit_value;
         }
 
-        $markup    = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
-
-        $finalValue = $quantity * $unitValue * $markup;
+        $finalValue = $quantity * $unitValue;
 
         if (in_array('final_value', $part->locked_values) && isset($part->final_value)) {
             $finalValue = $part->final_value;
