@@ -17,9 +17,9 @@
               <v-select
                 label="Cliente"
                 v-model="form.customer_id"
-                :items="customers"
+                :items="customersWithDocument"
                 item-value="id"
-                item-title="name"
+                item-title="displayName"
                 clearable
               />
             </v-col>
@@ -319,7 +319,7 @@ import axios from 'axios';
 import PartForm from '../components/PartForm.vue';
 import SetForm from '../components/SetForm.vue';
 import OrderValuesTable from '../components/OrderValuesTable.vue';
-import type { OrderForm, OrderSet, Part, OrderType, Set } from '../types/types';
+import type { OrderForm, OrderSet, Part, OrderType, Set, Customer } from '../types/types';
 
 export default defineComponent({
   name: 'Orders',
@@ -335,7 +335,7 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const isNew = ref(route.params.id === 'new');
-    const customers = ref<any[]>([]);
+    const customers = ref<Customer[]>([]);
 
     const form = ref<OrderForm>({
       type: 'pre_order',
@@ -389,6 +389,17 @@ export default defineComponent({
         icon: 'mdi-file-document-outline',
       },
     ]);
+
+    const customersWithDocument = computed(() => {
+      return customers.value.map(customer => ({
+        ...customer,
+        displayName: customer.cnpj 
+          ? `${customer.name} - CNPJ: ${customer.cnpj}`
+          : customer.cpf 
+            ? `${customer.name} - CPF: ${customer.cpf}`
+            : customer.name
+      }));
+    });
 
     const updatePartInList = (updatedPart: Part) => {
       sets.value.forEach(set => {
@@ -754,6 +765,7 @@ export default defineComponent({
       isNew,
       form,
       customers,
+      customersWithDocument,
       orderTypeOptions,
       deliveryTypeOptions,
       sets,
