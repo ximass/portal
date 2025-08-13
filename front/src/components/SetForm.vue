@@ -14,9 +14,9 @@
           />
           
           <v-file-input
-            label="Imagem do conjunto"
+            label="Imagem ou PDF do conjunto"
             v-model="imageFile"
-            accept="image/*"
+            accept="image/*,.pdf"
             clearable
             show-size
             prepend-icon="mdi-camera"
@@ -43,11 +43,19 @@
               <v-card-subtitle>Nova imagem:</v-card-subtitle>
               <v-card-text>
                 <v-img
+                  v-if="imagePreview !== 'PDF_FILE'"
                   :src="imagePreview"
                   max-height="200"
                   contain
                   class="rounded"
                 />
+                <div v-else class="d-flex align-center justify-center" style="height: 200px;">
+                  <div class="text-center">
+                    <v-icon size="64" color="primary">mdi-file-pdf-box</v-icon>
+                    <div class="mt-2">Arquivo PDF selecionado</div>
+                    <div class="text-caption">O PDF será convertido para imagem automaticamente</div>
+                  </div>
+                </div>
               </v-card-text>
             </v-card>
           </div>
@@ -68,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed, nextTick } from 'vue';
+import { defineComponent, ref, watch, computed } from 'vue';
 import { useToast } from '../composables/useToast';
 import axios from 'axios';
 import type { Set, SetForm } from '../types/types';
@@ -90,7 +98,7 @@ export default defineComponent({
     const { showToast } = useToast();
     const form = ref<any>(null);
     const loading = ref(false);
-    const imageFile = ref<File[]>([]);
+    const imageFile = ref<File | null>(null);
 
     const formData = ref<SetForm>({
       name: '',
@@ -106,15 +114,15 @@ export default defineComponent({
       },
     });
 
-    // Preview da imagem selecionada
     const imagePreview = ref<string | null>(null);
 
-    // URL da imagem atual
     const currentImageUrl = computed(() => {
+      let url = null;
       if (props.setData?.content) {
-        return `${axios.defaults.baseURL}/storage/${props.setData.content}`;
+        const baseUrl = import.meta.env.VITE_API_URL;
+        url = `${baseUrl}${props.setData.content}`;
       }
-      return null;
+      return url;
     });
 
     watch(
@@ -131,15 +139,30 @@ export default defineComponent({
     );
 
     watch(
+      () => props.show,
+      (newShow) => {
+        if (!newShow) {
+          imageFile.value = null;
+          imagePreview.value = null;
+        }
+      }
+    );
+
+    watch(
       () => imageFile.value,
-      (newFiles) => {
-        if (newFiles && newFiles.length > 0) {
-          const file = newFiles[0];
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            imagePreview.value = e.target?.result as string;
-          };
-          reader.readAsDataURL(file);
+      (newFile) => {
+        if (newFile) {
+          const file = newFile;
+
+          if (file.type === 'application/pdf') {
+            imagePreview.value = 'PDF_FILE';
+          } else {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              imagePreview.value = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+          }
         } else {
           imagePreview.value = null;
         }
@@ -147,24 +170,12 @@ export default defineComponent({
     );
 
     const closeDialog = () => {
-      resetForm();
       emit('close');
     };
 
-    const resetForm = () => {
-      formData.value = {
-        name: '',
-        content: null,
-      };
-      imageFile.value = [];
-      imagePreview.value = null;
-      if (form.value) {
-        form.value.resetValidation();
-      }
-    };
-
     const submitForm = async () => {
-      if (!form.value.validate()) {
+      const validation = await form.value.validate();
+      if (!validation.valid) {
         return;
       }
 
@@ -178,18 +189,19 @@ export default defineComponent({
       try {
         const formDataToSend = new FormData();
         formDataToSend.append('name', formData.value.name);
-        
-        if (imageFile.value.length > 0) {
-          formDataToSend.append('image', imageFile.value[0]);
+
+        if (imageFile.value) {
+          const file = imageFile.value;
+          formDataToSend.append('image', file);
+        } else {
+          console.log('Nenhum arquivo selecionado para upload');
         }
 
-        const response = await axios.put(
-          `/api/sets/${props.setData.id}`,
+        const response = await axios.post(
+          `/api/sets/${props.setData.id}/update`,
           formDataToSend,
           {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
           }
         );
 

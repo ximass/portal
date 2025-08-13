@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Set;
 use Illuminate\Support\Facades\Storage;
 use App\Services\OptimizeFileService;
+use App\Services\PdfToWebpService;
 
 class SetController extends Controller
 {
@@ -37,14 +38,12 @@ class SetController extends Controller
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf|max:2048',
         ]);
 
         $updateData = $request->only(['name', 'content']);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($set->content && Storage::disk('public')->exists($set->content)) {
                 Storage::disk('public')->delete($set->content);
             }
@@ -52,17 +51,31 @@ class SetController extends Controller
             $file = $request->file('image');
             $path = $file->store('uploads/sets', 'public');
 
-            try {
-                $optimizedImagePath = OptimizeFileService::optimize($path);
-                if (!empty($optimizedImagePath)) {
-                    // Delete original file after optimization
+            if ($file->getClientOriginalExtension() === 'pdf') {
+                $pdfService = new PdfToWebpService();
+                $webpPaths = $pdfService->convert($path, 'uploads/sets');
+
+                // Use the first page of the converted PDF
+                if (!empty($webpPaths)) {
+                    // Delete the original PDF file
                     Storage::disk('public')->delete($path);
-                    $updateData['content'] = $optimizedImagePath;
+                    $updateData['content'] = Storage::url($webpPaths[0]);
                 } else {
-                    $updateData['content'] = $path;
+                    $updateData['content'] = Storage::url($path);
                 }
-            } catch (\Exception $e) {
-                $updateData['content'] = $path;
+            } else {
+                try {
+                    $optimizedImagePath = OptimizeFileService::optimize($path);
+                    if (!empty($optimizedImagePath)) {
+                        // Delete original file after optimization
+                        Storage::disk('public')->delete($path);
+                        $updateData['content'] = Storage::url($optimizedImagePath);
+                    } else {
+                        $updateData['content'] = Storage::url($path);
+                    }
+                } catch (\Exception $e) {
+                    $updateData['content'] = Storage::url($path);
+                }
             }
         }
 

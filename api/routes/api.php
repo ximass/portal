@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/set-parts/calculateProperties', [SetPartController::class, 'calculatePartProperties']);
     Route::post('/set-parts/calculateProcessValue', [ProcessController::class, 'calculateProcessValue']);
     Route::post('/sets/{set}/parts', [SetPartController::class, 'store']);
+    Route::post('/sets/{set}/update', [SetController::class, 'update']);
 
     #PUT#
     Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update']);
