@@ -143,12 +143,21 @@ export interface Set {
   id: number;
   name: string;
   content?: string | null;
+  quantity?: number | null;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
+  reference?: string | null;
+  obs?: string | null;
   parts: Part[];
 }
 
 export interface SetForm {
   name: string;
   content?: string | null;
+  quantity?: number | null;
+  ncm_id?: number | null;
+  reference?: string | null;
+  obs?: string | null;
 }
 
 export interface User {

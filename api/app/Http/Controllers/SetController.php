@@ -12,7 +12,7 @@ class SetController extends Controller
 {
     public function index()
     {
-        return response()->json(Set::all());
+        return response()->json(Set::with('ncm')->get());
     }
 
     public function store(Request $request)
@@ -21,15 +21,28 @@ class SetController extends Controller
             'name' => 'required|string|max:255',
             'order_id' => 'required|integer|exists:orders,id',
             'content' => 'nullable|string',
+            'quantity' => 'nullable|integer|min:0',
+            'ncm_id' => 'nullable|integer|exists:mercosur_common_nomenclatures,id',
+            'reference' => 'nullable|string|max:255',
+            'obs' => 'nullable|string',
         ]);
 
-        $set = Set::create($request->only(['name', 'order_id', 'content']));
+        $set = Set::create($request->only([
+            'name', 
+            'order_id', 
+            'content',
+            'quantity',
+            'ncm_id',
+            'reference',
+            'obs'
+        ]));
 
         return response()->json($set, 201);
     }
 
     public function show(Set $set)
     {
+        $set->load('ncm');
         return response()->json($set);
     }
 
@@ -39,9 +52,20 @@ class SetController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'content' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf|max:2048',
+            'quantity' => 'nullable|integer|min:0',
+            'ncm_id' => 'nullable|integer|exists:mercosur_common_nomenclatures,id',
+            'reference' => 'nullable|string|max:255',
+            'obs' => 'nullable|string',
         ]);
 
-        $updateData = $request->only(['name', 'content']);
+        $updateData = $request->only([
+            'name', 
+            'content',
+            'quantity',
+            'ncm_id',
+            'reference',
+            'obs'
+        ]);
 
         if ($request->hasFile('image')) {
             if ($set->content && Storage::disk('public')->exists($set->content)) {
