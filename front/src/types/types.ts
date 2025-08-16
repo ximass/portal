@@ -36,6 +36,7 @@ export interface Order {
 export interface OrderSet {
   id?: number;
   name?: string;
+  quantity?: number | null;
   setParts: Part[];
   fileList: File[] | null;
 }
@@ -144,6 +145,7 @@ export interface Set {
   name: string;
   content?: string | null;
   quantity?: number | null;
+  unit?: 'piece' | 'kg' | null;
   ncm_id?: number | null;
   ncm?: MercosurCommonNomenclature;
   reference?: string | null;
@@ -155,6 +157,7 @@ export interface SetForm {
   name: string;
   content?: string | null;
   quantity?: number | null;
+  unit?: 'piece' | 'kg' | null;
   ncm_id?: number | null;
   reference?: string | null;
   obs?: string | null;

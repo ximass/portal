@@ -22,6 +22,7 @@ class SetController extends Controller
             'order_id' => 'required|integer|exists:orders,id',
             'content' => 'nullable|string',
             'quantity' => 'nullable|integer|min:0',
+            'unit' => 'nullable|in:piece,kg',
             'ncm_id' => 'nullable|integer|exists:mercosur_common_nomenclatures,id',
             'reference' => 'nullable|string|max:255',
             'obs' => 'nullable|string',
@@ -32,6 +33,7 @@ class SetController extends Controller
             'order_id', 
             'content',
             'quantity',
+            'unit',
             'ncm_id',
             'reference',
             'obs'
@@ -53,6 +55,7 @@ class SetController extends Controller
             'content' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf|max:2048',
             'quantity' => 'nullable|integer|min:0',
+            'unit' => 'nullable|in:piece,kg',
             'ncm_id' => 'nullable|integer|exists:mercosur_common_nomenclatures,id',
             'reference' => 'nullable|string|max:255',
             'obs' => 'nullable|string',
@@ -62,6 +65,7 @@ class SetController extends Controller
             'name', 
             'content',
             'quantity',
+            'unit',
             'ncm_id',
             'reference',
             'obs'
@@ -81,7 +85,6 @@ class SetController extends Controller
 
                 // Use the first page of the converted PDF
                 if (!empty($webpPaths)) {
-                    // Delete the original PDF file
                     Storage::disk('public')->delete($path);
                     $updateData['content'] = Storage::url($webpPaths[0]);
                 } else {
@@ -91,7 +94,6 @@ class SetController extends Controller
                 try {
                     $optimizedImagePath = OptimizeFileService::optimize($path);
                     if (!empty($optimizedImagePath)) {
-                        // Delete original file after optimization
                         Storage::disk('public')->delete($path);
                         $updateData['content'] = Storage::url($optimizedImagePath);
                     } else {

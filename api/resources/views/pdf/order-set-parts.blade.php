@@ -281,7 +281,7 @@
                 <tr>
                     <th>Imagem</th>
                     <th>Quantidade</th>
-                    <th>Unidade de medida</th>
+                    <th>Unidade</th>
                     <th>Valor unitário</th>
                     <th>IPI</th>
                     <th>ICMS</th>
@@ -307,10 +307,10 @@
                             -
                         @endif
                     </td>
-                    <td style="text-align: right;">R$ {{ number_format($part->unit_value ? ($part->unit_value - $part->unit_ipi_value) : 0, 2, ',', '.') }}</td>
+                    <td style="text-align: right;">R$ {{ number_format($part->calculated_unit_value ?? 0, 2, ',', '.') }}</td>
                     <td style="text-align: right;">{{ $part->ncm ? number_format($part->ncm->ipi, 2, ',', '.') : '0,00' }}%</td>
                     <td style="text-align: right;">{{ $order->customer?->state?->icms ? number_format($order->customer->state->icms, 2, ',', '.') : '0,00' }}%</td>
-                    <td style="text-align: right;">R$ {{ number_format($part->final_value ?? 0, 2, ',', '.') }}</td>
+                    <td style="text-align: right;">R$ {{ number_format($part->calculated_total_value ?? 0, 2, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -321,7 +321,7 @@
     <table class="totals-table">
         <tr>
             <td class="totals-label">Total geral (R$):</td>
-            <td class="totals-value">R$ {{ number_format($totalGeral ?? 0, 2, ',', '.') }}</td>
+            <td class="totals-value"><strong>R$ {{ number_format($totalGeral ?? 0, 2, ',', '.') }}</strong></td>
         </tr>
     </table>
 

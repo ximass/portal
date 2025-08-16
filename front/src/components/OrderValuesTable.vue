@@ -54,7 +54,7 @@
               {{
                 computedTotalValue(
                   items,
-                  part => part.final_value
+                  part => part.final_value * (part.setQuantity || 1)
                 )
               }}
             </td>

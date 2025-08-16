@@ -1,7 +1,7 @@
 <template>
   <v-dialog 
     v-model="internalDialog" 
-    width="80vw"
+    width="70vw"
     height="90vh"
   >
     <v-card>
@@ -44,23 +44,8 @@
               max-width="40vw"
               min-height="50vh"
             >
-              <template v-if="currentImageUrl">
-                <template v-if="isPdf(currentImageUrl)">
-                  <iframe
-                    :src="currentImageUrl"
-                    width="100%"
-                    height="100%"
-                  />
-                </template>
-                <template v-else>
-                  <v-img
-                    :src="currentImageUrl"
-                    contain
-                    max-width="100%"
-                  />
-                </template>
-              </template>
-              <template v-else-if="imagePreview && imagePreview !== 'PDF_FILE'">
+              <!-- Prioriza a imagem selecionada para upload -->
+              <template v-if="imagePreview && imagePreview !== 'PDF_FILE'">
                 <v-img
                   :src="imagePreview"
                   contain
@@ -75,6 +60,22 @@
                     <div class="text-caption text-grey-lighten-1">O PDF será convertido para imagem automaticamente</div>
                   </div>
                 </div>
+              </template>
+              <template v-else-if="currentImageUrl">
+                <template v-if="isPdf(currentImageUrl)">
+                  <iframe
+                    :src="currentImageUrl"
+                    width="100%"
+                    height="100%"
+                  />
+                </template>
+                <template v-else>
+                  <v-img
+                    :src="currentImageUrl"
+                    contain
+                    max-width="100%"
+                  />
+                </template>
               </template>
               <div v-else class="no-image-placeholder">
                 <v-icon size="120" color="grey-lighten-2">mdi-image-off-outline</v-icon>
@@ -131,17 +132,6 @@
 
               <v-row dense>
                 <v-col cols="12" md="6">
-                  <v-text-field
-                    label="Quantidade"
-                    v-model="formData.quantity"
-                    type="number"
-                    variant="underlined"
-                    density="compact"
-                    hide-details="auto"
-                    min="0"
-                  />
-                </v-col>
-                <v-col cols="12" md="6">
                   <v-select
                     label="NCM"
                     :items="ncms"
@@ -164,18 +154,32 @@
                     </template>
                   </v-select>
                 </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                    label="Unidade"
+                    :items="unitOptions"
+                    item-title="title"
+                    item-value="value"
+                    v-model="formData.unit"
+                    variant="underlined"
+                    density="compact"
+                    hide-details="auto"
+                    clearable
+                  />
+                </v-col>
               </v-row>
 
-              <!-- Informações do NCM selecionado -->
-              <v-row dense v-if="selectedNcm">
-                <v-col cols="12">
-                  <v-card variant="outlined" class="pa-3">
-                    <v-card-subtitle class="pb-1">Informações do NCM</v-card-subtitle>
-                    <div class="text-body-2">
-                      <div><strong>Código:</strong> {{ selectedNcm.code }}</div>
-                      <div><strong>IPI:</strong> {{ selectedNcm.ipi }}%</div>
-                    </div>
-                  </v-card>
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="Quantidade"
+                    v-model="formData.quantity"
+                    type="number"
+                    variant="underlined"
+                    density="compact"
+                    hide-details="auto"
+                    min="0"
+                  />
                 </v-col>
               </v-row>
             </v-form>
@@ -228,10 +232,16 @@ export default defineComponent({
       name: '',
       content: null,
       quantity: null,
+      unit: null,
       ncm_id: null,
       reference: null,
       obs: null,
     });
+
+    const unitOptions = ref([
+      { title: 'Peça', value: 'piece' },
+      { title: 'Kg', value: 'kg' },
+    ]);
 
     const internalDialog = computed({
       get: () => props.show,
@@ -283,6 +293,7 @@ export default defineComponent({
             name: newSet.name,
             content: newSet.content || null,
             quantity: newSet.quantity || null,
+            unit: newSet.unit || null,
             ncm_id: newSet.ncm_id || null,
             reference: newSet.reference || null,
             obs: newSet.obs || null,
@@ -348,6 +359,10 @@ export default defineComponent({
           formDataToSend.append('quantity', formData.value.quantity.toString());
         }
         
+        if (formData.value.unit) {
+          formDataToSend.append('unit', formData.value.unit);
+        }
+        
         if (formData.value.ncm_id !== null && formData.value.ncm_id !== undefined) {
           formDataToSend.append('ncm_id', formData.value.ncm_id.toString());
         }
@@ -375,6 +390,10 @@ export default defineComponent({
           }
         );
 
+        // Limpa a imagem preview após upload bem-sucedido
+        imageFile.value = null;
+        imagePreview.value = null;
+
         emit('saved', response.data);
         showToast('Conjunto atualizado com sucesso!', 'success');
         closeDialog();
@@ -401,6 +420,7 @@ export default defineComponent({
       currentImageUrl,
       selectedNcm,
       ncms,
+      unitOptions,
       isPdf,
       closeDialog,
       submitForm,

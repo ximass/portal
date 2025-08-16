@@ -15,6 +15,7 @@ class Set extends Model
         'order_id', 
         'content',
         'quantity',
+        'unit',
         'ncm_id',
         'reference',
         'obs'
