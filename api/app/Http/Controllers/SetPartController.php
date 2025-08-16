@@ -374,10 +374,10 @@ class SetPartController extends Controller
             throw new \InvalidArgumentException('Invalid part type');
         }
 
+        $part = self::calculatePartProcesses($part);
         $part = self::calculateIpiValues($part);
         $part = self::calculateIcmsValues($part);
         $part = self::applyIpiToUnitValue($part);
-        $part = self::calculatePartProcesses($part);
 
         return $part;
     }

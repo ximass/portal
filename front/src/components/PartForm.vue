@@ -25,6 +25,7 @@
         <v-card-title class="d-flex align-center justify-space-between">
           <v-text-field
             variant="underlined"
+            label="Nome da peça"
             v-model="localPart.title"
             required
           />

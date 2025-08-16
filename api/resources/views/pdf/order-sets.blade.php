@@ -227,7 +227,7 @@
             <div class="logo">
                 <img src="{{ public_path('images/logo_engfrig.png') }}" alt="EngFrig Logo">
             </div>
-            <div class="company-info">
+                        <div class="company-info">
                 <div class="company-name">ENGFRIG MÁQUINAS E EQUIPAMENTOS LTDA</div>
                 <div class="company-details">
                     E-mail: engfrig@engfrig.ind.br | site: www.engfrig.ind.br | CNPJ: 30.785.030/0001-82
@@ -243,7 +243,7 @@
     <!-- Customer Data -->
     <div class="customer-section">
         <div class="customer-title">Dados do destinatário</div>
-        <div class="customer-grid">
+                <div class="customer-grid">
             <div class="customer-row">
                 <div class="customer-cell customer-label">Cliente:</div>
                 <div class="customer-cell">{{ $order->customer->name ?? 'N/A' }}</div>
@@ -270,12 +270,20 @@
         <table class="sets-table">
             <thead>
                 <tr>
-                    <th class="set-header" colspan="4">{{ $set->name }}</th>
+                    <th class="set-header" colspan="7">Conjunto {{ str_pad($setIndex + 1, 2, '0', STR_PAD_LEFT) }}: {{ $set->name }}</th>
+                </tr>
+                <tr>
+                    <th colspan="2">NCM: {{ $set->ncm->code ?? '-' }}</th>
+                    <th colspan="3">Referência EngFrig: {{ $set->reference ?? '-' }}</th>
+                    <th colspan="2">Referência Cliente: {{ $set->obs ?? '-' }}</th>
                 </tr>
                 <tr>
                     <th>Imagem</th>
-                    <th>ICMS</th>
+                    <th>Quantidade</th>
+                    <th>Unidade</th>
+                    <th>Valor unitário</th>
                     <th>IPI</th>
+                    <th>ICMS</th>
                     <th>Valor total</th>
                 </tr>
             </thead>
@@ -288,15 +296,20 @@
                             -
                         @endif
                     </td>
-                    <td style="text-align: right; vertical-align: middle;">
-                        {{ $order->customer?->state?->icms ? number_format($order->customer->state->icms, 2, ',', '.') : '0,00' }}%
+                    <td style="text-align: center;">{{ number_format($set->quantity ?? 1, 0) }}</td>
+                    <td style="text-align: center;">
+                        @if($set->unit === 'piece')
+                            Peça
+                        @elseif($set->unit === 'kg')
+                            KG
+                        @else
+                            Peça
+                        @endif
                     </td>
-                    <td style="text-align: right; vertical-align: middle;">
-                        R$ {{ number_format($totalIpi, 2, ',', '.') }}
-                    </td>
-                    <td style="text-align: right; vertical-align: middle;">
-                        <strong>R$ {{ number_format($totalValue, 2, ',', '.') }}</strong>
-                    </td>
+                    <td style="text-align: right;">R$ {{ number_format($set->calculated_unit_value ?? 0, 2, ',', '.') }}</td>
+                    <td style="text-align: right;">{{ $set->ncm ? number_format($set->ncm->ipi, 2, ',', '.') : '0,00' }}%</td>
+                    <td style="text-align: right;">{{ $order->customer?->state?->icms ? number_format($order->customer->state->icms, 2, ',', '.') : '0,00' }}%</td>
+                    <td style="text-align: right;"><strong>R$ {{ number_format($set->calculated_total_value ?? 0, 2, ',', '.') }}</strong></td>
                 </tr>
             </tbody>
         </table>

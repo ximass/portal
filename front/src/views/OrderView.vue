@@ -379,12 +379,12 @@ export default defineComponent({
     const loadingDocument = ref(false);
     const availableDocuments = ref([
       {
-        title: 'Orçamento',
-        value: 'quote',
+        title: 'Orçamento por peça',
+        value: 'quote-set-parts',
         icon: 'mdi-file-document-multiple-outline'
       },
       {
-        title: 'Orçamento simples',
+        title: 'Orçamento por conjunto',
         value: 'quote-sets',
         icon: 'mdi-file-document-outline',
       },
@@ -652,7 +652,7 @@ export default defineComponent({
     // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento
     const allSetParts = computed(() => {
       return sets.value.flatMap(set => {
-        return set.setParts.map(part => ({ ...part, setName: set.name }));
+        return set.setParts.map(part => ({ ...part, setName: set.name, setQuantity: set.quantity || 1 }));
       });
     });
 
@@ -725,7 +725,7 @@ export default defineComponent({
         let filename = '';
 
         switch (documentType) {
-          case 'quote':
+          case 'quote-set-parts':
             endpoint = `/api/orders/${route.params.id}/pdf`;
             filename = `orcamento-${String(route.params.id).padStart(6, '0')}.pdf`;
             break;

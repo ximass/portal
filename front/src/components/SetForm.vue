@@ -1,70 +1,197 @@
 <template>
-  <v-dialog v-model="internalDialog" max-width="600px">
+  <v-dialog 
+    v-model="internalDialog" 
+    width="70vw"
+    height="90vh"
+  >
     <v-card>
-      <v-card-title>
-        <span class="text-h5">Editar conjunto</span>
+      <v-card-title class="d-flex align-center justify-space-between">
+        <v-text-field
+          variant="underlined"
+          v-model="formData.name"
+          label="Nome do conjunto"
+          :rules="[v => !!v || 'Nome é obrigatório']"
+          required
+        />
+        <button
+          class="close-btn"
+          @click="closeDialog"
+          aria-label="Fechar"
+          title="Fechar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            width="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </v-card-title>
       <v-card-text>
-        <v-form ref="form" @submit.prevent="submitForm">
-          <v-text-field
-            label="Nome do conjunto"
-            v-model="formData.name"
-            :rules="[v => !!v || 'Nome é obrigatório']"
-            required
-          />
-          
-          <v-file-input
-            label="Imagem ou PDF do conjunto"
-            v-model="imageFile"
-            accept="image/*,.pdf"
-            clearable
-            show-size
-            prepend-icon="mdi-camera"
-          />
-
-          <!-- Preview da imagem atual -->
-          <div v-if="currentImageUrl" class="mt-4">
-            <v-card class="mb-3">
-              <v-card-subtitle>Imagem atual:</v-card-subtitle>
-              <v-card-text>
+        <v-row>
+          <!-- Left: Image panel -->
+          <v-col cols="6">
+            <v-responsive
+              max-height="60vh"
+              max-width="40vw"
+              min-height="50vh"
+            >
+              <!-- Prioriza a imagem selecionada para upload -->
+              <template v-if="imagePreview && imagePreview !== 'PDF_FILE'">
                 <v-img
-                  :src="currentImageUrl"
-                  max-height="200"
-                  contain
-                  class="rounded"
-                />
-              </v-card-text>
-            </v-card>
-          </div>
-
-          <!-- Preview da nova imagem -->
-          <div v-if="imagePreview" class="mt-4">
-            <v-card class="mb-3">
-              <v-card-subtitle>Nova imagem:</v-card-subtitle>
-              <v-card-text>
-                <v-img
-                  v-if="imagePreview !== 'PDF_FILE'"
                   :src="imagePreview"
-                  max-height="200"
                   contain
-                  class="rounded"
+                  max-width="100%"
                 />
-                <div v-else class="d-flex align-center justify-center" style="height: 200px;">
+              </template>
+              <template v-else-if="imagePreview === 'PDF_FILE'">
+                <div class="d-flex align-center justify-center" style="height: 100%; min-height: 300px;">
                   <div class="text-center">
-                    <v-icon size="64" color="primary">mdi-file-pdf-box</v-icon>
-                    <div class="mt-2">Arquivo PDF selecionado</div>
-                    <div class="text-caption">O PDF será convertido para imagem automaticamente</div>
+                    <v-icon size="120" color="primary">mdi-file-pdf-box</v-icon>
+                    <div class="mt-4 text-body-1">Arquivo PDF selecionado</div>
+                    <div class="text-caption text-grey-lighten-1">O PDF será convertido para imagem automaticamente</div>
                   </div>
                 </div>
-              </v-card-text>
-            </v-card>
-          </div>
-        </v-form>
+              </template>
+              <template v-else-if="currentImageUrl">
+                <template v-if="isPdf(currentImageUrl)">
+                  <iframe
+                    :src="currentImageUrl"
+                    width="100%"
+                    height="100%"
+                  />
+                </template>
+                <template v-else>
+                  <v-img
+                    :src="currentImageUrl"
+                    contain
+                    max-width="100%"
+                  />
+                </template>
+              </template>
+              <div v-else class="no-image-placeholder">
+                <v-icon size="120" color="grey-lighten-2">mdi-image-off-outline</v-icon>
+                <div class="text-grey-lighten-1 text-body-2 mt-4">
+                  Nenhuma imagem disponível
+                </div>
+              </div>
+            </v-responsive>
+            
+            <!-- Upload de imagem -->
+            <div class="mt-4">
+              <v-file-input
+                v-model="imageFile"
+                accept="image/*,.pdf"
+                density="compact"
+                show-size
+                prepend-icon="mdi-upload"
+                label="Imagem ou PDF do conjunto"
+                clearable
+              />
+            </div>
+          </v-col>
+
+          <!-- Right: Form panel -->
+          <v-col cols="6">
+            <v-form ref="form" @submit.prevent="submitForm">
+              <v-row dense style="margin-top: -40px">
+                <v-col cols="12">
+                  <v-text-field
+                    label="Referência"
+                    v-model="formData.reference"
+                    variant="underlined"
+                    clearable
+                    hide-details="auto"
+                    density="compact"
+                  />
+                </v-col>
+              </v-row>
+              
+              <v-row dense>
+                <v-col cols="12">
+                  <v-textarea
+                    label="Observações"
+                    v-model="formData.obs"
+                    variant="underlined"
+                    clearable
+                    hide-details="auto"
+                    density="compact"
+                    rows="3"
+                    auto-grow
+                  />
+                </v-col>
+              </v-row>
+
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <v-select
+                    label="NCM"
+                    :items="ncms"
+                    item-title="code"
+                    item-value="id"
+                    v-model="formData.ncm_id"
+                    variant="underlined"
+                    density="compact"
+                    hide-details="auto"
+                    clearable
+                  >
+                    <template #item="{ props, item }">
+                      <v-list-item v-bind="props">
+                        <v-list-item-title>{{ item.raw.code }}</v-list-item-title>
+                        <v-list-item-subtitle>IPI: {{ item.raw.ipi }}%</v-list-item-subtitle>
+                      </v-list-item>
+                    </template>
+                    <template #selection="{ item }">
+                      {{ item.raw.code }} (IPI: {{ item.raw.ipi }}%)
+                    </template>
+                  </v-select>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                    label="Unidade"
+                    :items="unitOptions"
+                    item-title="title"
+                    item-value="value"
+                    v-model="formData.unit"
+                    variant="underlined"
+                    density="compact"
+                    hide-details="auto"
+                    clearable
+                  />
+                </v-col>
+              </v-row>
+
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="Quantidade"
+                    v-model="formData.quantity"
+                    type="number"
+                    variant="underlined"
+                    density="compact"
+                    hide-details="auto"
+                    min="0"
+                  />
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-col>
+        </v-row>
       </v-card-text>
-      <v-card-actions class="justify-end">
+      <v-card-actions>
+        <v-spacer />
         <v-btn variant="flat" @click="closeDialog">Cancelar</v-btn>
         <v-btn
           color="primary"
+          variant="flat"
           :loading="loading"
           @click="submitForm"
         >
@@ -76,10 +203,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue';
+import { defineComponent, ref, watch, computed, onMounted } from 'vue';
 import { useToast } from '../composables/useToast';
 import axios from 'axios';
-import type { Set, SetForm } from '../types/types';
+import type { Set, SetForm, MercosurCommonNomenclature } from '../types/types';
 
 export default defineComponent({
   name: 'SetForm',
@@ -99,11 +226,22 @@ export default defineComponent({
     const form = ref<any>(null);
     const loading = ref(false);
     const imageFile = ref<File | null>(null);
+    const ncms = ref<MercosurCommonNomenclature[]>([]);
 
     const formData = ref<SetForm>({
       name: '',
       content: null,
+      quantity: null,
+      unit: null,
+      ncm_id: null,
+      reference: null,
+      obs: null,
     });
+
+    const unitOptions = ref([
+      { title: 'Peça', value: 'piece' },
+      { title: 'Kg', value: 'kg' },
+    ]);
 
     const internalDialog = computed({
       get: () => props.show,
@@ -125,6 +263,28 @@ export default defineComponent({
       return url;
     });
 
+    const selectedNcm = computed(() => {
+      if (formData.value.ncm_id) {
+        return ncms.value.find(ncm => ncm.id === formData.value.ncm_id);
+      }
+      return null;
+    });
+
+    const isPdf = (filePath: string): boolean => {
+      if (!filePath) return false;
+      return filePath.toLowerCase().includes('.pdf') || filePath.toLowerCase().endsWith('.pdf');
+    };
+
+    const fetchNCMs = async () => {
+      try {
+        const response = await axios.get('/api/mercosur-common-nomenclatures');
+        ncms.value = response.data;
+      } catch (error) {
+        console.error('Erro ao buscar NCMs:', error);
+        showToast('Erro ao carregar NCMs', 'error');
+      }
+    };
+
     watch(
       () => props.setData,
       (newSet) => {
@@ -132,6 +292,11 @@ export default defineComponent({
           formData.value = {
             name: newSet.name,
             content: newSet.content || null,
+            quantity: newSet.quantity || null,
+            unit: newSet.unit || null,
+            ncm_id: newSet.ncm_id || null,
+            reference: newSet.reference || null,
+            obs: newSet.obs || null,
           };
         }
       },
@@ -189,6 +354,26 @@ export default defineComponent({
       try {
         const formDataToSend = new FormData();
         formDataToSend.append('name', formData.value.name);
+        
+        if (formData.value.quantity !== null && formData.value.quantity !== undefined) {
+          formDataToSend.append('quantity', formData.value.quantity.toString());
+        }
+        
+        if (formData.value.unit) {
+          formDataToSend.append('unit', formData.value.unit);
+        }
+        
+        if (formData.value.ncm_id !== null && formData.value.ncm_id !== undefined) {
+          formDataToSend.append('ncm_id', formData.value.ncm_id.toString());
+        }
+        
+        if (formData.value.reference) {
+          formDataToSend.append('reference', formData.value.reference);
+        }
+        
+        if (formData.value.obs) {
+          formDataToSend.append('obs', formData.value.obs);
+        }
 
         if (imageFile.value) {
           const file = imageFile.value;
@@ -205,6 +390,10 @@ export default defineComponent({
           }
         );
 
+        // Limpa a imagem preview após upload bem-sucedido
+        imageFile.value = null;
+        imagePreview.value = null;
+
         emit('saved', response.data);
         showToast('Conjunto atualizado com sucesso!', 'success');
         closeDialog();
@@ -217,6 +406,10 @@ export default defineComponent({
       }
     };
 
+    onMounted(() => {
+      fetchNCMs();
+    });
+
     return {
       form,
       formData,
@@ -225,6 +418,10 @@ export default defineComponent({
       imageFile,
       imagePreview,
       currentImageUrl,
+      selectedNcm,
+      ncms,
+      unitOptions,
+      isPdf,
       closeDialog,
       submitForm,
     };
@@ -235,5 +432,35 @@ export default defineComponent({
 <style scoped>
 .rounded {
   border-radius: 8px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.close-btn svg {
+  width: 24px;
+  height: 24px;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.close-btn:hover svg {
+  color: #1976d2;
+}
+
+.no-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
 }
 </style>
