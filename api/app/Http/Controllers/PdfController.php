@@ -26,7 +26,7 @@ class PdfController extends Controller
                 $unitValue  = $part->unit_value ?? 0;
                 $unitValue -= $part->unit_ipi_value ?? 0;
                 
-                $ipi        = $part->ncm->ipi ?? 0;
+                $ipi        = ($part->ncm->ipi ?? 0) / 100;
                 
                 $totalValue = $part->final_value ?? 0;
                 
