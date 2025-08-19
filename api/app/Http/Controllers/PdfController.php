@@ -67,19 +67,23 @@ class PdfController extends Controller
         $totalGeral = 0;
         
         foreach ($order->sets as $set) {
-            $setUnitValue  = 0;
-            $setIpiValue   = 0;
+            $setUnitWithIpi = 0;
+            $setUnitBase = 0;
             $setTotalValue = 0;
-            
+
             foreach ($set->setParts as $part) {
-                $setUnitValue += $part->final_value ?? 0;
-                $setIpiValue  += $part->total_ipi_value ?? 0;
+                $partFinalWithIpi = $part->final_value ?? 0;
+                $ipi = ($part->ncm->ipi ?? 0) / 100;
+
+                $partBaseFinal = $ipi !== 0 ? ($partFinalWithIpi / (1 + $ipi)) : $partFinalWithIpi;
+
+                $setUnitWithIpi += $partFinalWithIpi;
+                $setUnitBase += $partBaseFinal;
             }
 
-            $setTotalValue = $setUnitValue * ($set->quantity ?? 1);
-            $setUnitValue -= $setIpiValue;
+            $setTotalValue = $setUnitWithIpi * ($set->quantity ?? 1);
 
-            $set->calculated_unit_value = $setUnitValue;
+            $set->calculated_unit_value = $setUnitBase;
             $set->calculated_total_value = $setTotalValue;
 
             $totalGeral += $setTotalValue;
