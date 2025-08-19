@@ -24,7 +24,7 @@ class PdfController extends Controller
         foreach ($order->sets as $set) {
             foreach ($set->setParts as $part) {
                 $unitValue  = $part->unit_value ?? 0;
-                $unitValue -= $part->total_ipi_value ?? 0;
+                $unitValue -= $part->unit_ipi_value ?? 0;
 
                 $totalValue = $part->final_value ?? 0;
 
