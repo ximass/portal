@@ -25,12 +25,14 @@ class PdfController extends Controller
             foreach ($set->setParts as $part) {
                 $unitValue  = $part->unit_value ?? 0;
                 $unitValue -= $part->unit_ipi_value ?? 0;
-
+                
+                $ipi        = $part->ncm->ipi ?? 0;
+                
                 $totalValue = $part->final_value ?? 0;
-
-                $part->calculated_unit_value = $unitValue;
+                
+                $part->calculated_unit_value = $unitValue / (1 - $ipi);
                 $part->calculated_total_value = $totalValue;
-
+                
                 $totalGeral += $totalValue;
             }
         }
