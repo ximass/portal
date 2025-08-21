@@ -135,7 +135,7 @@
                 </v-col>
                 <v-col cols="6"></v-col>
               </v-row>
-              <v-row dense v-if="part?.type === 'component'">
+              <v-row dense v-if="part?.type && part?.type !== 'process' && part?.markup">
                 <v-col cols="6">
                   <v-list-item>
                     <v-list-item-title>Markup</v-list-item-title>

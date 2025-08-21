@@ -421,7 +421,7 @@ class SetPartController extends Controller
         $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor   = (100 - $loss) / 100;
         $quantity = isset($part->quantity) ? $part->quantity : 0;
-        $markup   = !empty($part->set->order->markup) ? $part->set->order->markup : 1;
+        $markup   = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
         
         // Cálculo dos pesos unitários:
         $unitNetWeight   = $widthInMeters * $lengthInMeters * $thicknessInMeters * $specificWeight * $factor;
@@ -495,7 +495,7 @@ class SetPartController extends Controller
         $loss     = isset($part->loss) ? round($part->loss, 2) : 0;
         $factor   = (100 - $loss) / 100;
         $quantity = isset($part->quantity) ? $part->quantity : 0;
-        $markup   = !empty($part->set->order->markup) ? $part->set->order->markup : 1;
+        $markup   = !empty($part->markup) ? $part->markup : (!empty($part->set->order->markup) ? $part->set->order->markup : 1);
         
         $unitNetWeight   = $partialWeight * $factor;
         $netWeight       = $unitNetWeight * $quantity;

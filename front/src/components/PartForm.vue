@@ -454,15 +454,14 @@
                 </v-row>
               </template>
 
-              <!-- Campo Complementar para component -->
-              <template v-if="localPart.type === 'component'">
+              <!-- Campo Markup para todos os tipos exceto process -->
+              <template v-if="localPart.type && localPart.type !== 'process'">
                 <v-row dense>
                   <v-col cols="12" md="4" small="6">
                     <v-text-field
                       label="Markup"
                       v-model="localPart.markup"
                       type="number"
-                      required
                       density="compact"
                       hide-details
                       @change="calculateProperties"
@@ -470,7 +469,6 @@
                         localPart.markup = roundValue(localPart.markup ?? 0, 3);
                         calculateProperties();
                       "
-                      suffix="%"
                     />
                   </v-col>
                 </v-row>
