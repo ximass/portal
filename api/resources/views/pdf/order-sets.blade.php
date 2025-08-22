@@ -230,7 +230,7 @@
                         <div class="company-info">
                 <div class="company-name">ENGFRIG MÁQUINAS E EQUIPAMENTOS LTDA</div>
                 <div class="company-details">
-                    E-mail: engfrig@engfrig.ind.br | site: www.engfrig.ind.br | CNPJ: 30.785.030/0001-82
+                    E-mail: engfrig@engfrig.ind.br | site: www.engfrig.ind.br | CNPJ: 30.783.030/0001-82
                 </div>
             </div>
             <div class="document-info">
@@ -352,7 +352,7 @@
     <div class="footer">
         <div class="footer-company">ENGFRIG MÁQUINAS E EQUIPAMENTOS LTDA</div>
         <div>Rua Bom Jesus da Serra, N°76-E, CEP 89.810-220 - Chapecó - Santa Catarina</div>
-        <div>Fone: (49) 3199-3189 - (49) 98880-6943 - CNPJ ENGFRIG:30.783.030/0001-82</div>
+        <div>Fone: (49) 3199-3189 - (49) 98880-6943 - CNPJ ENGFRIG: 30.783.030/0001-82</div>
     </div>
 </body>
 </html>
