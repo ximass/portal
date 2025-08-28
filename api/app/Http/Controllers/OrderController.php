@@ -20,7 +20,7 @@ class OrderController extends Controller
                 },
                 'customer'
             ]
-        )->get();
+        )->orderBy('id', 'desc')->get();
 
         return response()->json($orders);
     }

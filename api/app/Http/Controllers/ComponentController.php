@@ -9,7 +9,7 @@ class ComponentController extends Controller
 {
     public function index()
     {
-        return response()->json(Component::all());
+        return response()->json(Component::orderBy('name', 'asc')->get());
     }
 
     public function store(Request $request)
