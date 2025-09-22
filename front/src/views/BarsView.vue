@@ -10,7 +10,23 @@
       <v-btn color="primary" @click="openForm">Adicionar</v-btn>
     </v-row>
 
-    <v-data-table :items="bars" :headers="headers">
+    <v-text-field
+      v-model="search"
+      label="Buscar barras..."
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+      single-line
+      density="compact"
+      class="mb-4"
+    ></v-text-field>
+
+    <v-data-table 
+      :items="bars" 
+      :headers="headers"
+      :sort-by="[{ key: 'name', order: 'asc' }]"
+      :search="search"
+    >
       <template #item.actions="{ item }">
         <v-menu offset-y>
           <template #activator="{ props }">
@@ -73,6 +89,7 @@ export default defineComponent({
     const bars = ref<Bar[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
+    const search = ref('');
     const selectedBar = ref<Bar>({
       id: null,
       name: '',
@@ -155,6 +172,7 @@ export default defineComponent({
       headers,
       dialog,
       isEdit,
+      search,
       selectedBar,
       openForm,
       editBar,

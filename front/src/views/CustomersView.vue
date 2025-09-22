@@ -10,7 +10,23 @@
       <v-btn color="primary" @click="openForm">Novo</v-btn>
     </v-row>
 
-    <v-data-table :items="customers" :headers="headers">
+    <v-text-field
+      v-model="search"
+      label="Buscar clientes..."
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+      single-line
+      density="compact"
+      class="mb-4"
+    ></v-text-field>
+
+    <v-data-table 
+      :items="customers" 
+      :headers="headers"
+      :sort-by="[{ key: 'name', order: 'asc' }]"
+      :search="search"
+    >
       <template #item.state.name="{ item }">
         {{ item.state?.name || '-' }}
       </template>
@@ -66,6 +82,7 @@ export default defineComponent({
     const customers = ref<any[]>([]);
     const dialog = ref(false);
     const isEdit = ref(false);
+    const search = ref('');
     const formData = ref<any>({});
     const {
       isConfirmDialogOpen,
@@ -132,6 +149,7 @@ export default defineComponent({
       headers,
       dialog,
       isEdit,
+      search,
       formData,
       fetchCustomers,
       openForm,

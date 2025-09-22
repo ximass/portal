@@ -10,7 +10,24 @@
       <v-btn color="primary" @click="openForm">Adicionar</v-btn>
     </v-row>
 
-    <v-data-table :items="nomenclatures" :headers="headers" class="elevation-1">
+    <v-text-field
+      v-model="search"
+      label="Buscar NCM..."
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+      single-line
+      density="compact"
+      class="mb-4"
+    ></v-text-field>
+
+    <v-data-table 
+      :items="nomenclatures" 
+      :headers="headers" 
+      :sort-by="[{ key: 'code', order: 'asc' }]"
+      :search="search"
+      class="elevation-1"
+    >
       <template #item.ipi="{ item }"> {{ item.ipi }}% </template>
       <template #item.actions="{ item }">
         <v-menu offset-y>
@@ -72,6 +89,7 @@ export default defineComponent({
   setup() {
     const dialog = ref(false);
     const isEdit = ref(false);
+    const search = ref('');
     const { showToast } = useToast();
     const {
       isConfirmDialogOpen,
@@ -151,6 +169,7 @@ export default defineComponent({
       headers,
       dialog,
       isEdit,
+      search,
       selectedNomenclature,
       openForm,
       editNomenclature,

@@ -9,7 +9,24 @@
       <h2>Processos</h2>
       <v-btn color="primary" @click="openForm">Novo</v-btn>
     </v-row>
-    <v-data-table :items="processes" :headers="headers">
+
+    <v-text-field
+      v-model="search"
+      label="Buscar processos..."
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+      single-line
+      density="compact"
+      class="mb-4"
+    ></v-text-field>
+
+    <v-data-table 
+      :items="processes" 
+      :headers="headers"
+      :sort-by="[{ key: 'title', order: 'asc' }]"
+      :search="search"
+    >
       <template #item.actions="{ item }">
         <v-menu offset-y>
           <template #activator="{ props }">
@@ -59,6 +76,7 @@ export default defineComponent({
   components: { ConfirmDialog },
   setup() {
     const processes = ref<Process[]>([]);
+    const search = ref('');
     const headers = [
       { title: 'Código', value: 'id' },
       { title: 'Nome', value: 'title' },
@@ -111,6 +129,7 @@ export default defineComponent({
     return {
       processes,
       headers,
+      search,
       openForm,
       editProcess,
       deleteProcess,

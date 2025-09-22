@@ -10,7 +10,23 @@
       <v-btn color="primary" @click="openForm">Adicionar</v-btn>
     </v-row>
 
-    <v-data-table :items="sheets" :headers="headers">
+    <v-text-field
+      v-model="search"
+      label="Buscar chapas..."
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+      single-line
+      density="compact"
+      class="mb-4"
+    ></v-text-field>
+
+    <v-data-table 
+      :items="sheets" 
+      :headers="headers"
+      :sort-by="[{ key: 'material.name', order: 'asc' }]"
+      :search="search"
+    >
       <template #item.actions="{ item }">
         <v-menu offset-y>
           <template #activator="{ props }">
@@ -69,6 +85,7 @@ export default defineComponent({
   setup() {
     const dialog = ref(false);
     const isEdit = ref(false);
+    const search = ref('');
     const { showToast } = useToast();
     const {
       isConfirmDialogOpen,
@@ -147,6 +164,7 @@ export default defineComponent({
       headers,
       dialog,
       isEdit,
+      search,
       selectedSheet,
       openForm,
       editSheet,
