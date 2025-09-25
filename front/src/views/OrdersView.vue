@@ -63,6 +63,9 @@
       :headers="headers"
       class="elevation-1"
     >
+      <template #item.customer_document="{ item }">
+        {{ formatCustomerDocument(item.customer) }}
+      </template>
       <template #item.delivery_value="{ item }">
         {{
           item.delivery_value
@@ -115,7 +118,7 @@ import { useRouter } from 'vue-router';
 import { useMisc } from '../composables/misc';
 import { useConfirm } from '../composables/useConfirm';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
-import type { Order, OrderFilters } from '../types/types';
+import type { Order, OrderFilters, Customer } from '../types/types';
 
 export default defineComponent({
   name: 'OrdersView',
@@ -185,6 +188,8 @@ export default defineComponent({
     const headers = [
       { title: 'Código', value: 'id', sortable: true },
       { title: 'Cliente', value: 'customer.name', sortable: true },
+      { title: 'CNPJ/CPF', value: 'customer_document', sortable: true },
+      { title: 'Estado', value: 'customer.state.name', sortable: true },
       { title: 'Valor do frete', value: 'delivery_value', sortable: true },
       { title: 'Data de entrega', value: 'delivery_date', sortable: true },
       { title: 'Ações', value: 'actions', sortable: false },
@@ -225,6 +230,13 @@ export default defineComponent({
 
     const applyFilters = () => {};
 
+    const formatCustomerDocument = (customer?: Customer) => {
+      if (!customer) return '-';
+      if (customer.cnpj) return customer.cnpj;
+      if (customer.cpf) return customer.cpf;
+      return '-';
+    };
+
     const clearFilters = () => {
       filters.value = {
         search: '',
@@ -246,6 +258,7 @@ export default defineComponent({
       editOrder,
       deleteOrder,
       formatDateBR,
+      formatCustomerDocument,
       isConfirmDialogOpen,
       confirmTitle,
       confirmMessage,

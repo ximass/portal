@@ -18,7 +18,7 @@ class OrderController extends Controller
                 'sets' => function($query) {
                     $query->orderBy('id', 'asc');
                 },
-                'customer'
+                'customer.state'
             ]
         )->orderBy('id', 'desc')->get();
 
