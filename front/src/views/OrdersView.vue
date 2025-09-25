@@ -66,6 +66,9 @@
       <template #item.customer_document="{ item }">
         {{ formatCustomerDocument(item.customer) }}
       </template>
+      <template #item.customer_state="{ item }">
+        {{ formatCustomerState(item.customer) }}
+      </template>
       <template #item.customer.address="{ item }">
         {{ formatAddress(item.customer?.address) }}
       </template>
@@ -192,6 +195,7 @@ export default defineComponent({
       { title: 'Código', value: 'id', sortable: true },
       { title: 'Cliente', value: 'customer.name', sortable: true },
       { title: 'CNPJ/CPF', value: 'customer_document', sortable: true },
+      { title: 'Estado', value: 'customer_state', sortable: true },
       { title: 'Endereço', value: 'customer.address', sortable: true },
       { title: 'Valor do frete', value: 'delivery_value', sortable: true },
       { title: 'Data de entrega', value: 'delivery_date', sortable: true },
@@ -242,7 +246,12 @@ export default defineComponent({
 
     const formatAddress = (address?: string | null) => {
       if (!address) return '-';
-      return address.length > 50 ? address.substring(0, 50) + '...' : address;
+      return address.length > 75 ? address.substring(0, 75) + '...' : address;
+    };
+
+    const formatCustomerState = (customer?: Customer) => {
+      if (!customer || !customer.state) return '-';
+      return customer.state.abbreviation || customer.state.name || '-';
     };
 
     const clearFilters = () => {
@@ -268,6 +277,7 @@ export default defineComponent({
       formatDateBR,
       formatCustomerDocument,
       formatAddress,
+      formatCustomerState,
       isConfirmDialogOpen,
       confirmTitle,
       confirmMessage,
