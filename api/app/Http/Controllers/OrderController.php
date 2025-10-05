@@ -8,6 +8,7 @@ use App\Models\Set;
 use App\Models\SetPart;
 use App\Http\Controllers\SetPartController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -48,9 +49,12 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        return response()->json($order->load(['sets' => function($query) {
-            $query->orderBy('id', 'asc');
-        }]));
+        return response()->json($order->load([
+            'sets' => function($query) {
+                $query->orderBy('id', 'asc');
+            },
+            'customer.state'
+        ]));
     }
 
     public function update(Request $request, Order $order)
@@ -66,8 +70,20 @@ class OrderController extends Controller
             'discount'      => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
-            'payment_obs'   => 'nullable|string'
+            'payment_obs'   => 'nullable|string',
+            'os_file'        => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:10240',
         ]);
+
+        if ($request->hasFile('os_file')) {
+            if ($order->os_file && Storage::disk('public')->exists($order->os_file)) {
+                Storage::disk('public')->delete($order->os_file);
+            }
+
+            $osFile = $request->file('os_file');
+            $osFileName = 'os_' . $order->id . '_' . time() . '.' . $osFile->getClientOriginalExtension();
+            $osFilePath = $osFile->storeAs('os_files', $osFileName, 'public');
+            $validated['os_file'] = $osFilePath;
+        }
 
         $order->update($validated);
 
@@ -76,6 +92,10 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
+        if ($order->os_file && Storage::disk('public')->exists($order->os_file)) {
+            Storage::disk('public')->delete($order->os_file);
+        }
+
         $order->delete();
 
         return response()->json(['message' => 'Order deleted successfully']);
@@ -185,5 +205,37 @@ class OrderController extends Controller
         });
 
         return response()->json($newOrder->load(['sets.setParts', 'customer.state']), 201);
+    }
+
+    public function downloadOsFile(Order $order)
+    {
+        if (!$order->os_file) {
+            return response()->json(['message' => 'No OS file found for this order'], 404);
+        }
+
+        if (!Storage::disk('public')->exists($order->os_file)) {
+            return response()->json(['message' => 'OS file not found in storage'], 404);
+        }
+
+        $filePath = Storage::disk('public')->path($order->os_file);
+        $fileName = basename($order->os_file);
+
+        return response()->download($filePath, $fileName);
+    }
+
+    public function removeOsFile(Order $order)
+    {
+        if (!$order->os_file) {
+            return response()->json(['message' => 'No OS file found for this order'], 404);
+        }
+
+        if (Storage::disk('public')->exists($order->os_file)) {
+            Storage::disk('public')->delete($order->os_file);
+        }
+
+        $order->os_file = null;
+        $order->save();
+
+        return response()->json(['message' => 'OS file removed successfully']);
     }
 }

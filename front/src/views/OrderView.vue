@@ -165,6 +165,109 @@
                 />
               </v-col>
             </v-row>
+            <!-- Seção de Ordem de serviço -->
+            <v-row class="mt-4">
+              <v-col cols="12">
+                <v-card variant="outlined" class="os-card">
+                  <v-card-title class="text-subtitle-2 py-3 d-flex align-center">
+                    <v-icon class="me-2" size="small">mdi-file-document</v-icon>
+                    Ordem de serviço
+                  </v-card-title>
+                  <v-divider></v-divider>
+                  <v-card-text class="pa-4">
+                    <div v-if="!currentOsFile && !osFileInput" class="os-empty-state">
+                      <v-row align="center">
+                        <v-col cols="12" sm="auto" class="text-center text-sm-left">
+                          <div class="d-flex align-center justify-center justify-sm-start">
+                            <v-icon size="40" color="grey-lighten-1" class="me-3">mdi-file-upload-outline</v-icon>
+                            <p class="text-body-2 text-medium-emphasis mb-0">
+                              Nenhuma ordem de serviço anexada
+                            </p>
+                          </div>
+                        </v-col>
+                        <v-col cols="12" sm>
+                          <v-file-input
+                            v-model="osFileInput"
+                            variant="outlined"
+                            density="comfortable"
+                            prepend-icon="mdi-paperclip"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                            hint="Formatos aceitos: PDF, DOC, DOCX, JPG, PNG (máx. 10MB)"
+                            persistent-hint
+                            show-size
+                            :disabled="isNew"
+                            @update:model-value="handleOsFileChange"
+                            hide-details="auto"
+                          >
+                            <template v-slot:label>
+                              <span>{{ isNew ? 'Salve o pedido para anexar a OS' : 'Selecionar arquivo' }}</span>
+                            </template>
+                          </v-file-input>
+                        </v-col>
+                      </v-row>
+                    </div>
+
+                    <div v-else-if="currentOsFile" class="os-file-attached">
+                      <v-row align="center">
+                        <v-col cols="12" sm="auto">
+                          <v-avatar size="48" color="success" class="os-file-icon">
+                            <v-icon size="28">mdi-file-check</v-icon>
+                          </v-avatar>
+                        </v-col>
+                        <v-col cols="12" sm>
+                          <div class="os-file-info">
+                            <p class="text-body-1 font-weight-medium mb-1">
+                              {{ getOsFileName(currentOsFile) }}
+                            </p>
+                            <p class="text-caption text-medium-emphasis">
+                              Arquivo anexado com sucesso
+                            </p>
+                          </div>
+                        </v-col>
+                        <v-col cols="12" sm="auto">
+                          <div class="d-flex gap-2 flex-wrap">
+                            <v-btn
+                              variant="tonal"
+                              color="primary"
+                              prepend-icon="mdi-download"
+                              @click="downloadOsFile"
+                            >
+                              Baixar
+                            </v-btn>
+                            <v-btn
+                              variant="tonal"
+                              color="error"
+                              prepend-icon="mdi-delete"
+                              @click="confirmRemoveOsFile"
+                            >
+                              Remover
+                            </v-btn>
+                          </div>
+                        </v-col>
+                      </v-row>
+                      
+                      <v-divider class="my-4"></v-divider>
+                      <v-file-input
+                        v-model="osFileInput"
+                        variant="outlined"
+                        density="compact"
+                        prepend-icon="mdi-refresh"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                        hint="Selecione um novo arquivo para substituir o atual"
+                        persistent-hint
+                        show-size
+                        @update:model-value="handleOsFileChange"
+                        hide-details="auto"
+                      >
+                        <template v-slot:label>
+                          <span class="text-body-2">Substituir arquivo</span>
+                        </template>
+                      </v-file-input>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
           </div>
         </v-form>
       </v-card-text>
@@ -516,6 +619,10 @@ export default defineComponent({
       },
     ]);
 
+    // OS File handling
+    const osFileInput = ref<File | null>(null);
+    const currentOsFile = ref<string | null>(null);
+
     const customersWithDocument = computed(() => {
       return customers.value.map(customer => ({
         ...customer,
@@ -594,6 +701,7 @@ export default defineComponent({
           form.value.delivery_date = data.delivery_date;
           form.value.estimated_delivery_date = data.estimated_delivery_date;
           form.value.payment_obs = data.payment_obs;
+          currentOsFile.value = data.os_file || null;
 
           if (data.sets && data.sets.length) {
             sets.value = data.sets.map((s: any) => ({
@@ -615,24 +723,35 @@ export default defineComponent({
 
     const saveOrder = async () => {
       try {
-        const payload = {
-          type: form.value.type,
-          customer_id: form.value.customer_id,
-          delivery_type: form.value.delivery_type,
-          delivery_value: form.value.delivery_value,
-          discount: form.value.discount,
-          markup: form.value.markup,
-          delivery_date: form.value.delivery_date,
-          estimated_delivery_date: form.value.estimated_delivery_date,
-          payment_obs: form.value.payment_obs,
-        };
+        const formData = new FormData();
+        formData.append('type', form.value.type);
+        if (form.value.customer_id) formData.append('customer_id', form.value.customer_id.toString());
+        if (form.value.delivery_type) formData.append('delivery_type', form.value.delivery_type);
+        if (form.value.delivery_value) formData.append('delivery_value', form.value.delivery_value);
+        if (form.value.discount) formData.append('discount', form.value.discount);
+        if (form.value.markup) formData.append('markup', form.value.markup);
+        if (form.value.delivery_date) formData.append('delivery_date', form.value.delivery_date);
+        if (form.value.estimated_delivery_date) formData.append('estimated_delivery_date', form.value.estimated_delivery_date);
+        if (form.value.payment_obs) formData.append('payment_obs', form.value.payment_obs);
+        
+        // Add OS file if selected
+        if (osFileInput.value) {
+          formData.append('os_file', osFileInput.value);
+        }
 
         if (isNew.value) {
-          const { data } = await axios.post('/api/orders', payload);
+          const { data } = await axios.post('/api/orders', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
           isNew.value = false;
           router.push({ name: 'OrderView', params: { id: data.id } });
         } else {
-          await axios.put(`/api/orders/${route.params.id}`, payload);
+          await axios.post(`/api/orders/${route.params.id}`, formData, {
+            headers: { 
+              'Content-Type': 'multipart/form-data',
+              'X-HTTP-Method-Override': 'PUT'
+            }
+          });
         }
         showToast('Pedido salvo com sucesso.', 'success');
       } catch (error) {
@@ -889,6 +1008,96 @@ export default defineComponent({
       }
     };
 
+    // OS File methods
+    const handleOsFileChange = async () => {
+      if (!osFileInput.value) return;
+      
+      // Auto-save OS file if order already exists
+      if (!isNew.value && route.params.id) {
+        try {
+          const formData = new FormData();
+          formData.append('os_file', osFileInput.value);
+          
+          await axios.post(`/api/orders/${route.params.id}`, formData, {
+            headers: { 
+              'Content-Type': 'multipart/form-data',
+              'X-HTTP-Method-Override': 'PUT'
+            }
+          });
+          
+          // Update current file reference
+          const { data } = await axios.get(`/api/orders/${route.params.id}`);
+          currentOsFile.value = data.os_file || null;
+          
+          // Clear the file input after successful upload
+          osFileInput.value = null;
+          
+          showToast('Arquivo da OS salvo com sucesso!', 'success');
+        } catch (error) {
+          console.error('Erro ao salvar arquivo da OS:', error);
+          showToast('Erro ao salvar arquivo da OS', 'error');
+          // Clear file input on error as well
+          osFileInput.value = null;
+        }
+      } else {
+        showToast('Salve o pedido antes de fazer upload da OS', 'warning');
+        osFileInput.value = null;
+      }
+    };
+
+    const confirmRemoveOsFile = () => {
+      if (confirm('Tem certeza que deseja remover o arquivo da OS?')) {
+        removeOsFile();
+      }
+    };
+
+    const removeOsFile = async () => {
+      if (!isNew.value && route.params.id && currentOsFile.value) {
+        try {
+          await axios.delete(`/api/orders/${route.params.id}/remove-os`);
+          
+          currentOsFile.value = null;
+          osFileInput.value = null;
+
+          showToast('Arquivo da OS removido com sucesso!', 'success');
+        } catch (error) {
+          console.error('Erro ao remover arquivo da OS:', error);
+          showToast('Erro ao remover arquivo da OS', 'error');
+        }
+      }
+    };
+
+    const getOsFileName = (filePath: string) => {
+      if (!filePath) return '';
+      const parts = filePath.split('/');
+      return parts[parts.length - 1].replace(/^\d+_/, '');
+    };
+
+    const downloadOsFile = async () => {
+      if (!route.params.id || route.params.id === 'new') return;
+      
+      try {
+        const response = await axios.get(`/api/orders/${route.params.id}/download-os`, {
+          responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data]);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = currentOsFile.value ? getOsFileName(currentOsFile.value) : 'ordem_servico';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        showToast('Arquivo baixado com sucesso!', 'success');
+      } catch (error) {
+        console.error('Erro ao baixar arquivo:', error);
+        showToast('Erro ao baixar arquivo da OS', 'error');
+      }
+    };
+
     return {
       isNew,
       form,
@@ -930,6 +1139,14 @@ export default defineComponent({
       loadingDocument,
       availableDocuments,
       generateDocument,
+      // OS File
+      osFileInput,
+      currentOsFile,
+      handleOsFileChange,
+      removeOsFile,
+      confirmRemoveOsFile,
+      getOsFileName,
+      downloadOsFile,
     };
   },
 });
@@ -1115,4 +1332,44 @@ h3.text-subtitle-1 {
 .gap-2 {
   gap: 8px;
 }
+
+/* Estilos para a seção de OS */
+.os-card {
+  border: 2px solid rgb(var(--v-border-color));
+  transition: border-color 0.3s ease;
+}
+
+.os-empty-state {
+  padding: 8px 0;
+}
+
+.os-file-attached {
+  padding: 8px 0;
+}
+
+.os-file-icon {
+  flex-shrink: 0;
+}
+
+.os-file-info {
+  min-width: 0;
+}
+
+.os-file-info p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsividade dos botões da OS */
+@media (max-width: 600px) {
+  .os-file-attached .d-flex.gap-2 {
+    width: 100%;
+  }
+  
+  .os-file-attached .d-flex.gap-2 .v-btn {
+    flex: 1;
+  }
+}
+
 </style>

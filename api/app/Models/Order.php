@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Order extends Model
 {
@@ -22,6 +23,7 @@ class Order extends Model
         'delivery_date',
         'estimated_delivery_date',
         'payment_obs',
+        'os_file',
     ];
 
     protected $casts = [

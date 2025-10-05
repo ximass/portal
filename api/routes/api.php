@@ -56,6 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
     Route::get('/orders/{id}/pdf-sets', [PdfController::class, 'generateOrderSetsPdf']);
 
+    #OS FILE#
+    Route::get('/orders/{order}/download-os', [OrderController::class, 'downloadOsFile']);
+    Route::delete('/orders/{order}/remove-os', [OrderController::class, 'removeOsFile']);
+
     #RESOURCES#
     Route::apiResource('/groups', GroupController::class);
     Route::apiResource('/users', UserController::class);
