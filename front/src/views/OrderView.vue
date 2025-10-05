@@ -1,101 +1,195 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-card class="mb-4">
-      <v-card-text>
+      <v-card-text class="pa-6">
         <v-form ref="formRef">
-          <v-row>
-            <v-col cols="12" md="3" sm="12">
-              <v-select
-                label="Tipo"
-                v-model="form.type"
-                :items="orderTypeOptions"
-                item-value="value"
-                item-text="title"
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-select
-                label="Cliente"
-                v-model="form.customer_id"
-                :items="customersWithDocument"
-                item-value="id"
-                item-title="displayName"
-                clearable
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-text-field
-                label="Markup"
-                placeholder="Digite o markup"
-                v-model="form.markup"
-                type="number"
-                step="0.001"
-                @change="onMarkupChange"
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-select
-                label="Tipo de entrega"
-                v-model="form.delivery_type"
-                :items="deliveryTypeOptions"
-                item-value="value"
-                item-text="title"
-                clearable
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-text-field
-                label="Valor do frete"
-                placeholder="Digite o valor do frete"
-                v-model="form.delivery_value"
-                type="number"
-                step="1"
-                prefix="R$"
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-text-field
-                label="Desconto"
-                placeholder="Digite o desconto"
-                v-model="form.discount"
-                type="number"
-                step="1"
-                prefix="R$"
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-text-field
-                label="Data estimada de entrega"
-                v-model="form.estimated_delivery_date"
-                type="text"
-              />
-            </v-col>
-            <v-col cols="12" md="3" sm="12">
-              <v-text-field
-                label="Data de entrega"
-                v-model="form.delivery_date"
-                type="datetime-local"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-textarea
-                label="Observação de pagamento"
-                placeholder="Digite a observação de pagamento"
-                v-model="form.payment_obs"
-                rows="3"
-              />
-            </v-col>
-          </v-row>
+          <!-- Seção: Informações Gerais -->
+          <div class="mb-6">
+            <h3 class="text-subtitle-1 mb-3 font-weight-bold">
+              <v-icon class="me-2" size="small">mdi-information</v-icon>
+              Informações gerais
+            </h3>
+            <v-row>
+              <v-col cols="12" md="4" sm="6">
+                <v-select
+                  label="Tipo"
+                  v-model="form.type"
+                  :items="orderTypeOptions"
+                  item-value="value"
+                  item-title="title"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-format-list-bulleted-type"
+                  :rules="[v => !!v || 'Tipo é obrigatório']"
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-select
+                  label="Cliente"
+                  v-model="form.customer_id"
+                  :items="customersWithDocument"
+                  item-value="id"
+                  item-title="displayName"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-account"
+                  clearable
+                  hide-details="auto"
+                  persistent-hint
+                />
+              </v-col>
+            </v-row>
+          </div>
+
+          <!-- Seção: Valores e Custos -->
+          <div class="mb-6">
+            <h3 class="text-subtitle-1 mb-3 font-weight-bold">
+              <v-icon class="me-2" size="small">mdi-currency-usd</v-icon>
+              Valores e custos
+            </h3>
+            <v-row>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Markup"
+                  v-model="form.markup"
+                  type="number"
+                  step="0.001"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-percent"
+                  suffix="%"
+                  hide-details="auto"
+                  persistent-hint
+                  @change="onMarkupChange"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Valor do frete"
+                  v-model="form.delivery_value"
+                  type="number"
+                  step="0.01"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-truck-delivery"
+                  prefix="R$"
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Valor de serviço"
+                  v-model="form.service_value"
+                  type="number"
+                  step="0.01"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-currency-usd"
+                  prefix="R$"
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Desconto"
+                  v-model="form.discount"
+                  type="number"
+                  step="0.01"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-currency-usd"
+                  prefix="R$"
+                  hide-details="auto"
+                />
+              </v-col>
+            </v-row>
+          </div>
+
+          <!-- Seção: Informações adicionais -->
+          <div class="mb-6">
+            <h3 class="text-subtitle-1 mb-3 font-weight-bold">
+              <v-icon class="me-2" size="small">mdi-truck</v-icon>
+              Informações adicionais
+            </h3>
+            <v-row>
+              <v-col cols="12" md="4" sm="6">
+                <v-select
+                  label="Tipo de entrega"
+                  v-model="form.delivery_type"
+                  :items="deliveryTypeOptions"
+                  item-value="value"
+                  item-title="title"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-package-variant"
+                  clearable
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Data estimada de entrega"
+                  v-model="form.estimated_delivery_date"
+                  type="date"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-calendar-clock"
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Data de entrega"
+                  v-model="form.delivery_date"
+                  type="datetime-local"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-calendar-check"
+                  hide-details="auto"
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-textarea
+                  label="Observação de pagamento"
+                  placeholder="Digite informações adicionais sobre o pagamento..."
+                  v-model="form.payment_obs"
+                  variant="outlined"
+                  density="comfortable"
+                  rows="3"
+                  auto-grow
+                  prepend-inner-icon="mdi-text"
+                  hide-details="auto"
+                />
+              </v-col>
+            </v-row>
+          </div>
         </v-form>
       </v-card-text>
     </v-card>
 
-    <!-- Botão para criar novos sets -->
-    <v-row class="justify-end pa-4 mb-2">
-      <v-btn color="secondary" @click="createSet">Adicionar Conjunto</v-btn>
-    </v-row>
+    <!-- Seção de Conjuntos -->
+    <div>
+      <v-row class="align-center mb-2">
+        <v-col>
+          <h2 class="text-h6">
+            <v-icon class="me-2" size="small">mdi-package-variant-closed</v-icon>
+            Conjuntos
+          </h2>
+        </v-col>
+        <v-col class="text-right">
+          <v-btn 
+            color="primary" 
+            @click="createSet"
+            prepend-icon="mdi-plus"
+          >
+            Adicionar Conjunto
+          </v-btn>
+        </v-col>
+      </v-row>
+    </div>
 
     <!-- Listagem de conjuntos -->
     <v-card v-for="(setItem, setIndex) in sets" :key="setItem.id" class="mb-4">
@@ -106,29 +200,40 @@
         height="4"
       />
       <v-card-title>
-        <v-row class="d-flex flex-row">
-          <v-col cols="4">
-            <span class="text-h6">{{ setItem.name }}</span>
+        <v-row class="d-flex flex-row align-center">
+          <v-col cols="auto">
+            <v-icon size="large">mdi-package-variant</v-icon>
           </v-col>
-          <v-col cols="8" class="d-flex justify-end align-center">
+          <v-col>
+            <span class="text-h6">{{ setItem.name }}</span>
+            <div v-if="setItem.setParts.length" class="text-caption text-medium-emphasis">
+              {{ setItem.setParts.length }} {{ setItem.setParts.length === 1 ? 'peça' : 'peças' }}
+            </div>
+          </v-col>
+          <v-col cols="auto" class="d-flex justify-end align-center">
             <v-menu offset-y>
               <template #activator="{ props }">
                 <v-btn
-                  variant="plain"
+                  variant="text"
                   :ripple="false"
                   v-bind="props"
                   class="menu-actions"
                   size="large"
                   title="Ações do conjunto"
+                  icon
                 >
                   <v-icon>mdi-dots-vertical</v-icon>
                 </v-btn>
               </template>
-              <v-list>
-                <v-list-item @click.stop="editSet(setIndex)">
+              <v-list density="compact">
+                <v-list-item @click.stop="editSet(setIndex)" prepend-icon="mdi-pencil">
                   <v-list-item-title>Editar</v-list-item-title>
                 </v-list-item>
-                <v-list-item @click.stop="deleteSet(setIndex)">
+                <v-list-item 
+                  @click.stop="deleteSet(setIndex)" 
+                  prepend-icon="mdi-delete"
+                  class="text-error"
+                >
                   <v-list-item-title>Excluir</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -160,10 +265,11 @@
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    class="add-part-icon"
                   >
                     <path
                       d="M12 2V22M2 12H22"
-                      stroke="#666"
+                      stroke="currentColor"
                       stroke-width="2"
                       stroke-linecap="round"
                     />
@@ -191,10 +297,9 @@
                         width: 150px;
                         height: 150px;
                         display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background-color: #f0f0f0;
+                        /* Lines 305-307 omitted */
                       "
+                      class="image-error-placeholder"
                     >
                       <v-icon large color="grey lighten-1">mdi-file</v-icon>
                     </div>
@@ -206,22 +311,25 @@
                   <v-menu offset-y>
                     <template #activator="{ props }">
                       <v-btn
-                        variant="plain"
+                        variant="text"
                         :ripple="false"
                         v-bind="props"
                         class="menu-actions"
                         title="Ações da peça"
+                        icon
+                        size="small"
                       >
                         <v-icon color="white">mdi-dots-vertical</v-icon>
                       </v-btn>
                     </template>
-                    <v-list>
-                      <v-list-item @click.stop="openPartModal(part)">
+                    <v-list density="compact">
+                      <v-list-item @click.stop="openPartModal(part)" prepend-icon="mdi-eye">
                         <v-list-item-title>Visualizar</v-list-item-title>
                       </v-list-item>
-                      <v-list-item @click.stop="printPart(part)">
+                      <v-list-item @click.stop="printPart(part)" prepend-icon="mdi-printer">
                         <v-list-item-title>Imprimir</v-list-item-title>
                       </v-list-item>
+                      <v-divider></v-divider>
                       <v-list-item
                         @click.stop="
                           deletePart(
@@ -229,6 +337,8 @@
                             setItem.setParts.length - 1 - partIndex
                           )
                         "
+                        prepend-icon="mdi-delete"
+                        class="text-error"
                       >
                         <v-list-item-title>Excluir</v-list-item-title>
                       </v-list-item>
@@ -270,7 +380,8 @@
       @saved="updateSetInList"
     />
 
-    <v-row class="justify-end pa-4">
+    <!-- Rodapé com ações -->
+    <div class="mt-4 d-flex justify-end align-center flex-wrap gap-2">
       <v-menu
         v-if="!isNew"
         v-model="showDocumentsMenu"
@@ -280,16 +391,14 @@
         <template v-slot:activator="{ props }">
           <v-btn
             color="success"
-            class="me-2"
             v-bind="props"
             :disabled="loadingDocument"
+            prepend-icon="mdi-file-document"
           >
-            <v-icon class="me-2">mdi-file-document</v-icon>
             Documentos
           </v-btn>
         </template>
-        <v-card min-width="200">
-          <v-card-title class="text-subtitle-1">Documentos</v-card-title>
+        <v-card min-width="250">
           <v-divider></v-divider>
           <v-list density="compact">
             <v-list-item
@@ -309,14 +418,19 @@
       <v-btn
         v-if="!isNew"
         color="secondary"
-        class="me-2"
         @click="printAllParts"
+        prepend-icon="mdi-printer"
       >
-        <v-icon class="me-2">mdi-printer</v-icon>
-        Peças
+        Imprimir peças
       </v-btn>
-      <v-btn color="primary" @click="saveOrder">Salvar</v-btn>
-    </v-row>
+      <v-btn 
+        color="primary" 
+        @click="saveOrder"
+        prepend-icon="mdi-content-save"
+      >
+        Salvar
+      </v-btn>
+    </div>
   </v-container>
 </template>
 
@@ -352,6 +466,7 @@ export default defineComponent({
       customer_id: '',
       delivery_type: '',
       delivery_value: '',
+      service_value: '',
       discount: '',
       markup: '',
       delivery_date: '',
@@ -821,68 +936,108 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* Cards e layout */
 .v-card {
-  margin-bottom: 16px;
+  transition: all 0.3s ease;
 }
+
+/* Preview de imagens das peças */
 .image-preview {
   position: relative;
   width: 150px;
   height: 150px;
-  border: 2px solid #f0f0f0;
-  border-radius: 4px;
+  border: 2px solid rgb(var(--v-border-color));
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background-color: rgb(var(--v-theme-surface));
 }
+
+.image-preview:hover {
+  transform: translateY(-2px);
+  border-color: rgb(var(--v-theme-primary));
+}
+
+/* Contador de peças */
 .counter {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #1976d2;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 12px;
+  top: 8px;
+  right: 8px;
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+  padding: 4px 8px;
+  border-radius: 16px;
   font-size: 12px;
+  font-weight: 600;
   z-index: 2;
+  box-shadow: 0 2px 4px rgba(var(--v-theme-on-surface), 0.2);
 }
+
+/* Overlay das peças */
 .overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2px 4px;
-  min-height: 40px;
+  padding: 8px;
+  min-height: 44px;
+  transition: all 0.3s ease;
 }
+
+.image-preview:hover .overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 100%);
+}
+
 .overlay-text {
-  font-size: 12px;
+  font-size: 13px;
   color: white;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
+  flex: 1;
+  margin-right: 8px;
 }
+
+/* Menu de ações */
 .menu-actions {
   cursor: pointer;
 }
 
+/* Container de peças */
 .setParts-container {
-  max-height: calc(150px * 3 + 16px);
+  max-height: calc(150px * 3 + 32px);
   overflow-y: auto;
-  padding: 8px;
+  padding: 12px;
+  border-radius: 8px;
 }
 
 .setParts-container::-webkit-scrollbar {
-  width: 8px;
-}
-.setParts-container::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 4px;
+  width: 10px;
 }
 
+.setParts-container::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+.setParts-container::-webkit-scrollbar-thumb {
+  background: rgb(var(--v-theme-primary));
+  border-radius: 10px;
+}
+
+.setParts-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.8);
+}
+
+/* Botão de adicionar peça */
 .add-part-button {
   cursor: pointer;
-  border: 2px dashed #ccc !important;
-  background-color: #fafafa;
+  border: 2px dashed rgb(var(--v-border-color)) !important;
+  background: rgb(var(--v-theme-surface));
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -890,8 +1045,22 @@ export default defineComponent({
 }
 
 .add-part-button:hover {
-  border-color: #1976d2;
-  background-color: #f5f5f5;
+  border-color: rgb(var(--v-theme-primary)) !important;
+  background: rgba(var(--v-theme-primary), 0.08);
+  transform: translateY(-2px);
+}
+
+.add-part-icon {
+  color: rgb(var(--v-theme-secondary));
+  transition: color 0.3s ease;
+}
+
+.add-part-button:hover .add-part-icon {
+  color: rgb(var(--v-theme-primary));
+}
+
+.add-part-button:hover .add-part-text {
+  color: rgb(var(--v-theme-primary));
 }
 
 .add-part-content {
@@ -900,12 +1069,50 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 16px;
 }
 
 .add-part-text {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: rgb(var(--v-theme-secondary));
   text-align: center;
-  font-weight: 500;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+/* Placeholder de erro de imagem */
+.image-error-placeholder {
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(var(--v-theme-surface));
+}
+
+/* Seções do formulário */
+h3.text-subtitle-1 {
+  border-left: 4px solid;
+  padding-left: 12px;
+}
+
+/* Melhorias de responsividade */
+@media (max-width: 960px) {
+  .setParts-container {
+    max-height: calc(150px * 2 + 32px);
+  }
+}
+
+@media (max-width: 600px) {
+  .image-preview {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .setParts-container {
+    max-height: calc(120px * 2 + 32px);
+  }
+}
+
+/* Espaçamento entre gaps */
+.gap-2 {
+  gap: 8px;
 }
 </style>

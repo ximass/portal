@@ -12,6 +12,7 @@ export interface OrderForm {
   customer_id: string;
   delivery_type: string;
   delivery_value: string;
+  service_value: string;
   discount: string;
   markup: string;
   delivery_date: string;
@@ -26,6 +27,7 @@ export interface Order {
   final_value: number | null;
   delivery_type: string | null;
   delivery_value: number | null;
+  service_value: number | null;
   discount: number | null;
   markup: number | null;
   delivery_date: string | null;

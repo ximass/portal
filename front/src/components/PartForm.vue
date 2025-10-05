@@ -1267,7 +1267,7 @@ export default defineComponent({
 .secondary-preview {
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #eee;
+  border: 1px solid rgb(var(--v-border-color));
   display: inline-block;
 }
 
@@ -1284,12 +1284,12 @@ export default defineComponent({
 .close-btn svg {
   width: 24px;
   height: 24px;
-  color: #555;
+  color: rgb(var(--v-theme-secondary));
   transition: color 0.2s;
 }
 
 .close-btn:hover svg {
-  color: white;
+  color: rgb(var(--v-theme-on-surface));
 }
 
 .no-image-placeholder {

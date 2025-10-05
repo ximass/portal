@@ -325,6 +325,12 @@
             <td class="totals-value">R$ {{ number_format($order->delivery_value, 2, ',', '.') }}</td>
         </tr>
         @endif
+        @if($order->service_value && $order->service_value > 0)
+        <tr>
+            <td class="totals-label">Serviço (R$):</td>
+            <td class="totals-value">R$ {{ number_format($order->service_value, 2, ',', '.') }}</td>
+        </tr>
+        @endif
         @if($order->discount && $order->discount > 0)
         <tr>
             <td class="totals-label">Desconto (R$):</td>
