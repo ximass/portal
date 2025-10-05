@@ -1003,8 +1003,9 @@ export default defineComponent({
           ...localPart.value,
           locked_values: lockedValues.value,
         });
-      } catch (error) {
-        showToast('Erro ao salvar a peça: ' + error, 'error');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao salvar a peça';
+        showToast(message, 'error');
       }
     };
 

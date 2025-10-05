@@ -102,7 +102,10 @@
                 Duplicar
               </template>
             </v-list-item>
-            <v-list-item @click="deleteOrder(item.id)">
+            <v-list-item 
+              v-if="canDeleteOrder()"
+              @click="deleteOrder(item.id)"
+            >
               <v-list-item-title>
                 <v-icon>mdi-delete</v-icon>
                 Excluir
@@ -129,6 +132,7 @@ import { useToast } from '../composables/useToast';
 import { useRouter } from 'vue-router';
 import { useMisc } from '../composables/misc';
 import { useConfirm } from '../composables/useConfirm';
+import { useAuth } from '../composables/useAuth';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import type { Order, OrderFilters, Customer } from '../types/types';
 
@@ -142,6 +146,7 @@ export default defineComponent({
     const orders = ref<Array<Order>>([]);
     const { showToast } = useToast();
     const { formatDateBR } = useMisc();
+    const { canDeleteOrder, loadCurrentUser } = useAuth();
     const {
       isConfirmDialogOpen,
       confirmTitle,
@@ -288,6 +293,7 @@ export default defineComponent({
 
     onMounted(() => {
       fetchOrders();
+      loadCurrentUser();
     });
 
     return {
@@ -312,6 +318,7 @@ export default defineComponent({
       orderTypes,
       applyFilters,
       clearFilters,
+      canDeleteOrder,
     };
   },
 });

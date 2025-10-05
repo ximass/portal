@@ -29,10 +29,35 @@
             @update:search="fetchUsers"
           >
           </v-autocomplete>
+          <v-autocomplete
+            v-model="group.permission_ids"
+            :items="permissions"
+            item-title="title"
+            item-value="id"
+            label="Permissões"
+            multiple
+            chips
+            clearable
+            :loading="loadingPermissions"
+          >
+            <template #chip="{ item, props }">
+              <v-chip
+                v-bind="props"
+                :text="item.raw.title"
+              />
+            </template>
+            <template #item="{ item, props }">
+              <v-list-item
+                v-bind="props"
+                :title="item.raw.title"
+                :subtitle="item.raw.subtitle"
+              />
+            </template>
+          </v-autocomplete>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn @click="close">Cancelar</v-btn>
-            <v-btn color="primary" type="submit">Salvar</v-btn>
+            <v-btn variant="outlined" @click="close">Cancelar</v-btn>
+            <v-btn variant="flat" color="primary" type="submit">Salvar</v-btn>
           </v-card-actions>
         </v-form>
       </v-card-text>
@@ -45,6 +70,7 @@ import { defineComponent, ref, watch } from 'vue';
 import type { VForm } from 'vuetify/components';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
+import { usePermissions } from '../composables/usePermissions';
 import type { Group } from '../types/types';
 
 export default defineComponent({
@@ -62,14 +88,18 @@ export default defineComponent({
   emits: ['close', 'saved'],
   setup(props, { emit }) {
     const form = ref<VForm | null>(null);
-    const group = ref<{ name: string; user_ids: number[] }>({
+    const group = ref<{ name: string; user_ids: number[]; permission_ids: number[] }>({
       name: '',
       user_ids: [],
+      permission_ids: [],
     });
     const users = ref<Array<{ id: number; title: string }>>([]);
+    const permissions = ref<Array<{ id: number; title: string; subtitle: string }>>([]);
     const loadingUsers = ref(false);
+    const loadingPermissions = ref(false);
 
     const { showToast } = useToast();
+    const { translatePermission, getPermissionDescription } = usePermissions();
 
     watch(
       () => props.groupData,
@@ -78,11 +108,13 @@ export default defineComponent({
           group.value = {
             name: newData.name,
             user_ids: newData.users.map((user: { id: any }) => user.id),
+            permission_ids: newData.permissions?.map((permission: { id: any }) => permission.id) || [],
           };
         } else {
           group.value = {
             name: '',
             user_ids: [],
+            permission_ids: [],
           };
         }
       },
@@ -121,6 +153,35 @@ export default defineComponent({
       }
     };
 
+    const fetchPermissions = async () => {
+      loadingPermissions.value = true;
+      try {
+        const response = await axios.get('/api/permissions');
+
+        if (response.data) {
+          permissions.value = response.data.map((permission: any) => ({
+            id: permission.id,
+            title: translatePermission(permission.name),
+            subtitle: getPermissionDescription(permission.name),
+          }));
+        }
+      } catch (error) {
+        let errorMsg = 'Erro ao buscar permissões';
+
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'response' in error
+        ) {
+          errorMsg = (error as any).response?.data?.message || errorMsg;
+        }
+
+        showToast(errorMsg);
+      } finally {
+        loadingPermissions.value = false;
+      }
+    };
+
     const submitForm = async () => {
       const validation = await form.value?.validate();
 
@@ -129,6 +190,7 @@ export default defineComponent({
           const payload = {
             name: group.value.name,
             user_ids: group.value.user_ids,
+            permission_ids: group.value.permission_ids,
           };
 
           if (props.groupData) {
@@ -159,12 +221,18 @@ export default defineComponent({
       emit('close');
     };
 
+    // Carregar permissões ao montar o componente
+    fetchPermissions();
+
     return {
       form,
       group,
       users,
+      permissions,
       loadingUsers,
+      loadingPermissions,
       fetchUsers,
+      fetchPermissions,
       submitForm,
       close,
       isEdit: !!props.groupData,

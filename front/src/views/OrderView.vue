@@ -685,8 +685,9 @@ export default defineComponent({
       try {
         const { data } = await axios.get('/api/customers');
         customers.value = data;
-      } catch (error) {
-        showToast('Erro ao carregar clientes', 'error');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao carregar clientes';
+        showToast(message, 'error');
       }
 
       if (!isNew.value && route.params.id) {
@@ -715,8 +716,9 @@ export default defineComponent({
               set.setParts = data;
             }
           }
-        } catch (error) {
-          showToast('Erro ao carregar pedido: ' + error, 'error');
+        } catch (error: any) {
+          const message = error.response?.data?.message || error.message || 'Erro ao carregar pedido';
+          showToast(message, 'error');
         }
       }
     });
@@ -754,8 +756,10 @@ export default defineComponent({
           });
         }
         showToast('Pedido salvo com sucesso.', 'success');
-      } catch (error) {
-        showToast('Erro ao salvar pedido: ' + error, 'error');
+      } catch (error: any) {
+        console.error('Erro ao salvar pedido:', error);
+        const message = error.response?.data?.message || error.message || 'Erro ao salvar pedido';
+        showToast(message, 'error');
       }
     };
 
@@ -774,8 +778,9 @@ export default defineComponent({
           fileList: null,
           setParts: [] as Part[],
         });
-      } catch (error) {
-        showToast('Erro ao criar conjunto: ' + error, 'error');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao criar conjunto';
+        showToast(message, 'error');
       }
     };
 
@@ -787,8 +792,9 @@ export default defineComponent({
           sets.value.splice(setIndex, 1);
         }
         showToast('Conjunto excluído com sucesso.', 'success');
-      } catch (error) {
-        showToast('Erro ao excluir conjunto: ' + error, 'error');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao excluir conjunto';
+        showToast(message, 'error');
       }
     };
 
@@ -820,8 +826,9 @@ export default defineComponent({
             } else {
               currentSet.setParts.push(data);
             }
-          } catch (error) {
-            showToast('Erro ao fazer upload de arquivo: ' + error, 'error');
+          } catch (error: any) {
+            const message = error.response?.data?.message || error.message || 'Erro ao fazer upload de arquivo';
+            showToast(message, 'error');
           }
         }
       }
@@ -839,19 +846,20 @@ export default defineComponent({
       { deep: true }
     );
 
-    const deletePart = (setIndex: number, partIndex: number) => {
+    const deletePart = async (setIndex: number, partIndex: number) => {
       try {
         const part = sets.value[setIndex].setParts[partIndex];
 
         if (part.id) {
-          axios.delete(`/api/set-parts/${part.id}`);
+          await axios.delete(`/api/set-parts/${part.id}`);
 
           sets.value[setIndex].setParts.splice(partIndex, 1);
 
           showToast('Peça excluída com sucesso.', 'success');
         }
-      } catch (error) {
-        showToast('Erro ao excluir peça: ' + error, 'error');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao excluir peça';
+        showToast(message, 'error');
       }
     };
 
@@ -891,8 +899,9 @@ export default defineComponent({
         sets.value[setIndex].setParts.push(data);
 
         showToast('Nova peça adicionada com sucesso.', 'success');
-      } catch (error) {
-        showToast('Erro ao adicionar nova peça: ' + error, 'error');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao adicionar nova peça';
+        showToast(message, 'error');
       }
     };
 
@@ -954,8 +963,9 @@ export default defineComponent({
           }
 
           showToast('Valores das peças recalculados com sucesso.', 'success');
-        } catch (error) {
-          showToast('Erro ao recalcular valores das peças: ' + error, 'error');
+        } catch (error: any) {
+          const message = error.response?.data?.message || error.message || 'Erro ao recalcular valores das peças';
+          showToast(message, 'error');
         }
       }
     };
@@ -1000,9 +1010,10 @@ export default defineComponent({
         window.URL.revokeObjectURL(url);
 
         showToast('Documento gerado com sucesso!', 'success');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erro ao gerar documento:', error);
-        showToast('Erro ao gerar documento', 'error');
+        const message = error.response?.data?.message || error.message || 'Erro ao gerar documento';
+        showToast(message, 'error');
       } finally {
         loadingDocument.value = false;
       }
@@ -1033,9 +1044,10 @@ export default defineComponent({
           osFileInput.value = null;
           
           showToast('Arquivo da OS salvo com sucesso!', 'success');
-        } catch (error) {
+        } catch (error: any) {
           console.error('Erro ao salvar arquivo da OS:', error);
-          showToast('Erro ao salvar arquivo da OS', 'error');
+          const message = error.response?.data?.message || error.message || 'Erro ao salvar arquivo da OS';
+          showToast(message, 'error');
           // Clear file input on error as well
           osFileInput.value = null;
         }
@@ -1060,9 +1072,10 @@ export default defineComponent({
           osFileInput.value = null;
 
           showToast('Arquivo da OS removido com sucesso!', 'success');
-        } catch (error) {
+        } catch (error: any) {
           console.error('Erro ao remover arquivo da OS:', error);
-          showToast('Erro ao remover arquivo da OS', 'error');
+          const message = error.response?.data?.message || error.message || 'Erro ao remover arquivo da OS';
+          showToast(message, 'error');
         }
       }
     };
@@ -1092,9 +1105,10 @@ export default defineComponent({
         window.URL.revokeObjectURL(url);
 
         showToast('Arquivo baixado com sucesso!', 'success');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erro ao baixar arquivo:', error);
-        showToast('Erro ao baixar arquivo da OS', 'error');
+        const message = error.response?.data?.message || error.message || 'Erro ao baixar arquivo da OS';
+        showToast(message, 'error');
       }
     };
 

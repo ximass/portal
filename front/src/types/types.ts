@@ -177,11 +177,19 @@ export interface User {
   enabled: boolean;
 }
 
+export interface Permission {
+  id: number | null;
+  name: string;
+  description: string | null;
+}
+
 export interface Group {
   id: number | null;
   name: string;
   user_ids: number[];
   users: User[];
+  permission_ids?: number[];
+  permissions?: Permission[];
 }
 
 export interface Process {
