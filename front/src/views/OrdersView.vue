@@ -96,6 +96,12 @@
                 Editar
               </v-list-item-title>
             </v-list-item>
+            <v-list-item @click="duplicateOrder(item)">
+              <template #title>
+                <v-icon class="mr-2">mdi-content-copy</v-icon>
+                Duplicar
+              </template>
+            </v-list-item>
             <v-list-item @click="deleteOrder(item.id)">
               <v-list-item-title>
                 <v-icon>mdi-delete</v-icon>
@@ -219,6 +225,23 @@ export default defineComponent({
       router.push({ name: 'OrderView', params: { id: order.id } });
     };
 
+    const duplicateOrder = async (order: Order) => {
+      openConfirm(
+        'Tem certeza que deseja duplicar este orçamento?',
+        async () => {
+          try {
+            const response = await axios.post(`/api/orders/${order.id}/duplicate`);
+            fetchOrders();
+            showToast('Orçamento duplicado com sucesso!', 'success');
+            router.push({ name: 'OrderView', params: { id: response.data.id } });
+          } catch (error) {
+            showToast('Erro ao duplicar orçamento');
+          }
+        },
+        'Duplicar orçamento'
+      );
+    };
+
     const deleteOrder = async (orderId: number) => {
       openConfirm(
         'Tem certeza que deseja excluir este orçamento?',
@@ -273,6 +296,7 @@ export default defineComponent({
       fetchOrders,
       openForm,
       editOrder,
+      duplicateOrder,
       deleteOrder,
       formatDateBR,
       formatCustomerDocument,

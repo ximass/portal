@@ -49,6 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update']);
     Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange']);
 
+    #DUPLICATE#
+    Route::post('/orders/{order}/duplicate', [OrderController::class, 'duplicate']);
+
     #PDF#
     Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
     Route::get('/orders/{id}/pdf-sets', [PdfController::class, 'generateOrderSetsPdf']);

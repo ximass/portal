@@ -100,4 +100,84 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Partes recalculadas com sucesso']);
     }
+
+    public function duplicate(Order $order)
+    {
+        $newOrder = DB::transaction(function () use ($order) {
+            $originalOrder = Order::with(['sets.setParts.processes'])->findOrFail($order->id);
+
+            $newOrder = Order::create([
+                'type'                   => $originalOrder->type,
+                'customer_id'            => $originalOrder->customer_id,
+                'markup'                 => $originalOrder->markup,
+                'final_value'            => $originalOrder->final_value,
+                'delivery_type'          => $originalOrder->delivery_type,
+                'delivery_value'         => $originalOrder->delivery_value,
+                'delivery_date'          => $originalOrder->delivery_date,
+                'estimated_delivery_date'=> $originalOrder->estimated_delivery_date,
+                'payment_obs'            => $originalOrder->payment_obs,
+            ]);
+
+            foreach ($originalOrder->sets as $originalSet) {
+                $newSet = Set::create([
+                    'order_id'  => $newOrder->id,
+                    'name'      => $originalSet->name,
+                    'content'   => $originalSet->content,
+                    'quantity'  => $originalSet->quantity,
+                    'unit'      => $originalSet->unit,
+                    'ncm_id'    => $originalSet->ncm_id,
+                    'reference' => $originalSet->reference,
+                    'obs'       => $originalSet->obs,
+                ]);
+
+                foreach ($originalSet->setParts as $originalPart) {
+                    $newPart = SetPart::create([
+                        'set_id'            => $newSet->id,
+                        'type'              => $originalPart->type,
+                        'material_id'       => $originalPart->material_id,
+                        'sheet_id'          => $originalPart->sheet_id,
+                        'bar_id'            => $originalPart->bar_id,
+                        'component_id'      => $originalPart->component_id,
+                        'ncm_id'            => $originalPart->ncm_id,
+                        'title'             => $originalPart->title,
+                        'content'           => $originalPart->content,
+                        'secondary_content' => $originalPart->secondary_content,
+                        'quantity'          => $originalPart->quantity,
+                        'unit'              => $originalPart->unit,
+                        'unit_net_weight'   => $originalPart->unit_net_weight,
+                        'unit_gross_weight' => $originalPart->unit_gross_weight,
+                        'net_weight'        => $originalPart->net_weight,
+                        'gross_weight'      => $originalPart->gross_weight,
+                        'unit_value'        => $originalPart->unit_value,
+                        'final_value'       => $originalPart->final_value,
+                        'unit_ipi_value'    => $originalPart->unit_ipi_value,
+                        'total_ipi_value'   => $originalPart->total_ipi_value,
+                        'unit_icms_value'   => $originalPart->unit_icms_value,
+                        'total_icms_value'  => $originalPart->total_icms_value,
+                        'thickness'         => $originalPart->thickness,
+                        'width'             => $originalPart->width,
+                        'length'            => $originalPart->length,
+                        'loss'              => $originalPart->loss,
+                        'markup'            => $originalPart->markup,
+                        'obs'               => $originalPart->obs,
+                        'reference'         => $originalPart->reference,
+                        'locked_values'     => $originalPart->locked_values,
+                    ]);
+
+                    if ($originalPart->processes && count($originalPart->processes) > 0) {
+                        foreach ($originalPart->processes as $process) {
+                            $newPart->processes()->attach($process->id, [
+                                'time'        => $process->pivot->time,
+                                'final_value' => $process->pivot->final_value,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return $newOrder;
+        });
+
+        return response()->json($newOrder->load(['sets.setParts', 'customer.state']), 201);
+    }
 }
