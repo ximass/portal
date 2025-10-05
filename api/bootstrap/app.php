@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/login',
             'api/logout',
         ]);
+        
+        // Registrar aliases de middleware personalizados
+        $middleware->alias([
+            'permission' => \App\Http\Middleware\CheckPermission::class,
+            'order.permission' => \App\Http\Middleware\CheckOrderPermission::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -19,6 +19,7 @@ use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MercosurCommonNomenclatureController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\PermissionController;
 
 #LOGIN# - Rotas públicas para autenticação
 Route::middleware('web')->group(function () {
@@ -34,20 +35,27 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    Route::get('/user/permissions', [UserController::class, 'permissions']);
     Route::get('/users/search', [UserController::class, 'search']);
     Route::get('/set-parts/types', [SetPartController::class, 'getPartTypes']);
     Route::get('/sets/{set}/parts', [SetPartController::class, 'getSetParts']);
+    Route::get('/permissions', [PermissionController::class, 'index']);
 
     #POST#
-    Route::post('/upload-set-part', [SetPartController::class, 'upload']);
+    Route::post('/upload-set-part', [SetPartController::class, 'upload'])
+        ->middleware('order.permission:edit');
     Route::post('/set-parts/calculateProperties', [SetPartController::class, 'calculatePartProperties']);
     Route::post('/set-parts/calculateProcessValue', [ProcessController::class, 'calculateProcessValue']);
-    Route::post('/sets/{set}/parts', [SetPartController::class, 'store']);
-    Route::post('/sets/{set}/update', [SetController::class, 'update']);
+    Route::post('/sets/{set}/parts', [SetPartController::class, 'store'])
+        ->middleware('order.permission:edit');
+    Route::post('/sets/{set}/update', [SetController::class, 'update'])
+        ->middleware('order.permission:edit');
 
     #PUT#
-    Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update']);
-    Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange']);
+    Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update'])
+        ->middleware('order.permission:edit');
+    Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange'])
+        ->middleware('order.permission:edit');
 
     #DUPLICATE#
     Route::post('/orders/{order}/duplicate', [OrderController::class, 'duplicate']);
@@ -63,9 +71,32 @@ Route::middleware('auth:sanctum')->group(function () {
     #RESOURCES#
     Route::apiResource('/groups', GroupController::class);
     Route::apiResource('/users', UserController::class);
-    Route::apiResource('/orders', OrderController::class);
-    Route::apiResource('/sets', SetController::class);
-    Route::apiResource('/set-parts', SetPartController::class);
+    
+    // Orders resource com validação de permissão personalizada
+    Route::apiResource('/orders', OrderController::class)->except(['update', 'destroy']);
+    Route::put('/orders/{order}', [OrderController::class, 'update'])
+        ->middleware('order.permission:edit');
+    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])
+        ->middleware('order.permission:delete');
+    
+    // Sets resource com validação de permissão personalizada
+    Route::apiResource('/sets', SetController::class)->except(['store', 'update', 'destroy']);
+    Route::post('/sets', [SetController::class, 'store'])
+        ->middleware('order.permission:edit');
+    Route::put('/sets/{set}', [SetController::class, 'update'])
+        ->middleware('order.permission:edit');
+    Route::delete('/sets/{set}', [SetController::class, 'destroy'])
+        ->middleware('order.permission:delete');
+    
+    // SetParts resource com validação de permissão personalizada
+    Route::apiResource('/set-parts', SetPartController::class)->except(['store', 'update', 'destroy']);
+    Route::post('/set-parts', [SetPartController::class, 'store'])
+        ->middleware('order.permission:edit');
+    Route::put('/set-parts/{part}', [SetPartController::class, 'update'])
+        ->middleware('order.permission:edit');
+    Route::delete('/set-parts/{part}', [SetPartController::class, 'destroy'])
+        ->middleware('order.permission:delete');
+    
     Route::apiResource('/processes', ProcessController::class);
     Route::apiResource('/materials', MaterialController::class);
     Route::apiResource('/sheets', SheetController::class);

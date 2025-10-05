@@ -58,4 +58,30 @@ class UserController extends Controller
         
         return response()->json(['message' => 'User deleted successfully']);
     }
+
+    /**
+     * Get the permissions for the authenticated user.
+     */
+    public function permissions(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        // Se for admin, retorna todas as permissões
+        if ($user->admin) {
+            return response()->json(\App\Models\Permission::all());
+        }
+
+        // Busca as permissões do usuário através dos grupos
+        $permissions = \App\Models\Permission::whereHas('groups', function ($query) use ($user) {
+            $query->whereHas('users', function ($userQuery) use ($user) {
+                $userQuery->where('users.id', $user->id);
+            });
+        })->get();
+
+        return response()->json($permissions);
+    }
 }
