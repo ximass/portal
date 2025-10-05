@@ -55,6 +55,16 @@
             </v-col>
             <v-col cols="12" md="3" sm="12">
               <v-text-field
+                label="Desconto"
+                placeholder="Digite o desconto"
+                v-model="form.discount"
+                type="number"
+                step="1"
+                prefix="R$"
+              />
+            </v-col>
+            <v-col cols="12" md="3" sm="12">
+              <v-text-field
                 label="Data estimada de entrega"
                 v-model="form.estimated_delivery_date"
                 type="text"
@@ -342,6 +352,7 @@ export default defineComponent({
       customer_id: '',
       delivery_type: '',
       delivery_value: '',
+      discount: '',
       markup: '',
       delivery_date: '',
       estimated_delivery_date: '',
@@ -463,6 +474,7 @@ export default defineComponent({
           form.value.customer_id = data.customer_id;
           form.value.delivery_type = data.delivery_type;
           form.value.delivery_value = data.delivery_value;
+          form.value.discount = data.discount;
           form.value.markup = data.markup;
           form.value.delivery_date = data.delivery_date;
           form.value.estimated_delivery_date = data.estimated_delivery_date;
@@ -493,6 +505,7 @@ export default defineComponent({
           customer_id: form.value.customer_id,
           delivery_type: form.value.delivery_type,
           delivery_value: form.value.delivery_value,
+          discount: form.value.discount,
           markup: form.value.markup,
           delivery_date: form.value.delivery_date,
           estimated_delivery_date: form.value.estimated_delivery_date,

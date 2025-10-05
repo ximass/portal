@@ -38,6 +38,7 @@ class PdfController extends Controller
         }
 
         $totalGeral += $order->delivery_value ?? 0;
+        $totalGeral -= $order->discount ?? 0;
 
         $data = [
             'order' => $order,
@@ -90,6 +91,7 @@ class PdfController extends Controller
         }
 
         $totalGeral += $order->delivery_value ?? 0;
+        $totalGeral -= $order->discount ?? 0;
 
         $data = [
             'order' => $order,

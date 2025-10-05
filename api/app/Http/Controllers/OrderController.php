@@ -34,6 +34,7 @@ class OrderController extends Controller
             'markup'        => 'nullable|numeric',
             'delivery_type' => 'nullable|in:CIF,FOB',
             'delivery_value' => 'nullable|numeric',
+            'discount'      => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string'
@@ -60,6 +61,7 @@ class OrderController extends Controller
             'markup'        => 'nullable|numeric',
             'delivery_type' => 'nullable|in:CIF,FOB',
             'delivery_value' => 'nullable|numeric',
+            'discount'      => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string'
@@ -113,6 +115,7 @@ class OrderController extends Controller
                 'final_value'            => $originalOrder->final_value,
                 'delivery_type'          => $originalOrder->delivery_type,
                 'delivery_value'         => $originalOrder->delivery_value,
+                'discount'               => $originalOrder->discount,
                 'delivery_date'          => $originalOrder->delivery_date,
                 'estimated_delivery_date'=> $originalOrder->estimated_delivery_date,
                 'payment_obs'            => $originalOrder->payment_obs,

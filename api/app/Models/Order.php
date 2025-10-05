@@ -17,6 +17,7 @@ class Order extends Model
         'final_value',
         'delivery_type',
         'delivery_value',
+        'discount',
         'delivery_date',
         'estimated_delivery_date',
         'payment_obs',
@@ -25,6 +26,7 @@ class Order extends Model
     protected $casts = [
         'final_value' => 'float',
         'delivery_value' => 'float',
+        'discount' => 'float',
         'markup' => 'float',
         'delivery_date' => 'datetime',
     ];
