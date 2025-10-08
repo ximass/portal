@@ -255,3 +255,44 @@ export type CustomerForm = {
   address: string | null;
   state_id: number | null;
 };
+
+export type ErrorLogLevel = 'error' | 'warning' | 'critical' | 'info';
+
+export interface ErrorLog {
+  id: number;
+  level: ErrorLogLevel;
+  message: string;
+  exception: string | null;
+  file: string | null;
+  line: number | null;
+  trace: string | null;
+  url: string | null;
+  method: string | null;
+  request_data: any | null;
+  ip: string | null;
+  user_id: number | null;
+  user?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ErrorLogFilters {
+  search: string;
+  level: ErrorLogLevel | null;
+  date_from: string;
+  date_to: string;
+  user_id: number | null;
+}
+
+export interface ErrorLogStatistics {
+  total: number;
+  by_level: {
+    error?: number;
+    warning?: number;
+    critical?: number;
+    info?: number;
+  };
+  last_24h: number;
+  last_7days: number;
+  last_30days: number;
+}

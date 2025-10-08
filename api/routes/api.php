@@ -20,6 +20,7 @@ use App\Http\Controllers\MercosurCommonNomenclatureController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ErrorLogController;
 
 #LOGIN# - Rotas públicas para autenticação
 Route::middleware('web')->group(function () {
@@ -105,4 +106,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/customers', CustomerController::class);
     Route::apiResource('/mercosur-common-nomenclatures', MercosurCommonNomenclatureController::class);
     Route::apiResource('/states', StateController::class);
+    
+    Route::get('/error-logs/statistics', [ErrorLogController::class, 'statistics']);
+    Route::delete('/error-logs/destroy-all', [ErrorLogController::class, 'destroyAll']);
+    Route::apiResource('/error-logs', ErrorLogController::class)->only(['index', 'show', 'destroy']);
 });
