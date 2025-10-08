@@ -345,6 +345,24 @@ export default defineComponent({
   color: #000 !important;
 }
 
+/* Forçar fundo branco em tudo */
+html,
+body,
+#app,
+.v-application,
+.v-main,
+.v-container,
+.print-page,
+.v-row,
+.v-col,
+.v-list,
+.v-list-item,
+.v-list-item-title,
+.v-list-item-subtitle {
+  background-color: #fff !important;
+  background: #fff !important;
+}
+
 /* Remover fill-height e scroll vertical */
 html,
 body,
@@ -382,5 +400,25 @@ body,
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+@media print {
+  * {
+    background-color: #fff !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  html,
+  body,
+  #app,
+  .v-application,
+  .v-main,
+  .v-container,
+  .print-page {
+    background-color: #fff !important;
+    background: #fff !important;
+  }
 }
 </style>
