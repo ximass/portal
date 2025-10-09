@@ -56,6 +56,23 @@
             suffix="R$/kg"
             @blur="formData.price_kg = roundValue(formData.price_kg, 2)"
           />
+          <v-autocomplete
+            label="NCM (opcional)"
+            v-model="formData.ncm_id"
+            :items="ncms"
+            item-title="code"
+            item-value="id"
+            clearable
+            no-data-text="Nenhum NCM encontrado"
+          >
+            <template #item="{ item, props }">
+              <v-list-item v-bind="props">
+                <v-list-item-subtitle
+                  >IPI: {{ item.raw.ipi }}%</v-list-item-subtitle
+                >
+              </v-list-item>
+            </template>
+          </v-autocomplete>
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -70,11 +87,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, type PropType } from 'vue';
+import { defineComponent, ref, watch, type PropType, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
-import type { Bar } from '../types/types';
+import type { Bar, MercosurCommonNomenclature } from '../types/types';
 
 export default defineComponent({
   name: 'BarForm',
@@ -88,6 +105,7 @@ export default defineComponent({
         length: null,
         weight: null,
         price_kg: null,
+        ncm_id: null,
       }),
     },
     isEdit: { type: Boolean, default: false },
@@ -102,9 +120,25 @@ export default defineComponent({
       length: 0,
       weight: 0,
       price_kg: 0,
+      ncm_id: null,
     });
     const { showToast } = useToast();
     const { roundValue } = useMisc();
+
+    const ncms = ref<MercosurCommonNomenclature[]>([]);
+
+    const fetchNCMs = async () => {
+      try {
+        const { data } = await axios.get('/api/mercosur-common-nomenclatures');
+        ncms.value = data;
+      } catch (error) {
+        showToast('Erro ao buscar NCMs', 'error');
+      }
+    };
+
+    onMounted(() => {
+      fetchNCMs();
+    });
 
     watch(
       () => props.barData,
@@ -149,6 +183,7 @@ export default defineComponent({
       internalDialog,
       form,
       formData,
+      ncms,
       closeDialog,
       submitForm,
       roundValue,

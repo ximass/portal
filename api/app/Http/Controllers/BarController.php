@@ -9,7 +9,7 @@ class BarController extends Controller
 {
     public function index()
     {
-        $bars = Bar::all();
+        $bars = Bar::with('ncm')->get();
 
         return response()->json($bars);
     }
@@ -21,16 +21,17 @@ class BarController extends Controller
             'weight'         => 'required|numeric',
             'length'         => 'required|numeric',
             'price_kg'       => 'required|numeric',
+            'ncm_id'         => 'nullable|exists:mercosur_common_nomenclatures,id'
         ]);
 
         $bar = Bar::create($data);
 
-        return response()->json($bar, 201);
+        return response()->json($bar->load('ncm'), 201);
     }
 
     public function show($barId)
     {
-        $bar = Bar::findOrFail($barId);
+        $bar = Bar::with('ncm')->findOrFail($barId);
 
         return response()->json($bar);
     }
@@ -43,11 +44,12 @@ class BarController extends Controller
             'weight'         => 'sometimes|required|numeric',
             'length'         => 'sometimes|required|numeric',
             'price_kg'       => 'sometimes|required|numeric',
+            'ncm_id'         => 'nullable|exists:mercosur_common_nomenclatures,id'
         ]);
 
         $bar->update($data);
 
-        return response()->json($bar);
+        return response()->json($bar->load('ncm'));
     }
 
     public function destroy($barId)

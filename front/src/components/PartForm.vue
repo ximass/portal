@@ -796,6 +796,11 @@ export default defineComponent({
         const { data } = await axios.get(`/api/materials/${materialId}`);
         localPart.value.material_id = data.id;
 
+        // Pre-select NCM if available
+        if (data.ncm_id) {
+          localPart.value.ncm_id = data.ncm_id;
+        }
+
         if (localPart.value.type === 'sheet') {
           selectedSheet.value = null;
           localPart.value.sheet_id = null;
@@ -819,6 +824,11 @@ export default defineComponent({
         localPart.value.width = data.width;
         localPart.value.length = data.length;
 
+        // Pre-select NCM from material if available
+        if (data.material?.ncm_id) {
+          localPart.value.ncm_id = data.material.ncm_id;
+        }
+
         await calculateProperties();
       } catch (error) {
         showToast('Erro ao buscar chapa', 'error');
@@ -833,6 +843,11 @@ export default defineComponent({
         localPart.value.bar_id = data.id;
         localPart.value.length = data.length;
 
+        // Pre-select NCM if available
+        if (data.ncm_id) {
+          localPart.value.ncm_id = data.ncm_id;
+        }
+
         await calculateProperties();
       } catch (error) {
         showToast('Erro ao buscar barra', 'error');
@@ -846,6 +861,11 @@ export default defineComponent({
 
         localPart.value.component_id = data.id;
         localPart.value.unit_value = data.unit_value;
+
+        // Pre-select NCM if available
+        if (data.ncm_id) {
+          localPart.value.ncm_id = data.ncm_id;
+        }
 
         await calculateProperties();
       } catch (error) {

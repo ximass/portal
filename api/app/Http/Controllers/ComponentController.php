@@ -9,7 +9,7 @@ class ComponentController extends Controller
 {
     public function index()
     {
-        return response()->json(Component::orderBy('name', 'asc')->get());
+        return response()->json(Component::with('ncm')->orderBy('name', 'asc')->get());
     }
 
     public function store(Request $request)
@@ -19,16 +19,17 @@ class ComponentController extends Controller
             'specification' => 'nullable|string',
             'unit_value'    => 'required|numeric',
             'supplier'      => 'nullable|string',
+            'ncm_id'        => 'nullable|exists:mercosur_common_nomenclatures,id'
         ]);
 
         $component = Component::create($data);
 
-        return response()->json($component, 201);
+        return response()->json($component->load('ncm'), 201);
     }
 
     public function show($materialId)
     {
-        $component = Component::findOrFail($materialId);
+        $component = Component::with('ncm')->findOrFail($materialId);
         
         return response()->json($component);
     }
@@ -41,11 +42,12 @@ class ComponentController extends Controller
             'specification' => 'sometimes|nullable|string',
             'unit_value'    => 'sometimes|required|numeric',
             'supplier'      => 'sometimes|nullable|string',
+            'ncm_id'        => 'nullable|exists:mercosur_common_nomenclatures,id'
         ]);
 
         $component->update($data);
 
-        return response()->json($component);
+        return response()->json($component->load('ncm'));
     }
 
     public function destroy($materialId)

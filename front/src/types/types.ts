@@ -57,6 +57,8 @@ export interface Material {
   name: string;
   specific_weight: number;
   price_kg: number;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
 }
 
 // Campos específicos de uma chapa
@@ -85,6 +87,8 @@ export interface Bar {
   length: number;
   weight: number;
   price_kg: number;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
 }
 
 // Campos específicos de um componente
@@ -94,6 +98,8 @@ export interface Component {
   specification: string;
   unit_value: number;
   supplier: string;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
 }
 
 export interface Part {

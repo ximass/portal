@@ -15,5 +15,11 @@ class Component extends Model
         'specification',
         'unit_value',
         'supplier',
+        'ncm_id'
     ];
+
+    public function ncm()
+    {
+        return $this->belongsTo(MercosurCommonNomenclature::class, 'ncm_id');
+    }
 }

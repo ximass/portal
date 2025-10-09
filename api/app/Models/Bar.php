@@ -18,6 +18,12 @@ class Bar extends Model
         'name',
         'weight',
         'length',
-        'price_kg'
+        'price_kg',
+        'ncm_id'
     ];
+
+    public function ncm()
+    {
+        return $this->belongsTo(MercosurCommonNomenclature::class, 'ncm_id');
+    }
 }
