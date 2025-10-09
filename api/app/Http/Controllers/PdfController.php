@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\SetPart;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -106,5 +107,88 @@ class PdfController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream("orcamento-conjuntos-{$data['orderNumber']}.pdf");
+    }
+
+    public function generateSetPartPdf($id)
+    {
+        ini_set('memory_limit', '-1');
+
+        $part = SetPart::with([
+            'set.order.customer',
+            'material',
+            'sheet',
+            'bar',
+            'component',
+            'ncm',
+            'processes'
+        ])->findOrFail($id);
+
+        $order = $part->set->order;
+        
+        $partTypes = [
+            'material' => 'Material',
+            'sheet' => 'Chapa',
+            'bar' => 'Barra',
+            'component' => 'Componente',
+            'process' => 'Processo'
+        ];
+
+        $data = [
+            'parts' => [$part],
+            'partTypes' => $partTypes,
+            'customerName' => $order->customer->name ?? 'N/A',
+            'deliveryDate' => $order->estimated_delivery_date ?? '-',
+            'createdDate' => now()->format('d/m/Y'),
+            'orderNumber' => str_pad($order->id, 6, '0', STR_PAD_LEFT)
+        ];
+
+        $pdf = Pdf::loadView('pdf.set-parts', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream("peca-{$part->id}-pedido-{$data['orderNumber']}.pdf");
+    }
+
+    public function generateOrderPartsPdf($id)
+    {
+        ini_set('memory_limit', '-1');
+        
+        $order = Order::with([
+            'customer',
+            'sets.setParts.material',
+            'sets.setParts.sheet',
+            'sets.setParts.bar',
+            'sets.setParts.component',
+            'sets.setParts.ncm',
+            'sets.setParts.processes'
+        ])->findOrFail($id);
+
+        $allParts = [];
+        foreach ($order->sets as $set) {
+            foreach ($set->setParts as $part) {
+                $allParts[] = $part;
+            }
+        }
+
+        $partTypes = [
+            'material' => 'Material',
+            'sheet' => 'Chapa',
+            'bar' => 'Barra',
+            'component' => 'Componente',
+            'process' => 'Processo'
+        ];
+
+        $data = [
+            'parts' => $allParts,
+            'partTypes' => $partTypes,
+            'customerName' => $order->customer->name ?? 'N/A',
+            'deliveryDate' => $order->estimated_delivery_date ?? '-',
+            'createdDate' => now()->format('d/m/Y'),
+            'orderNumber' => str_pad($order->id, 6, '0', STR_PAD_LEFT)
+        ];
+
+        $pdf = Pdf::loadView('pdf.set-parts', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream("pecas-pedido-{$data['orderNumber']}.pdf");
     }
 }

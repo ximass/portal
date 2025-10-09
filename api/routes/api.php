@@ -29,6 +29,14 @@ Route::middleware('web')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
+#PDF# - Rotas públicas para geração de PDF
+Route::middleware('web')->group(function () {
+    Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
+    Route::get('/orders/{id}/pdf-sets', [PdfController::class, 'generateOrderSetsPdf']);
+    Route::get('/orders/{id}/pdf-parts', [PdfController::class, 'generateOrderPartsPdf']);
+    Route::get('/set-parts/{id}/pdf', [PdfController::class, 'generateSetPartPdf']);
+});
+
 #ROTAS PROTEGIDAS - Requerem autenticação via Sanctum#
 Route::middleware('auth:sanctum')->group(function () {
     #GET#
@@ -60,10 +68,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     #DUPLICATE#
     Route::post('/orders/{order}/duplicate', [OrderController::class, 'duplicate']);
-
-    #PDF#
-    Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
-    Route::get('/orders/{id}/pdf-sets', [PdfController::class, 'generateOrderSetsPdf']);
 
     #OS FILE#
     Route::get('/orders/{order}/download-os', [OrderController::class, 'downloadOsFile']);
