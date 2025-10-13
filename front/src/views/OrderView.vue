@@ -21,6 +21,9 @@
                   density="comfortable"
                   prepend-inner-icon="mdi-format-list-bulleted-type"
                   :rules="[v => !!v || 'Tipo é obrigatório']"
+                  :disabled="isTypeDisabled"
+                  :hint="isTypeDisabled ? 'Não é possível alterar um pedido para orçamento' : ''"
+                  persistent-hint
                   hide-details="auto"
                 />
               </v-col>
@@ -646,6 +649,10 @@ export default defineComponent({
       }));
     });
 
+    const isTypeDisabled = computed(() => {
+      return !isNew.value && currentOrder.value?.type === 'order';
+    });
+
     const updatePartInList = (updatedPart: Part) => {
       sets.value.forEach(set => {
         const index = set.setParts.findIndex(
@@ -1143,6 +1150,7 @@ export default defineComponent({
       form,
       customers,
       customersWithDocument,
+      isTypeDisabled,
       currentOrder,
       orderTypeOptions,
       deliveryTypeOptions,

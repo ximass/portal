@@ -80,6 +80,13 @@ class OrderController extends Controller
             'os_file'        => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:10240',
         ]);
 
+        // Impedir mudança de 'order' para 'pre_order'
+        if (isset($validated['type']) && $order->type === 'order' && $validated['type'] === 'pre_order') {
+            return response()->json([
+                'message' => 'Não é possível alterar um pedido para orçamento'
+            ], 422);
+        }
+
         if ($request->hasFile('os_file')) {
             if ($order->os_file && Storage::disk('public')->exists($order->os_file)) {
                 Storage::disk('public')->delete($order->os_file);
