@@ -719,6 +719,7 @@ export default defineComponent({
           form.value.customer_id = data.customer_id;
           form.value.delivery_type = data.delivery_type;
           form.value.delivery_value = data.delivery_value;
+          form.value.service_value = data.service_value;
           form.value.discount = data.discount;
           form.value.markup = data.markup;
           form.value.delivery_date = data.delivery_date;
@@ -752,6 +753,7 @@ export default defineComponent({
         if (form.value.customer_id) formData.append('customer_id', form.value.customer_id.toString());
         if (form.value.delivery_type) formData.append('delivery_type', form.value.delivery_type);
         if (form.value.delivery_value) formData.append('delivery_value', form.value.delivery_value);
+        if (form.value.service_value) formData.append('service_value', form.value.service_value);
         if (form.value.discount) formData.append('discount', form.value.discount);
         if (form.value.markup) formData.append('markup', form.value.markup);
         if (form.value.delivery_date) formData.append('delivery_date', form.value.delivery_date);
