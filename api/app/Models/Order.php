@@ -11,9 +11,21 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Status para pre_order (orçamento)
+    const STATUS_IN_PROGRESS = 'in_progress';
+    const STATUS_WAITING_RESPONSE = 'waiting_response';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_APPROVED = 'approved';
+
+    // Status para order (pedido)
+    const STATUS_WAITING_RELEASE = 'waiting_release';
+    const STATUS_RELEASED_FOR_PRODUCTION = 'released_for_production';
+    const STATUS_FINISHED = 'finished';
+
     protected $fillable = [
         'customer_id',
         'type',
+        'status',
         'markup',
         'final_value',
         'delivery_type',
@@ -43,5 +55,61 @@ class Order extends Model
     public function sets()
     {
         return $this->hasMany(Set::class);
+    }
+
+    public static function getAvailableStatuses($type)
+    {
+        if ($type === 'pre_order') {
+            return [
+                self::STATUS_IN_PROGRESS,
+                self::STATUS_WAITING_RESPONSE,
+                self::STATUS_CANCELLED,
+                self::STATUS_APPROVED,
+            ];
+        }
+
+        return [
+            self::STATUS_WAITING_RELEASE,
+            self::STATUS_RELEASED_FOR_PRODUCTION,
+            self::STATUS_FINISHED,
+        ];
+    }
+
+    public function canTransitionTo($newStatus)
+    {
+        $transitions = [
+            // Fluxo de pre_order
+            self::STATUS_IN_PROGRESS => [
+                self::STATUS_WAITING_RESPONSE,
+                self::STATUS_CANCELLED,
+                self::STATUS_APPROVED,
+            ],
+            self::STATUS_WAITING_RESPONSE => [
+                self::STATUS_IN_PROGRESS,
+                self::STATUS_CANCELLED,
+                self::STATUS_APPROVED,
+            ],
+            self::STATUS_CANCELLED => [
+                self::STATUS_WAITING_RESPONSE,
+            ],
+            self::STATUS_APPROVED => [
+                self::STATUS_WAITING_RELEASE,
+            ],
+            
+            // Fluxo de order
+            self::STATUS_WAITING_RELEASE => [
+                self::STATUS_RELEASED_FOR_PRODUCTION,
+            ],
+            self::STATUS_RELEASED_FOR_PRODUCTION => [
+                self::STATUS_WAITING_RELEASE,
+                self::STATUS_FINISHED,
+            ],
+            self::STATUS_FINISHED => [
+                self::STATUS_RELEASED_FOR_PRODUCTION,
+            ],
+        ];
+
+        return isset($transitions[$this->status]) && 
+               in_array($newStatus, $transitions[$this->status]);
     }
 }

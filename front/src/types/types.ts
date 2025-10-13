@@ -1,5 +1,13 @@
 export type OrderType = 'pre_order' | 'order';
 
+// Status para pre_order (orçamento)
+export type PreOrderStatus = 'in_progress' | 'waiting_response' | 'cancelled' | 'approved';
+
+// Status para order (pedido)
+export type OrderStatus = 'waiting_release' | 'released_for_production' | 'finished';
+
+export type AllOrderStatus = PreOrderStatus | OrderStatus;
+
 export interface OrderFilters {
   search: string;
   type: OrderType | null;
@@ -9,6 +17,7 @@ export interface OrderFilters {
 
 export interface OrderForm {
   type: OrderType;
+  status?: AllOrderStatus;
   customer_id: string;
   delivery_type: string;
   delivery_value: string;
@@ -24,6 +33,7 @@ export interface OrderForm {
 export interface Order {
   id: number;
   type: OrderType;
+  status: AllOrderStatus;
   customer_id: number | null;
   final_value: number | null;
   delivery_type: string | null;

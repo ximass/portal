@@ -29,6 +29,10 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'delete_pre_orders',
                 'description' => 'Permite excluir orçamentos'
+            ],
+            [
+                'name' => 'approve_pre_orders',
+                'description' => 'Permite aprovar orçamentos'
             ]
         ];
 

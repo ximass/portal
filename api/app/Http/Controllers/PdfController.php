@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\SetPart;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PdfController extends Controller
 {
@@ -133,6 +134,8 @@ class PdfController extends Controller
             'process' => 'Processo'
         ];
 
+        $part->is_vertical = $this->isImageVertical($part->content);
+
         $data = [
             'parts' => [$part],
             'partTypes' => $partTypes,
@@ -143,7 +146,7 @@ class PdfController extends Controller
         ];
 
         $pdf = Pdf::loadView('pdf.set-parts', $data);
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('A4', 'landscape');
 
         return $pdf->stream("peca-{$part->id}-pedido-{$data['orderNumber']}.pdf");
     }
@@ -165,6 +168,7 @@ class PdfController extends Controller
         $allParts = [];
         foreach ($order->sets as $set) {
             foreach ($set->setParts as $part) {
+                $part->is_vertical = $this->isImageVertical($part->content);
                 $allParts[] = $part;
             }
         }
@@ -187,8 +191,37 @@ class PdfController extends Controller
         ];
 
         $pdf = Pdf::loadView('pdf.set-parts', $data);
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('A4', 'landscape');
 
         return $pdf->stream("pecas-pedido-{$data['orderNumber']}.pdf");
+    }
+
+    private function isImageVertical($imagePath)
+    {
+        if (!$imagePath) {
+            return false;
+        }
+
+        try {
+            $fullPath = public_path($imagePath);
+            
+            if (!file_exists($fullPath)) {
+                return false;
+            }
+
+            $imageSize = getimagesize($fullPath);
+            
+            if ($imageSize === false) {
+                return false;
+            }
+
+            $width = $imageSize[0];
+            $height = $imageSize[1];
+
+            return $height > $width;
+        } catch (\Exception $e) {
+            Log::error("Erro ao verificar orientação da imagem: " . $e->getMessage());
+            return false;
+        }
     }
 }

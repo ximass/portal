@@ -30,6 +30,11 @@ export function useAuth() {
    * Verifica se o usuário tem uma permissão específica
    */
   const hasPermission = (permissionName: string): boolean => {
+    if (!currentUser.value)
+    {
+      loadCurrentUser();
+    }
+
     if (!currentUser.value) return false;
     
     // Admin tem todas as permissões

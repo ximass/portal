@@ -42,6 +42,12 @@ class OrderController extends Controller
             'payment_obs'   => 'nullable|string'
         ]);
 
+        if ($validated['type'] === 'pre_order') {
+            $validated['status'] = Order::STATUS_IN_PROGRESS;
+        } else {
+            $validated['status'] = Order::STATUS_WAITING_RELEASE;
+        }
+
         $order = Order::create($validated);
 
         return response()->json($order, 201);
@@ -130,8 +136,13 @@ class OrderController extends Controller
         $newOrder = DB::transaction(function () use ($order) {
             $originalOrder = Order::with(['sets.setParts.processes'])->findOrFail($order->id);
 
+            $status = $originalOrder->type === 'pre_order' 
+                ? Order::STATUS_IN_PROGRESS 
+                : Order::STATUS_WAITING_RELEASE;
+
             $newOrder = Order::create([
                 'type'                   => $originalOrder->type,
+                'status'                 => $status,
                 'customer_id'            => $originalOrder->customer_id,
                 'markup'                 => $originalOrder->markup,
                 'final_value'            => $originalOrder->final_value,
@@ -237,5 +248,53 @@ class OrderController extends Controller
         $order->save();
 
         return response()->json(['message' => 'OS file removed successfully']);
+    }
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $newStatus = $validated['status'];
+
+        if ($newStatus === Order::STATUS_APPROVED) {
+            $user = $request->user();
+            
+            if (!$user->admin) {
+                $hasPermission = \App\Models\Permission::where('name', 'approve_pre_orders')
+                    ->whereHas('groups', function ($query) use ($user) {
+                        $query->whereHas('users', function ($userQuery) use ($user) {
+                            $userQuery->where('users.id', $user->id);
+                        });
+                    })
+                    ->exists();
+
+                if (!$hasPermission) {
+                    return response()->json([
+                        'message' => 'Você não tem permissão para aprovar orçamentos'
+                    ], 403);
+                }
+            }
+        }
+
+        if (!$order->canTransitionTo($newStatus)) {
+            return response()->json([
+                'message' => 'Transição de status inválida',
+                'current_status' => $order->status,
+                'attempted_status' => $newStatus
+            ], 422);
+        }
+
+        $order->status = $newStatus;
+
+        if ($newStatus === Order::STATUS_APPROVED) {
+            $order->type = 'order';
+            $order->status = Order::STATUS_WAITING_RELEASE;
+        }
+
+        $order->save();
+
+        return response()->json($order->load(['sets.setParts', 'customer.state']));
     }
 }

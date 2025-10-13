@@ -20,6 +20,10 @@ class CheckOrderPermission
     {
         $user = $request->user();
 
+        if ($request->is('api/orders/*/update-status')) {
+            return $next($request);
+        }
+
         if ($user && $user->admin) {
             return $next($request);
         }

@@ -273,6 +273,15 @@
       </v-card-text>
     </v-card>
 
+    <!-- Seção de Status do Pedido -->
+    <OrderStatusFlow
+      v-if="!isNew && currentOrder"
+      :order-id="currentOrder.id"
+      :order-type="currentOrder.type"
+      :current-status="currentOrder.status"
+      @status-updated="handleStatusUpdate"
+    />
+
     <!-- Seção de Conjuntos -->
     <div>
       <v-row class="align-center mb-2">
@@ -546,7 +555,8 @@ import axios from 'axios';
 import PartForm from '../components/PartForm.vue';
 import SetForm from '../components/SetForm.vue';
 import OrderValuesTable from '../components/OrderValuesTable.vue';
-import type { OrderForm, OrderSet, Part, OrderType, Set, Customer } from '../types/types';
+import OrderStatusFlow from '../components/OrderStatusFlow.vue';
+import type { OrderForm, OrderSet, Part, OrderType, Set, Customer, Order } from '../types/types';
 
 export default defineComponent({
   name: 'Orders',
@@ -554,6 +564,7 @@ export default defineComponent({
     PartForm,
     SetForm,
     OrderValuesTable,
+    OrderStatusFlow,
   },
   setup() {
     const { showToast } = useToast();
@@ -563,6 +574,7 @@ export default defineComponent({
     const router = useRouter();
     const isNew = ref(route.params.id === 'new');
     const customers = ref<Customer[]>([]);
+    const currentOrder = ref<Order | null>(null);
 
     const form = ref<OrderForm>({
       type: 'pre_order',
@@ -693,6 +705,9 @@ export default defineComponent({
       if (!isNew.value && route.params.id) {
         try {
           const { data } = await axios.get(`/api/orders/${route.params.id}`);
+
+          currentOrder.value = data;
+
           form.value.type = data.type;
           form.value.customer_id = data.customer_id;
           form.value.delivery_type = data.delivery_type;
@@ -746,14 +761,18 @@ export default defineComponent({
             headers: { 'Content-Type': 'multipart/form-data' }
           });
           isNew.value = false;
+          currentOrder.value = data;
+
           router.push({ name: 'OrderView', params: { id: data.id } });
         } else {
-          await axios.post(`/api/orders/${route.params.id}`, formData, {
+          const { data } = await axios.post(`/api/orders/${route.params.id}`, formData, {
             headers: { 
               'Content-Type': 'multipart/form-data',
               'X-HTTP-Method-Override': 'PUT'
             }
           });
+
+          currentOrder.value = data;
         }
         showToast('Pedido salvo com sucesso.', 'success');
       } catch (error: any) {
@@ -1112,11 +1131,19 @@ export default defineComponent({
       }
     };
 
+    const handleStatusUpdate = (updatedOrder: Order) => {
+      currentOrder.value = updatedOrder;
+      form.value.type = updatedOrder.type;
+      
+      showToast('Status atualizado com sucesso!', 'success');
+    };
+
     return {
       isNew,
       form,
       customers,
       customersWithDocument,
+      currentOrder,
       orderTypeOptions,
       deliveryTypeOptions,
       sets,
@@ -1148,6 +1175,7 @@ export default defineComponent({
       onMarkupChange,
       handleFileUpload,
       handlePartNavigation,
+      handleStatusUpdate,
       // Documents
       showDocumentsMenu,
       loadingDocument,

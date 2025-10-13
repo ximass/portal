@@ -14,43 +14,41 @@
         }
         
         .page {
-            page-break-after: always;
-            page-break-inside: avoid;
             padding: 15px;
             position: relative;
-            min-height: 100vh;
-            max-height: 100vh;
             box-sizing: border-box;
             overflow: hidden;
+            page-break-inside: avoid;
+            max-height: 190mm;
         }
         
-        .page:last-child {
-            page-break-after: auto;
+        .page:not(:first-child) {
+            page-break-before: always;
         }
         
         .header {
             border: 2px solid #000;
-            margin-bottom: 8px;
-            padding: 8px;
+            margin-bottom: 5px;
+            padding: 4px 8px;
             text-align: center;
         }
         
         .company-name {
             font-weight: bold;
-            font-size: 11px;
-            margin-bottom: 3px;
+            font-size: 10px;
+            margin-bottom: 2px;
         }
         
         .company-details {
-            font-size: 9px;
+            font-size: 8px;
         }
         
         .order-info {
             background-color: #f5f5f5;
             border: 1px solid #000;
-            padding: 5px 8px;
-            margin-bottom: 8px;
-            font-size: 9px;
+            padding: 3px 6px;
+            margin-bottom: 5px;
+            font-size: 8px;
         }
         
         .order-info-table {
@@ -59,7 +57,7 @@
         }
         
         .order-info-table td {
-            padding: 3px 8px;
+            padding: 2px 6px;
             border: 1px solid #ccc;
         }
         
@@ -76,26 +74,27 @@
         .part-header {
             background-color: #e6f2ff;
             border: 1px solid #000;
-            padding: 5px 8px;
-            margin-bottom: 8px;
+            padding: 3px 6px;
+            margin-bottom: 5px;
             text-align: center;
         }
         
         .part-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         
         .part-number {
-            font-size: 9px;
+            font-size: 8px;
             color: #666;
         }
         
         .content-wrapper {
-            display: block;
+            display: table;
+            width: 100%;
             margin-bottom: 8px;
-            overflow: hidden;
+            table-layout: fixed;
         }
         
         .image-section {
@@ -103,20 +102,24 @@
             padding: 8px;
             text-align: center;
             background-color: #fafafa;
-            max-height: 450px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 80%;
+            display: table-cell;
+            vertical-align: middle;
             overflow: hidden;
+            position: relative;
         }
         
         .image-section img {
             max-width: 100%;
-            max-height: 450px;
-            width: auto;
-            height: auto;
+            max-height: 130mm;
             object-fit: contain;
+        }
+        
+        .image-section img.rotated {
+            transform: rotate(90deg);
+            transform-origin: center center;
+            max-width: 130mm;
+            max-height: 130mm;
         }
         
         .no-image {
@@ -125,8 +128,10 @@
         }
         
         .info-section {
-            overflow: hidden;
-            max-height: 300px;
+            width: 20%;
+            display: table-cell;
+            vertical-align: top;
+            padding-left: 10px;
         }
         
         .info-table {
@@ -183,8 +188,8 @@
             margin-top: 4px;
             border: 1px solid #000;
             padding: 4px 6px;
-            max-height: 80px;
             overflow: hidden;
+            page-break-inside: avoid;
         }
         
         .processes-title {
@@ -197,7 +202,6 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: 60px;
             overflow: hidden;
         }
         
@@ -214,6 +218,7 @@
         
         @page {
             margin: 10mm;
+            size: A4 landscape;
         }
     </style>
 </head>
@@ -259,7 +264,7 @@
             <!-- Image Section (Larger) -->
             <div class="image-section">
                 @if($part->content)
-                    <img src="{{ public_path($part->content) }}" alt="Imagem da peça">
+                    <img src="{{ public_path($part->content) }}" alt="Imagem da peça" class="{{ $part->is_vertical ?? false ? 'rotated' : '' }}">
                 @else
                     <div class="no-image">Sem imagem disponível</div>
                 @endif
@@ -305,16 +310,6 @@
                             <th>Comprimento</th>
                             <td>{{ $part->length ?? '-' }} mm</td>
                         </tr>
-                        <tr>
-                            <th>Perda</th>
-                            <td>{{ $part->loss ?? '-' }} %</td>
-                        </tr>
-                        @if($part->markup)
-                        <tr>
-                            <th>Markup</th>
-                            <td>{{ $part->markup }}</td>
-                        </tr>
-                        @endif
                     </table>
                 @elseif($part->type === 'bar')
                     <div class="info-group-title">Especificações de Barra</div>
@@ -327,16 +322,6 @@
                             <th>Comprimento</th>
                             <td>{{ $part->length ?? '-' }} mm</td>
                         </tr>
-                        <tr>
-                            <th>Perda</th>
-                            <td>{{ $part->loss ?? '-' }} %</td>
-                        </tr>
-                        @if($part->markup)
-                        <tr>
-                            <th>Markup</th>
-                            <td>{{ $part->markup }}</td>
-                        </tr>
-                        @endif
                     </table>
                 @elseif($part->type === 'component')
                     <div class="info-group-title">Especificações de Componente</div>
@@ -345,12 +330,6 @@
                             <th>Componente</th>
                             <td>{{ $part->component->name ?? '-' }}</td>
                         </tr>
-                        @if($part->markup)
-                        <tr>
-                            <th>Markup</th>
-                            <td>{{ $part->markup }}</td>
-                        </tr>
-                        @endif
                     </table>
                 @endif
 
@@ -370,25 +349,25 @@
                         <td>{{ number_format($part->gross_weight ?? 0, 2, ',', '.') }} KG</td>
                     </tr>
                 </table>
+
+                <!-- Processes Section -->
+                @if($part->processes && count($part->processes) > 0)
+                    <div class="processes-section">
+                        <div class="processes-title">Processos:</div>
+                        <ul class="processes-list">
+                            @foreach($part->processes as $process)
+                            <li>
+                                <strong>{{ $process->title }}</strong>
+                                @if($process->pivot && $process->pivot->time)
+                                    - Tempo: {{ $process->pivot->time }} min
+                                @endif
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
         </div>
-
-        <!-- Processes Section -->
-        @if($part->processes && count($part->processes) > 0)
-        <div class="processes-section">
-            <div class="processes-title">Processos:</div>
-            <ul class="processes-list">
-                @foreach($part->processes as $process)
-                <li>
-                    <strong>{{ $process->title }}</strong>
-                    @if($process->pivot && $process->pivot->time)
-                        - Tempo: {{ $process->pivot->time }} min
-                    @endif
-                </li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
     </div>
     @endforeach
 </body>

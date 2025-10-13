@@ -29,6 +29,11 @@ const permissionTranslations: Record<string, PermissionTranslation> = {
     name: 'delete_pre_orders',
     title: 'Excluir orçamentos',
     description: 'Permite excluir orçamentos'
+  },
+  approve_pre_orders: {
+    name: 'approve_pre_orders',
+    title: 'Aprovar orçamentos',
+    description: 'Permite aprovar orçamentos'
   }
 };
 

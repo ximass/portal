@@ -65,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('order.permission:edit');
     Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange'])
         ->middleware('order.permission:edit');
+    Route::put('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])
+        ->middleware('order.permission:edit');
 
     #DUPLICATE#
     Route::post('/orders/{order}/duplicate', [OrderController::class, 'duplicate']);
