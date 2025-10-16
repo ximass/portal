@@ -1,5 +1,13 @@
 export type OrderType = 'pre_order' | 'order';
 
+// Status para pre_order (orçamento)
+export type PreOrderStatus = 'in_progress' | 'waiting_response' | 'cancelled' | 'approved';
+
+// Status para order (pedido)
+export type OrderStatus = 'waiting_release' | 'released_for_production' | 'finished';
+
+export type AllOrderStatus = PreOrderStatus | OrderStatus;
+
 export interface OrderFilters {
   search: string;
   type: OrderType | null;
@@ -9,26 +17,34 @@ export interface OrderFilters {
 
 export interface OrderForm {
   type: OrderType;
+  status?: AllOrderStatus;
   customer_id: string;
   delivery_type: string;
   delivery_value: string;
+  service_value: string;
+  discount: string;
   markup: string;
   delivery_date: string;
   estimated_delivery_date: string;
   payment_obs: string;
+  os_file?: File | null;
 }
 
 export interface Order {
   id: number;
   type: OrderType;
+  status: AllOrderStatus;
   customer_id: number | null;
   final_value: number | null;
   delivery_type: string | null;
   delivery_value: number | null;
+  service_value: number | null;
+  discount: number | null;
   markup: number | null;
   delivery_date: string | null;
   estimated_delivery_date: string | null;
   payment_obs: string | null;
+  os_file?: string | null;
   customer?: Customer;
   sets?: Set[];
 }
@@ -51,6 +67,8 @@ export interface Material {
   name: string;
   specific_weight: number;
   price_kg: number;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
 }
 
 // Campos específicos de uma chapa
@@ -79,6 +97,8 @@ export interface Bar {
   length: number;
   weight: number;
   price_kg: number;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
 }
 
 // Campos específicos de um componente
@@ -88,6 +108,8 @@ export interface Component {
   specification: string;
   unit_value: number;
   supplier: string;
+  ncm_id?: number | null;
+  ncm?: MercosurCommonNomenclature;
 }
 
 export interface Part {
@@ -171,11 +193,19 @@ export interface User {
   enabled: boolean;
 }
 
+export interface Permission {
+  id: number | null;
+  name: string;
+  description: string | null;
+}
+
 export interface Group {
   id: number | null;
   name: string;
   user_ids: number[];
   users: User[];
+  permission_ids?: number[];
+  permissions?: Permission[];
 }
 
 export interface Process {
@@ -241,3 +271,44 @@ export type CustomerForm = {
   address: string | null;
   state_id: number | null;
 };
+
+export type ErrorLogLevel = 'error' | 'warning' | 'critical' | 'info';
+
+export interface ErrorLog {
+  id: number;
+  level: ErrorLogLevel;
+  message: string;
+  exception: string | null;
+  file: string | null;
+  line: number | null;
+  trace: string | null;
+  url: string | null;
+  method: string | null;
+  request_data: any | null;
+  ip: string | null;
+  user_id: number | null;
+  user?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ErrorLogFilters {
+  search: string;
+  level: ErrorLogLevel | null;
+  date_from: string;
+  date_to: string;
+  user_id: number | null;
+}
+
+export interface ErrorLogStatistics {
+  total: number;
+  by_level: {
+    error?: number;
+    warning?: number;
+    critical?: number;
+    info?: number;
+  };
+  last_24h: number;
+  last_7days: number;
+  last_30days: number;
+}

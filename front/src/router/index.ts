@@ -7,7 +7,6 @@ import { useAuth } from '../composables/auth';
 
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
-import Home from '../views/Home.vue';
 import OrdersView from '../views/OrdersView.vue';
 import OrderView from '../views/OrderView.vue';
 import GroupsView from '../views/GroupsView.vue';
@@ -22,12 +21,13 @@ import ComponentsView from '../views/ComponentsView.vue';
 import MercosurCommonNomenclatureView from '../views/MercosurCommonNomenclatureView.vue';
 import StatesView from '../views/StatesView.vue';
 import PartPrint from '../views/PartPrint.vue';
+import ErrorLogsView from '../views/ErrorLogsView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: OrdersView,
     meta: { requiresAuth: true },
   },
   {
@@ -106,6 +106,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/users',
     name: 'UsersView',
     component: UsersView,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/error-logs',
+    name: 'ErrorLogsView',
+    component: ErrorLogsView,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

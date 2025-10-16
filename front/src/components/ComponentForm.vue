@@ -29,6 +29,23 @@
             hint="Em BRL"
             @blur="formData.unit_value = roundValue(formData.unit_value, 2)"
           />
+          <v-autocomplete
+            label="NCM (opcional)"
+            v-model="formData.ncm_id"
+            :items="ncms"
+            item-title="code"
+            item-value="id"
+            clearable
+            no-data-text="Nenhum NCM encontrado"
+          >
+            <template #item="{ item, props }">
+              <v-list-item v-bind="props">
+                <v-list-item-subtitle
+                  >IPI: {{ item.raw.ipi }}%</v-list-item-subtitle
+                >
+              </v-list-item>
+            </template>
+          </v-autocomplete>
           <v-text-field
             label="Fornecedor"
             v-model="formData.supplier"
@@ -48,11 +65,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, type PropType } from 'vue';
+import { defineComponent, ref, watch, type PropType, onMounted } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
-import type { Component as ComponentType } from '../types/types';
+import type {
+  Component as ComponentType,
+  MercosurCommonNomenclature,
+} from '../types/types';
 
 export default defineComponent({
   name: 'ComponentForm',
@@ -74,9 +94,25 @@ export default defineComponent({
       specification: '',
       unit_value: 0,
       supplier: '',
+      ncm_id: null,
     });
     const { showToast } = useToast();
     const { roundValue } = useMisc();
+
+    const ncms = ref<MercosurCommonNomenclature[]>([]);
+
+    const fetchNCMs = async () => {
+      try {
+        const { data } = await axios.get('/api/mercosur-common-nomenclatures');
+        ncms.value = data;
+      } catch (error) {
+        showToast('Erro ao buscar NCMs', 'error');
+      }
+    };
+
+    onMounted(() => {
+      fetchNCMs();
+    });
 
     watch(
       () => props.componentData,
@@ -123,6 +159,7 @@ export default defineComponent({
       internalDialog,
       form,
       formData,
+      ncms,
       closeDialog,
       submitForm,
       roundValue,

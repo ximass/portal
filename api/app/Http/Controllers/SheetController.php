@@ -9,7 +9,7 @@ class SheetController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Sheet::with('material');
+        $query = Sheet::with('material.ncm');
         
         if ($request->has('material_id') && $request->material_id) {
             $query->where('material_id', $request->material_id);
@@ -30,12 +30,12 @@ class SheetController extends Controller
 
         $sheet = Sheet::create($data);
 
-        return response()->json($sheet, 201);
+        return response()->json($sheet->load('material.ncm'), 201);
     }
 
     public function show($materialId)
     {
-        $sheet = Sheet::with('material')->findOrFail($materialId);
+        $sheet = Sheet::with('material.ncm')->findOrFail($materialId);
 
         return response()->json($sheet);
     }
@@ -53,7 +53,7 @@ class SheetController extends Controller
 
         $sheet->update($data);
 
-        return response()->json($sheet);
+        return response()->json($sheet->load('material.ncm'));
     }
 
     public function destroy($materialId)

@@ -16,4 +16,12 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    /**
+     * Get the permissions for this group.
+     */
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'group_permission');
+    }
 }

@@ -12,7 +12,7 @@ class SetController extends Controller
 {
     public function index()
     {
-        return response()->json(Set::with('ncm')->get());
+        return response()->json(Set::with(['ncm', 'order'])->get());
     }
 
     public function store(Request $request)
@@ -44,7 +44,7 @@ class SetController extends Controller
 
     public function show(Set $set)
     {
-        $set->load('ncm');
+        $set->load(['ncm', 'order']);
         return response()->json($set);
     }
 

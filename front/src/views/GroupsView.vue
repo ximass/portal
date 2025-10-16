@@ -14,12 +14,28 @@
       :headers="[
         { title: 'Nome', value: 'name', sortable: true },
         { title: 'Usuários', value: 'users', sortable: false },
+        { title: 'Permissões', value: 'permissions', sortable: false },
         { title: 'Ações', value: 'actions', sortable: false },
       ]"
       class="elevation-1"
     >
       <template #item.users="{ item }">
         {{ item.users.map(user => user.name).join(', ') }}
+      </template>
+      <template #item.permissions="{ item }">
+        <v-chip
+          v-for="permission in item.permissions"
+          :key="permission.id!"
+          size="small"
+          class="ma-1"
+          color="primary"
+          variant="tonal"
+        >
+          {{ translatePermission(permission.name) }}
+        </v-chip>
+        <span v-if="!item.permissions || item.permissions.length === 0" class="text-grey">
+          Nenhuma permissão
+        </span>
       </template>
       <template #item.actions="{ item }">
         <v-menu offset-y>
@@ -70,6 +86,7 @@ import GroupForm from '../components/GroupForm.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { useToast } from '../composables/useToast';
 import { useConfirm } from '../composables/useConfirm';
+import { usePermissions } from '../composables/usePermissions';
 import type { Group } from '../types/types';
 
 export default defineComponent({
@@ -81,6 +98,7 @@ export default defineComponent({
     const selectedGroup = ref<Group | null>(null);
 
     const { showToast } = useToast();
+    const { translatePermission } = usePermissions();
     const {
       isConfirmDialogOpen,
       confirmTitle,
@@ -97,6 +115,7 @@ export default defineComponent({
         groups.value = response.data.map((group: any) => ({
           ...group,
           users: group.users ?? [],
+          permissions: group.permissions ?? [],
         }));
       } catch (error) {
         showToast('Erro ao buscar grupos');
@@ -145,6 +164,7 @@ export default defineComponent({
       confirmMessage,
       closeConfirm,
       handleConfirm,
+      translatePermission,
     };
   },
 });

@@ -36,17 +36,24 @@ const vuetify = createVuetify({
       light: {
         dark: false,
         colors: {
-          surface: '#FFFFFF',
-          background: '#D3D1CB',
-          primary: '#3B82F6',
-          secondary: '#64748B',
-        },
+          surface: '#FFFFFF',     // superfícies principais (cards, containers, etc.)
+          background: '#F5F6FA',  // fundo leve e neutro
+          primary: '#2563EB',     // azul mais profundo e elegante (bom contraste)
+          secondary: '#475569',   // tom neutro escuro (bom para texto secundário)
+          accent: '#FACC15',      // amarelo suave opcional, dá vida sem cansar
+          text: '#1E293B',        // cor principal do texto (quase preto)
+        }
       },
       dark: {
         dark: true,
         colors: {
-          background: '#181818',
-        },
+          surface: '#1E1E1E',     // superfícies principais (cards, containers, etc.)
+          background: '#181818',  // fundo principal (quase preto)
+          primary: '#3B82F6',     // mantém coerência com o modo claro, bom contraste no escuro
+          secondary: '#94A3B8',   // cinza frio e claro pra texto secundário
+          accent: '#FACC15',      // mesmo amarelo pra continuidade de marca
+          text: '#F1F5F9',        // texto principal (quase branco, sem ser puro)
+        }
       },
     },
   },

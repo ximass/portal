@@ -29,7 +29,7 @@ class SetPartController extends Controller
 
     public function index()
     {
-        $setParts = SetPart::with('processes')->get();
+        $setParts = SetPart::with(['processes', 'set.order'])->get();
 
         return response()->json($setParts);
     }

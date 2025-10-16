@@ -13,8 +13,14 @@ class Material extends Model
     protected $fillable = [
         'name',
         'specific_weight',
-        'price_kg'
+        'price_kg',
+        'ncm_id'
     ];
+
+    public function ncm()
+    {
+        return $this->belongsTo(MercosurCommonNomenclature::class, 'ncm_id');
+    }
 
     public function sheets()
     {

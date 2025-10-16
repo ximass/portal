@@ -93,7 +93,7 @@ export default defineComponent({
     const rail = ref(true);
 
     const menuItems = [
-      { title: 'Tela inicial', route: '/home', admin: false, icon: 'mdi-home' },
+      // { title: 'Tela inicial', route: '/home', admin: false, icon: 'mdi-home' },
       {
         title: 'Orçamentos',
         route: '/orders',
@@ -154,6 +154,12 @@ export default defineComponent({
         route: '/groups',
         admin: true,
         icon: 'mdi-account-group',
+      },
+      {
+        title: 'Logs de erros',
+        route: '/error-logs',
+        admin: true,
+        icon: 'mdi-alert-circle-outline',
       },
     ];
 

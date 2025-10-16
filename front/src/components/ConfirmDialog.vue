@@ -9,10 +9,10 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="grey" variant="text" @click="$emit('cancel')">
+        <v-btn color="primary" variant="flat"  @click="$emit('cancel')">
           Cancelar
         </v-btn>
-        <v-btn color="red" variant="text" @click="$emit('confirm')">
+        <v-btn  variant="outlined" @click="$emit('confirm')">
           Confirmar
         </v-btn>
       </v-card-actions>

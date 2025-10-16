@@ -188,7 +188,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="flat" @click="closeDialog">Cancelar</v-btn>
+        <v-btn variant="outlined" @click="closeDialog">Cancelar</v-btn>
         <v-btn
           color="primary"
           variant="flat"
@@ -447,12 +447,12 @@ export default defineComponent({
 .close-btn svg {
   width: 24px;
   height: 24px;
-  color: #555;
+  color: rgb(var(--v-theme-secondary));
   transition: color 0.2s;
 }
 
 .close-btn:hover svg {
-  color: #1976d2;
+  color: rgb(var(--v-theme-primary));
 }
 
 .no-image-placeholder {
