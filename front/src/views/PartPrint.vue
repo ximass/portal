@@ -63,4 +63,24 @@ export default defineComponent({
 .v-card {
   border-radius: 8px;
 }
+
+@media print {
+  * {
+    background-color: #fff !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  html,
+  body,
+  #app,
+  .v-application,
+  .v-main,
+  .v-container,
+  .print-page {
+    background-color: #fff !important;
+    background: #fff !important;
+  }
+}
 </style>
