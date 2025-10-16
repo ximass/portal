@@ -571,7 +571,7 @@ export default defineComponent({
   },
   setup() {
     const { showToast } = useToast();
-    const { getPartImageUrl } = useMisc();
+    const { getPartImageUrl, formatDateForInput } = useMisc();
 
     const route = useRoute();
     const router = useRouter();
@@ -722,8 +722,8 @@ export default defineComponent({
           form.value.service_value = data.service_value;
           form.value.discount = data.discount;
           form.value.markup = data.markup;
-          form.value.delivery_date = data.delivery_date;
-          form.value.estimated_delivery_date = data.estimated_delivery_date;
+          form.value.delivery_date = formatDateForInput(data.delivery_date, true);
+          form.value.estimated_delivery_date = formatDateForInput(data.estimated_delivery_date, false);
           form.value.payment_obs = data.payment_obs;
           currentOsFile.value = data.os_file || null;
 

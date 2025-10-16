@@ -67,6 +67,34 @@ export function useMisc() {
     return isNaN(numValue) ? 0 : numValue;
   };
 
+  const formatDateForInput = (dateString: string | null, includeTime = false): string => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      
+      if (includeTime) {
+        // Para datetime-local: yyyy-MM-ddTHH:mm
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      } else {
+        // Para date: yyyy-MM-dd
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
   return {
     formatPhone,
     formatCnpj,
@@ -75,5 +103,6 @@ export function useMisc() {
     getPartImageUrl,
     roundValue,
     ensureNumber,
+    formatDateForInput,
   };
 }
