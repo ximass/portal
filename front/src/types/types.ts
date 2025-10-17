@@ -11,6 +11,7 @@ export type AllOrderStatus = PreOrderStatus | OrderStatus;
 export interface OrderFilters {
   search: string;
   type: OrderType | null;
+  status: AllOrderStatus | null;
   dateFrom: string;
   dateTo: string;
 }

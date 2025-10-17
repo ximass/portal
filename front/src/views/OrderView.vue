@@ -756,9 +756,10 @@ export default defineComponent({
         if (form.value.service_value) formData.append('service_value', form.value.service_value);
         if (form.value.discount) formData.append('discount', form.value.discount);
         if (form.value.markup) formData.append('markup', form.value.markup);
-        if (form.value.delivery_date) formData.append('delivery_date', form.value.delivery_date);
-        if (form.value.estimated_delivery_date) formData.append('estimated_delivery_date', form.value.estimated_delivery_date);
-        if (form.value.payment_obs) formData.append('payment_obs', form.value.payment_obs);
+        
+        formData.append('delivery_date', form.value.delivery_date || '');
+        formData.append('estimated_delivery_date', form.value.estimated_delivery_date || '');
+        formData.append('payment_obs', form.value.payment_obs || '');
         
         // Add OS file if selected
         if (osFileInput.value) {
@@ -1140,9 +1141,12 @@ export default defineComponent({
       }
     };
 
-    const handleStatusUpdate = (updatedOrder: Order) => {
-      currentOrder.value = updatedOrder;
-      form.value.type = updatedOrder.type;
+    const handleStatusUpdate = (updatedData: { status: string; type: OrderType }) => {
+      if (currentOrder.value) {
+        currentOrder.value.status = updatedData.status as any;
+        currentOrder.value.type = updatedData.type;
+      }
+      form.value.type = updatedData.type;
       
       showToast('Status atualizado com sucesso!', 'success');
     };

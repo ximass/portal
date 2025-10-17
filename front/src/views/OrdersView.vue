@@ -12,7 +12,7 @@
 
     <!-- Filtros -->
     <v-row>
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="4">
         <v-text-field
           v-model="filters.search"
           label="Pesquisar por código ou cliente"
@@ -23,7 +23,7 @@
           density="compact"
         />
       </v-col>
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="2">
         <v-select
           v-model="filters.type"
           :items="orderTypes"
@@ -34,7 +34,18 @@
           @update:model-value="applyFilters"
         />
       </v-col>
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="2">
+        <v-select
+          v-model="filters.status"
+          :items="allStatuses"
+          label="Status"
+          variant="outlined"
+          clearable
+          density="compact"
+          @update:model-value="applyFilters"
+        />
+      </v-col>
+      <v-col cols="12" md="2">
         <v-text-field
           v-model="filters.dateFrom"
           label="Data de entrega (de)"
@@ -45,7 +56,7 @@
           @input="applyFilters"
         />
       </v-col>
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="2">
         <v-text-field
           v-model="filters.dateTo"
           label="Data de entrega (até)"
@@ -63,6 +74,15 @@
       :headers="headers"
       class="elevation-1"
     >
+      <template #item.status="{ item }">
+        <v-chip
+          :color="getStatusColor(item.status)"
+          size="small"
+          variant="flat"
+        >
+          {{ getStatusLabel(item.status) }}
+        </v-chip>
+      </template>
       <template #item.customer_document="{ item }">
         {{ formatCustomerDocument(item.customer) }}
       </template>
@@ -133,6 +153,7 @@ import { useRouter } from 'vue-router';
 import { useMisc } from '../composables/misc';
 import { useConfirm } from '../composables/useConfirm';
 import { useAuth } from '../composables/useAuth';
+import { useOrderStatus } from '../composables/useOrderStatus';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import type { Order, OrderFilters, Customer } from '../types/types';
 
@@ -147,6 +168,7 @@ export default defineComponent({
     const { showToast } = useToast();
     const { formatDateBR } = useMisc();
     const { canDeleteOrder, loadCurrentUser } = useAuth();
+    const { getStatusLabel, getStatusColor, getAllStatuses } = useOrderStatus();
     const {
       isConfirmDialogOpen,
       confirmTitle,
@@ -159,6 +181,7 @@ export default defineComponent({
     const filters = ref<OrderFilters>({
       search: '',
       type: null,
+      status: null,
       dateFrom: '',
       dateTo: '',
     });
@@ -167,6 +190,8 @@ export default defineComponent({
       { title: 'Orçamento', value: 'pre_order' },
       { title: 'Pedido', value: 'order' },
     ]);
+
+    const allStatuses = getAllStatuses();
 
     const filteredOrders = computed(() => {
       let filtered = orders.value;
@@ -183,6 +208,10 @@ export default defineComponent({
 
       if (filters.value.type) {
         filtered = filtered.filter(order => order.type === filters.value.type);
+      }
+
+      if (filters.value.status) {
+        filtered = filtered.filter(order => order.status === filters.value.status);
       }
 
       if (filters.value.dateFrom) {
@@ -208,6 +237,7 @@ export default defineComponent({
       { title: 'CNPJ/CPF', value: 'customer_document', sortable: true },
       { title: 'Estado', value: 'customer_state', sortable: true },
       { title: 'Endereço', value: 'customer.address', sortable: true },
+      { title: 'Status', value: 'status', sortable: true },
       { title: 'Valor do frete', value: 'delivery_value', sortable: true },
       { title: 'Data de entrega', value: 'delivery_date', sortable: true },
       { title: 'Ações', value: 'actions', sortable: false },
@@ -286,6 +316,7 @@ export default defineComponent({
       filters.value = {
         search: '',
         type: null,
+        status: null,
         dateFrom: '',
         dateTo: '',
       };
@@ -316,9 +347,12 @@ export default defineComponent({
       filters,
       filteredOrders,
       orderTypes,
+      allStatuses,
       applyFilters,
       clearFilters,
       canDeleteOrder,
+      getStatusLabel,
+      getStatusColor,
     };
   },
 });

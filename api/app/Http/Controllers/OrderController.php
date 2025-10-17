@@ -80,6 +80,14 @@ class OrderController extends Controller
             'os_file'        => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:10240',
         ]);
 
+        if (isset($validated['delivery_date']) && $validated['delivery_date'] === '') {
+            $validated['delivery_date'] = null;
+        }
+
+        if (isset($validated['estimated_delivery_date']) && $validated['estimated_delivery_date'] === '') {
+            $validated['estimated_delivery_date'] = null;
+        }
+
         // Impedir mudança de 'order' para 'pre_order'
         if (isset($validated['type']) && $order->type === 'order' && $validated['type'] === 'pre_order') {
             return response()->json([
@@ -222,7 +230,7 @@ class OrderController extends Controller
             return $newOrder;
         });
 
-        return response()->json($newOrder->load(['sets.setParts', 'customer.state']), 201);
+        return response()->json(['id' => $newOrder->id], 201);
     }
 
     public function downloadOsFile(Order $order)
@@ -302,6 +310,9 @@ class OrderController extends Controller
 
         $order->save();
 
-        return response()->json($order->load(['sets.setParts', 'customer.state']));
+        return response()->json([
+            'status' => $order->status,
+            'type' => $order->type,
+        ]);
     }
 }
