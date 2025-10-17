@@ -67,32 +67,19 @@ export function useMisc() {
     return isNaN(numValue) ? 0 : numValue;
   };
 
-  const formatDateForInput = (dateString: string | null, includeTime = false): string => {
-    if (!dateString) return '';
+  const formatDateTimeLocal = (dateStr: string | null): string => {
+    if (!dateStr) return '';
     
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return '';
-      
-      if (includeTime) {
-        // Para datetime-local: yyyy-MM-ddTHH:mm
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-      } else {
-        // Para date: yyyy-MM-dd
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      }
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return '';
-    }
+    // Remove timezone information and microseconds
+    // Converts from "2025-10-16T21:47:00.000000Z" to "2025-10-16T21:47:00"
+    // or from "2025-10-16 21:47:00" to "2025-10-16T21:47:00"
+    const dateWithoutTz = dateStr
+      .replace(' ', 'T')
+      .replace(/\.\d+Z?$/, '')
+      .replace('Z', '');
+    
+    // Return in the format expected by datetime-local input (yyyy-MM-ddThh:mm:ss)
+    return dateWithoutTz.substring(0, 19);
   };
 
   return {
@@ -103,6 +90,6 @@ export function useMisc() {
     getPartImageUrl,
     roundValue,
     ensureNumber,
-    formatDateForInput,
+    formatDateTimeLocal
   };
 }
