@@ -6,6 +6,12 @@ export type PreOrderStatus = 'in_progress' | 'waiting_response' | 'cancelled' | 
 // Status para order (pedido)
 export type OrderStatus = 'waiting_release' | 'released_for_production' | 'finished';
 
+// Status para set_part
+export type SetPartStatus = 'in_production' | 'finished';
+
+// Status para set
+export type SetStatus = 'in_production' | 'finished';
+
 export type AllOrderStatus = PreOrderStatus | OrderStatus;
 
 export interface OrderFilters {
@@ -54,6 +60,7 @@ export interface OrderSet {
   id?: number;
   name?: string;
   quantity?: number | null;
+  status?: SetStatus;
   setParts: Part[];
   fileList: File[] | null;
 }
@@ -117,6 +124,7 @@ export interface Part {
   id: number;
   set_id: number;
   type: SetPartType['value'] | null;
+  status: SetPartStatus;
   material_id: number | null;
   material?: Material;
   sheet_id: number | null;
@@ -173,6 +181,7 @@ export interface Set {
   ncm?: MercosurCommonNomenclature;
   reference?: string | null;
   obs?: string | null;
+  status: SetStatus;
   parts: Part[];
 }
 

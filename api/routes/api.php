@@ -63,6 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
     #PUT#
     Route::put('/sets/{set}/parts/{part}', [SetPartController::class, 'update'])
         ->middleware('order.permission:edit');
+    Route::put('/set-parts/{part}/status', [SetPartController::class, 'updateStatus'])
+        ->middleware('order.permission:edit');
+    Route::put('/sets/{set}/status', [SetController::class, 'updateStatus'])
+        ->middleware('order.permission:edit');
     Route::put('/orders/{order}/on-markup-change', [OrderController::class, 'onMarkupChange'])
         ->middleware('order.permission:edit');
     Route::put('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])

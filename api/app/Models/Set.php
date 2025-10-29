@@ -18,7 +18,8 @@ class Set extends Model
         'unit',
         'ncm_id',
         'reference',
-        'obs'
+        'obs',
+        'status'
     ];
 
     public function order()

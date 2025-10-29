@@ -53,6 +53,7 @@ class SetPartController extends Controller
             'obs'              => 'sometimes|nullable|string',
             'reference'        => 'sometimes|nullable|string|max:255',
             'type'             => 'sometimes|nullable|in:material,sheet,bar,component,process',
+            'status'           => 'sometimes|nullable|in:in_production,finished',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
@@ -86,6 +87,7 @@ class SetPartController extends Controller
             'reference'        => $request->input('reference'),
             'set_id'           => $setId,
             'type'             => $request->input('type'),
+            'status'           => $request->input('status', 'in_production'),
             'material_id'      => $request->input('material_id'),
             'sheet_id'         => $request->input('sheet_id'),
             'bar_id'           => $request->input('bar_id'),
@@ -146,6 +148,7 @@ class SetPartController extends Controller
             'obs'              => 'sometimes|nullable|string',
             'reference'        => 'sometimes|nullable|string|max:255',
             'type'             => 'sometimes|nullable|in:material,sheet,bar,component,process',
+            'status'           => 'sometimes|nullable|in:in_production,finished',
             'material_id'      => 'sometimes|nullable|integer|exists:materials,id',
             'sheet_id'         => 'sometimes|nullable|integer|exists:sheets,id',
             'bar_id'           => 'sometimes|nullable|integer|exists:bars,id',
@@ -179,6 +182,7 @@ class SetPartController extends Controller
             'obs',
             'reference',
             'type',
+            'status',
             'material_id',
             'sheet_id',
             'bar_id',
@@ -229,6 +233,18 @@ class SetPartController extends Controller
         $setPart->delete();
 
         return response()->json(['message' => 'Order part deleted successfully']);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:in_production,finished',
+        ]);
+
+        $setPart = SetPart::findOrFail($id);
+        $setPart->update(['status' => $request->status]);
+
+        return response()->json(['status' => $setPart->status]);
     }
 
     public function upload(Request $request)

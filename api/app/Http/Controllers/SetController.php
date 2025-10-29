@@ -39,6 +39,8 @@ class SetController extends Controller
             'obs'
         ]));
 
+        $set->load(['ncm', 'order']);
+
         return response()->json($set, 201);
     }
 
@@ -59,6 +61,7 @@ class SetController extends Controller
             'ncm_id' => 'nullable|integer|exists:mercosur_common_nomenclatures,id',
             'reference' => 'nullable|string|max:255',
             'obs' => 'nullable|string',
+            'status' => 'sometimes|nullable|in:in_production,finished',
         ]);
 
         $updateData = $request->only([
@@ -68,7 +71,8 @@ class SetController extends Controller
             'unit',
             'ncm_id',
             'reference',
-            'obs'
+            'obs',
+            'status'
         ]);
 
         if ($request->hasFile('image')) {
@@ -115,5 +119,16 @@ class SetController extends Controller
         $set->delete();
 
         return response()->json(['message' => 'Set deleted successfully']);
+    }
+
+    public function updateStatus(Request $request, Set $set)
+    {
+        $request->validate([
+            'status' => 'required|in:in_production,finished',
+        ]);
+
+        $set->update(['status' => $request->status]);
+
+        return response()->json(['status' => $set->status]);
     }
 }
