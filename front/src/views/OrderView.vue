@@ -345,7 +345,7 @@
                   <v-list-item-title>Editar</v-list-item-title>
                 </v-list-item>
                 <v-list-item 
-                  @click.stop="deleteSet(setIndex)" 
+                  @click.stop="confirmDeleteSet(setIndex)" 
                   prepend-icon="mdi-delete"
                   class="text-error"
                 >
@@ -420,7 +420,15 @@
                     </div>
                   </template>
                 </v-img>
-                <div class="counter">{{ partIndex + 1 }}</div>
+                <div 
+                  class="counter"
+                  :class="{
+                    'counter-in-production': part.status === 'in_production',
+                    'counter-finished': part.status === 'finished'
+                  }"
+                >
+                  {{ partIndex + 1 }}
+                </div>
                 <div class="overlay">
                   <span class="overlay-text">{{ part.title }}</span>
                   <v-menu offset-y>
@@ -446,12 +454,22 @@
                       </v-list-item>
                       <v-divider></v-divider>
                       <v-list-item
-                        @click.stop="
-                          deletePart(
-                            setIndex,
-                            setItem.setParts.length - 1 - partIndex
-                          )
-                        "
+                        v-if="part.status === 'in_production'"
+                        @click.stop="updatePartStatus(part, 'finished')"
+                        prepend-icon="mdi-check-circle"
+                      >
+                        <v-list-item-title>Marcar como finalizado</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="part.status === 'finished'"
+                        @click.stop="updatePartStatus(part, 'in_production')"
+                        prepend-icon="mdi-refresh"
+                      >
+                        <v-list-item-title>Voltar para produção</v-list-item-title>
+                      </v-list-item>
+                      <v-divider></v-divider>
+                      <v-list-item
+                        @click.stop="confirmDeletePart(setIndex, setItem.setParts.length - 1 - partIndex)"
                         prepend-icon="mdi-delete"
                         class="text-error"
                       >
@@ -494,6 +512,30 @@
       @close="closeSetModal"
       @saved="updateSetInList"
     />
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <v-dialog v-model="showDeleteConfirmDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5">Confirmar exclusão</v-card-title>
+        <v-card-text>
+          <span v-if="pendingDeleteSetIndex !== null">
+            Tem certeza de que deseja excluir este conjunto? Esta ação não pode ser desfeita.
+          </span>
+          <span v-else>
+            Tem certeza de que deseja excluir esta peça? Esta ação não pode ser desfeita.
+          </span>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="flat" @click="showDeleteConfirmDialog = false">
+            Cancelar
+          </v-btn>
+          <v-btn color="error" variant="outlined" @click="confirmDeleteAction">
+            Excluir
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Rodapé com ações -->
     <div class="mt-4 d-flex justify-end align-center flex-wrap gap-2">
@@ -633,6 +675,11 @@ export default defineComponent({
         icon: 'mdi-file-document-outline',
       },
     ]);
+
+    // Delete confirmation
+    const showDeleteConfirmDialog = ref(false);
+    const pendingDeleteSetIndex = ref<number | null>(null);
+    const pendingDeletePartIndex = ref<number | null>(null);
 
     // OS File handling
     const osFileInput = ref<File | null>(null);
@@ -804,6 +851,7 @@ export default defineComponent({
         });
         sets.value.push({
           ...data,
+          status: data.status || 'in_production',
           fileList: null,
           setParts: [] as Part[],
         });
@@ -811,6 +859,12 @@ export default defineComponent({
         const message = error.response?.data?.message || error.message || 'Erro ao criar conjunto';
         showToast(message, 'error');
       }
+    };
+
+    const confirmDeleteSet = (setIndex: number) => {
+      pendingDeleteSetIndex.value = setIndex;
+      pendingDeletePartIndex.value = null;
+      showDeleteConfirmDialog.value = true;
     };
 
     const deleteSet = async (setIndex: number) => {
@@ -888,6 +942,43 @@ export default defineComponent({
         }
       } catch (error: any) {
         const message = error.response?.data?.message || error.message || 'Erro ao excluir peça';
+        showToast(message, 'error');
+      }
+    };
+
+    const confirmDeletePart = (setIndex: number, partIndex: number) => {
+      pendingDeleteSetIndex.value = setIndex;
+      pendingDeletePartIndex.value = partIndex;
+      showDeleteConfirmDialog.value = true;
+    };
+
+    const confirmDeleteAction = async () => {
+      if (pendingDeleteSetIndex.value !== null && pendingDeletePartIndex.value === null) {
+        await deleteSet(pendingDeleteSetIndex.value);
+      } else if (pendingDeleteSetIndex.value !== null && pendingDeletePartIndex.value !== null) {
+        await deletePart(pendingDeleteSetIndex.value, pendingDeletePartIndex.value);
+      }
+      showDeleteConfirmDialog.value = false;
+      pendingDeleteSetIndex.value = null;
+      pendingDeletePartIndex.value = null;
+    };
+
+    const updatePartStatus = async (part: Part, newStatus: 'in_production' | 'finished') => {
+      try {
+        const { data } = await axios.put(`/api/set-parts/${part.id}/status`, {
+          status: newStatus,
+        });
+        // Atualiza o status na lista local
+        sets.value.forEach(set => {
+          const index = set.setParts.findIndex(p => p.id === part.id);
+          if (index !== -1) {
+            set.setParts[index].status = data.status;
+          }
+        });
+        const statusText = newStatus === 'finished' ? 'finalizado' : 'em produção';
+        showToast(`Peça marcada como ${statusText}.`, 'success');
+      } catch (error: any) {
+        const message = error.response?.data?.message || error.message || 'Erro ao atualizar status da peça';
         showToast(message, 'error');
       }
     };
@@ -1173,8 +1264,12 @@ export default defineComponent({
       saveOrder,
       createSet,
       deleteSet,
+      confirmDeleteSet,
       deletePart,
       addNewPart,
+      confirmDeletePart,
+      confirmDeleteAction,
+      updatePartStatus,
       updatePartInList,
       getPartImageUrl,
       openPartModal,
@@ -1190,6 +1285,10 @@ export default defineComponent({
       handleFileUpload,
       handlePartNavigation,
       handleStatusUpdate,
+      // Delete confirmation
+      showDeleteConfirmDialog,
+      pendingDeleteSetIndex,
+      pendingDeletePartIndex,
       // Documents
       showDocumentsMenu,
       loadingDocument,
@@ -1245,6 +1344,16 @@ export default defineComponent({
   z-index: 2;
   box-shadow: 0 2px 4px rgba(var(--v-theme-on-surface), 0.2);
 }
+
+.counter-in-production {
+  background: #FFC107 !important;
+  color: #000000 !important;
+}
+.counter-finished {
+  background: #4CAF50 !important;
+  color: #FFFFFF !important;
+}
+
 
 /* Overlay das peças */
 .overlay {

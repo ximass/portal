@@ -18,6 +18,7 @@ class SetPart extends Model
         'obs', // Observações
         'set_id',
         'type',
+        'status',
         'locked_values',
         'material_id',
         'sheet_id',

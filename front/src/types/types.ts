@@ -6,6 +6,9 @@ export type PreOrderStatus = 'in_progress' | 'waiting_response' | 'cancelled' | 
 // Status para order (pedido)
 export type OrderStatus = 'waiting_release' | 'released_for_production' | 'finished';
 
+// Status para set_part
+export type SetPartStatus = 'in_production' | 'finished';
+
 export type AllOrderStatus = PreOrderStatus | OrderStatus;
 
 export interface OrderFilters {
@@ -117,6 +120,7 @@ export interface Part {
   id: number;
   set_id: number;
   type: SetPartType['value'] | null;
+  status: SetPartStatus;
   material_id: number | null;
   material?: Material;
   sheet_id: number | null;
