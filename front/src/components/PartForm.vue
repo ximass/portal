@@ -490,7 +490,7 @@
                     "
                   />
                 </v-col>
-                <v-col cols="12" md="4" small="6">
+                <v-col v-if="canViewValues" cols="12" md="4" small="6">
                   <v-text-field
                     label="Valor unitário"
                     v-model="localPart.unit_value"
@@ -511,7 +511,7 @@
                     </template>
                   </v-text-field>
                 </v-col>
-                <v-col cols="12" md="4" small="6">
+                <v-col v-if="canViewValues" cols="12" md="4" small="6">
                   <v-text-field
                     label="Valor final"
                     v-model="localPart.final_value"
@@ -543,6 +543,7 @@
               <!-- Informações do IPI e ICMS -->
               <v-sheet
                 v-if="
+                  canViewValues &&
                   localPart.type !== 'process' && (
                     localPart.ncm_id ||
                     getUnitIcmsValue() > 0 ||
@@ -648,6 +649,7 @@ import {
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
+import { useAuth } from '../composables/useAuth';
 import type {
   Part,
   Material,
@@ -676,6 +678,9 @@ export default defineComponent({
   setup(props, { emit }) {
     const { showToast } = useToast();
     const { roundValue, ensureNumber } = useMisc();
+    const { canViewMonetaryValues } = useAuth();
+
+    const canViewValues = computed(() => canViewMonetaryValues());
 
     const setPartTypes = [
       { name: 'Material', value: 'material' },
@@ -1227,6 +1232,7 @@ export default defineComponent({
       show: props.show,
       isFirstPart,
       isLastPart,
+      canViewValues,
       roundValue,
       onTypeChange,
       fillMaterialDetails,

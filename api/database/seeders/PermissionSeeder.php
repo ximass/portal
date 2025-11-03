@@ -33,6 +33,18 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'approve_pre_orders',
                 'description' => 'Permite aprovar orçamentos'
+            ],
+            [
+                'name' => 'view_monetary_values',
+                'description' => 'Permite visualizar valores monetários em pedidos e orçamentos'
+            ],
+            [
+                'name' => 'generate_parts_pdf',
+                'description' => 'Permite gerar orçamento por peça'
+            ],
+            [
+                'name' => 'generate_sets_pdf',
+                'description' => 'Permite gerar orçamento por conjunto'
             ]
         ];
 
