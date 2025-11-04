@@ -110,6 +110,30 @@ class PdfController extends Controller
         return $pdf->stream("orcamento-conjuntos-{$data['orderNumber']}.pdf");
     }
 
+    public function generateOrderPrintPdf($id)
+    {
+        $order = Order::with([
+            'customer.state',
+            'sets.setParts.material',
+            'sets.setParts.sheet',
+            'sets.setParts.bar',
+            'sets.setParts.component',
+            'sets.setParts.ncm',
+            'sets.ncm'
+        ])->findOrFail($id);
+
+        $data = [
+            'order' => $order,
+            'createdDate' => now()->format('d/m/Y'),
+            'orderNumber' => str_pad($order->id, 6, '0', STR_PAD_LEFT)
+        ];
+
+        $pdf = Pdf::loadView('pdf.order-print', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream("impressao-pedido-{$data['orderNumber']}.pdf");
+    }
+
     public function generateSetPartPdf($id)
     {
         ini_set('memory_limit', '-1');

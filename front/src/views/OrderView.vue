@@ -686,6 +686,12 @@ export default defineComponent({
         });
       }
       
+      docs.push({
+        title: 'Impressão do pedido',
+        value: 'print-order',
+        icon: 'mdi-printer-outline'
+      });
+      
       return docs;
     });
 
@@ -1122,6 +1128,10 @@ export default defineComponent({
           case 'quote-sets':
             endpoint = `/api/orders/${route.params.id}/pdf-sets`;
             filename = `orcamento-conjuntos-${String(route.params.id).padStart(6, '0')}.pdf`;
+            break;
+          case 'print-order':
+            endpoint = `/api/orders/${route.params.id}/pdf-print`;
+            filename = `impressao-pedido-${String(route.params.id).padStart(6, '0')}.pdf`;
             break;
           default:
             showToast('Tipo de documento não reconhecido', 'error');
