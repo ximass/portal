@@ -3,7 +3,7 @@
     <v-card-title>Valores</v-card-title>
     <v-card-text>
       <v-data-table
-        :headers="headers"
+        :headers="filteredHeaders"
         :items="items"
         :group-by="groupBy"
         class="elevation-1"
@@ -29,10 +29,10 @@
             </td>
           </tr>
         </template>
-        <template #item.unit_value="{ item }">
+        <template v-if="canViewValues" #item.unit_value="{ item }">
           R$ {{ item.unit_value ?? 0 }}
         </template>
-        <template #item.final_value="{ item }">
+        <template v-if="canViewValues" #item.final_value="{ item }">
           R$ {{ item.final_value }}
         </template>
         <template #item.net_weight="{ item }">
@@ -41,7 +41,7 @@
         <template #item.gross_weight="{ item }">
           {{ item.unit_gross_weight * item.quantity }} KG
         </template>
-        <template #body.append>
+        <template v-if="canViewValues" #body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">Total:</td>
             <td class="font-weight-bold">
@@ -86,8 +86,9 @@
 <script lang="ts">
 // @ts-nocheck
 // v-data-table bug
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 import type { Part } from '../types/types';
+import { useAuth } from '../composables/useAuth';
 
 export default defineComponent({
   name: 'OrderValuesTable',
@@ -104,6 +105,27 @@ export default defineComponent({
       type: Array,
       required: true,
     },
+  },
+  setup(props) {
+    const { canViewMonetaryValues } = useAuth();
+    
+    const canViewValues = computed(() => canViewMonetaryValues());
+    
+    const filteredHeaders = computed(() => {
+      if (canViewValues.value) {
+        return props.headers;
+      }
+      
+      // Remove colunas de valores monetários se não tiver permissão
+      return props.headers.filter((header: any) => 
+        !['unit_value', 'final_value'].includes(header.value)
+      );
+    });
+
+    return {
+      canViewValues,
+      filteredHeaders,
+    };
   },
   methods: {
     computedTotalValue(items: Part[], fn: (item: any) => number): string {

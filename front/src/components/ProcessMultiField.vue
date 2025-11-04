@@ -18,7 +18,7 @@
             @update:model-value="onSelectChange(index)"
           />
         </v-col>
-        <v-col cols="3">
+        <v-col v-if="canViewValues" cols="3">
           <v-text-field
             label="Valor por minuto"
             :model-value="getValuePerMinute(proc.id)"
@@ -43,7 +43,7 @@
             @blur="calculateProcess(index)"
           />
         </v-col>
-        <v-col cols="3">
+        <v-col v-if="canViewValues" cols="3">
           <v-text-field
             label="Valor final"
             v-model="proc.pivot.final_value"
@@ -58,7 +58,7 @@
             @blur="onFinalValueBlur(index)"
           />
         </v-col>
-        <v-col cols="1">
+        <v-col :cols="canViewValues ? 1 : 4">
           <v-btn
             variant="text"
             small
@@ -84,10 +84,11 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch, type PropType } from 'vue';
+import { defineComponent, ref, onMounted, watch, computed, type PropType } from 'vue';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
+import { useAuth } from '../composables/useAuth';
 import type { Process, ProcessPivot } from '../types/types';
 
 export default defineComponent({
@@ -104,6 +105,9 @@ export default defineComponent({
   setup(props, { emit }) {
     const { showToast } = useToast();
     const { roundValue } = useMisc();
+    const { canViewMonetaryValues } = useAuth();
+
+    const canViewValues = computed(() => canViewMonetaryValues());
 
     const processOptions = ref<Process[]>([]);
 
@@ -234,6 +238,7 @@ export default defineComponent({
     return {
       internalProcesses,
       processOptions,
+      canViewValues,
       addProcess,
       removeProcess,
       onFinalValueBlur,

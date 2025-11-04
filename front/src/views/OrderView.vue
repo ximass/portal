@@ -487,7 +487,7 @@
 
     <!-- Tabela de valores -->
     <OrderValuesTable
-      v-if="!isNew"
+      v-if="!isNew && canViewValues"
       :headers="setPartsHeaders"
       :items="allSetParts"
       :groupBy="groupByValuesTable"
@@ -540,7 +540,7 @@
     <!-- Rodapé com ações -->
     <div class="mt-4 d-flex justify-end align-center flex-wrap gap-2">
       <v-menu
-        v-if="!isNew"
+        v-if="!isNew && availableDocuments.length > 0"
         v-model="showDocumentsMenu"
         location="bottom"
         transition="scale-transition"
@@ -596,6 +596,7 @@ import { defineComponent, ref, watch, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
+import { useAuth } from '../composables/useAuth';
 import axios from 'axios';
 import PartForm from '../components/PartForm.vue';
 import SetForm from '../components/SetForm.vue';
@@ -614,6 +615,9 @@ export default defineComponent({
   setup() {
     const { showToast } = useToast();
     const { getPartImageUrl, formatDateTimeLocal } = useMisc();
+    const { canViewMonetaryValues, canGeneratePartsPdf, canGenerateSetsPdf } = useAuth();
+
+    const canViewValues = computed(() => canViewMonetaryValues());
 
     const route = useRoute();
     const router = useRouter();
@@ -663,18 +667,33 @@ export default defineComponent({
 
     const showDocumentsMenu = ref(false);
     const loadingDocument = ref(false);
-    const availableDocuments = ref([
-      {
-        title: 'Orçamento por peça',
-        value: 'quote-set-parts',
-        icon: 'mdi-file-document-multiple-outline'
-      },
-      {
-        title: 'Orçamento por conjunto',
-        value: 'quote-sets',
-        icon: 'mdi-file-document-outline',
-      },
-    ]);
+    const availableDocuments = computed(() => {
+      const docs = [];
+      
+      if (canGeneratePartsPdf()) {
+        docs.push({
+          title: 'Orçamento por peça',
+          value: 'quote-set-parts',
+          icon: 'mdi-file-document-multiple-outline'
+        });
+      }
+      
+      if (canGenerateSetsPdf()) {
+        docs.push({
+          title: 'Orçamento por conjunto',
+          value: 'quote-sets',
+          icon: 'mdi-file-document-outline',
+        });
+      }
+      
+      docs.push({
+        title: 'Impressão do pedido',
+        value: 'print-order',
+        icon: 'mdi-printer-outline'
+      });
+      
+      return docs;
+    });
 
     // Delete confirmation
     const showDeleteConfirmDialog = ref(false);
@@ -1110,6 +1129,10 @@ export default defineComponent({
             endpoint = `/api/orders/${route.params.id}/pdf-sets`;
             filename = `orcamento-conjuntos-${String(route.params.id).padStart(6, '0')}.pdf`;
             break;
+          case 'print-order':
+            endpoint = `/api/orders/${route.params.id}/pdf-print`;
+            filename = `impressao-pedido-${String(route.params.id).padStart(6, '0')}.pdf`;
+            break;
           default:
             showToast('Tipo de documento não reconhecido', 'error');
             return;
@@ -1261,6 +1284,7 @@ export default defineComponent({
       groupByValuesTable,
       allPartsInDisplayOrder,
       currentPartIndex,
+      canViewValues,
       saveOrder,
       createSet,
       deleteSet,

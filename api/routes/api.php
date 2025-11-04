@@ -34,6 +34,7 @@ Route::middleware('web')->group(function () {
     Route::get('/orders/{id}/pdf', [PdfController::class, 'generateOrderPdf']);
     Route::get('/orders/{id}/pdf-sets', [PdfController::class, 'generateOrderSetsPdf']);
     Route::get('/orders/{id}/pdf-parts', [PdfController::class, 'generateOrderPartsPdf']);
+    Route::get('/orders/{id}/pdf-print', [PdfController::class, 'generateOrderPrintPdf']);
     Route::get('/set-parts/{id}/pdf', [PdfController::class, 'generateSetPartPdf']);
 });
 

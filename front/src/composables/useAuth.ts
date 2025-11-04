@@ -92,6 +92,39 @@ export function useAuth() {
   };
 
   /**
+   * Verifica se o usuário pode visualizar valores monetários
+   */
+  const canViewMonetaryValues = (): boolean => {
+    if (!currentUser.value) return false;
+    
+    if (currentUser.value.admin) return true;
+    
+    return hasPermission('view_monetary_values');
+  };
+
+  /**
+   * Verifica se o usuário pode gerar orçamento por peça
+   */
+  const canGeneratePartsPdf = (): boolean => {
+    if (!currentUser.value) return false;
+    
+    if (currentUser.value.admin) return true;
+    
+    return hasPermission('generate_parts_pdf');
+  };
+
+  /**
+   * Verifica se o usuário pode gerar orçamento por conjunto
+   */
+  const canGenerateSetsPdf = (): boolean => {
+    if (!currentUser.value) return false;
+    
+    if (currentUser.value.admin) return true;
+    
+    return hasPermission('generate_sets_pdf');
+  };
+
+  /**
    * Verifica se o usuário é admin
    */
   const isAdmin = computed(() => {
@@ -107,6 +140,9 @@ export function useAuth() {
     canEditOrder,
     canDeleteOrder,
     canViewAllOrders,
+    canViewMonetaryValues,
+    canGeneratePartsPdf,
+    canGenerateSetsPdf,
     isAdmin
   };
 }

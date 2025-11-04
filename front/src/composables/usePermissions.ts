@@ -34,6 +34,21 @@ const permissionTranslations: Record<string, PermissionTranslation> = {
     name: 'approve_pre_orders',
     title: 'Aprovar orçamentos',
     description: 'Permite aprovar orçamentos'
+  },
+  view_monetary_values: {
+    name: 'view_monetary_values',
+    title: 'Visualizar valores monetários',
+    description: 'Permite visualizar valores monetários em pedidos e orçamentos'
+  },
+  generate_parts_pdf: {
+    name: 'generate_parts_pdf',
+    title: 'Gerar orçamento por peça',
+    description: 'Permite gerar orçamento por peça'
+  },
+  generate_sets_pdf: {
+    name: 'generate_sets_pdf',
+    title: 'Gerar orçamento por conjunto',
+    description: 'Permite gerar orçamento por conjunto'
   }
 };
 
