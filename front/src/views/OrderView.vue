@@ -145,11 +145,14 @@
                 <v-text-field
                   label="Data de entrega"
                   v-model="form.delivery_date"
-                  type="datetime-local"
+                  type="text"
                   variant="outlined"
                   density="comfortable"
                   prepend-inner-icon="mdi-calendar-check"
                   hide-details="auto"
+                  placeholder="DD/MM/AAAA"
+                  maxlength="10"
+                  @input="applyDateMask"
                 />
               </v-col>
             </v-row>
@@ -614,7 +617,7 @@ export default defineComponent({
   },
   setup() {
     const { showToast } = useToast();
-    const { getPartImageUrl, formatDateTimeLocal } = useMisc();
+    const { getPartImageUrl, formatDateToInput, formatDateFromInput } = useMisc();
     const { canViewMonetaryValues, canGeneratePartsPdf, canGenerateSetsPdf } = useAuth();
 
     const canViewValues = computed(() => canViewMonetaryValues());
@@ -788,7 +791,7 @@ export default defineComponent({
           form.value.service_value = data.service_value;
           form.value.discount = data.discount;
           form.value.markup = data.markup;
-          form.value.delivery_date = formatDateTimeLocal(data.delivery_date);
+          form.value.delivery_date = formatDateToInput(data.delivery_date);
           form.value.estimated_delivery_date = data.estimated_delivery_date;
           form.value.payment_obs = data.payment_obs;
           currentOsFile.value = data.os_file || null;
@@ -823,7 +826,11 @@ export default defineComponent({
         if (form.value.discount) formData.append('discount', form.value.discount);
         if (form.value.markup) formData.append('markup', form.value.markup);
         
-        formData.append('delivery_date', form.value.delivery_date || '');
+        // Convert delivery_date from dd/mm/yyyy to yyyy-mm-dd before sending
+        const deliveryDateFormatted = form.value.delivery_date 
+          ? formatDateFromInput(form.value.delivery_date)
+          : '';
+        formData.append('delivery_date', deliveryDateFormatted);
         formData.append('estimated_delivery_date', form.value.estimated_delivery_date || '');
         formData.append('payment_obs', form.value.payment_obs || '');
         
@@ -1162,6 +1169,30 @@ export default defineComponent({
       }
     };
 
+    const applyDateMask = (event: Event) => {
+      const input = event.target as HTMLInputElement;
+      let value = input.value.replace(/\D/g, '');
+      
+      // Limita a 8 dígitos (ddmmyyyy)
+      if (value.length > 8) {
+        value = value.substring(0, 8);
+      }
+      
+      let maskedValue = '';
+      
+      if (value.length >= 1) {
+        maskedValue = value.substring(0, 2);
+      }
+      if (value.length >= 3) {
+        maskedValue += '/' + value.substring(2, 4);
+      }
+      if (value.length >= 5) {
+        maskedValue += '/' + value.substring(4, 8);
+      }
+      
+      form.value.delivery_date = maskedValue;
+    };
+
     // OS File methods
     const handleOsFileChange = async () => {
       if (!osFileInput.value) return;
@@ -1326,6 +1357,7 @@ export default defineComponent({
       confirmRemoveOsFile,
       getOsFileName,
       downloadOsFile,
+      applyDateMask,
     };
   },
 });

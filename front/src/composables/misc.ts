@@ -82,6 +82,33 @@ export function useMisc() {
     return dateWithoutTz.substring(0, 19);
   };
 
+  const formatDateToInput = (dateStr: string | null): string => {
+    if (!dateStr) return '';
+    
+    // Convert from yyyy-mm-dd to dd/mm/yyyy
+    const datePart = dateStr.split('T')[0].split(' ')[0];
+    const [year, month, day] = datePart.split('-');
+    
+    if (!year || !month || !day) return '';
+    
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatDateFromInput = (dateStr: string | null): string => {
+    if (!dateStr) return '';
+    
+    // Convert from dd/mm/yyyy to yyyy-mm-dd
+    const parts = dateStr.split('/');
+    
+    if (parts.length !== 3) return '';
+    
+    const [day, month, year] = parts;
+    
+    if (!day || !month || !year) return '';
+    
+    return `${year}-${month}-${day}`;
+  };
+
   return {
     formatPhone,
     formatCnpj,
@@ -90,6 +117,8 @@ export function useMisc() {
     getPartImageUrl,
     roundValue,
     ensureNumber,
-    formatDateTimeLocal
+    formatDateTimeLocal,
+    formatDateToInput,
+    formatDateFromInput
   };
 }
