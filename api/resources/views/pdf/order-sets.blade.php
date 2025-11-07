@@ -265,6 +265,13 @@
         </div>
     </div>
 
+    <!-- Description -->
+    @if($order->obs)
+    <div class="greeting">
+        {{ $order->obs }}
+    </div>
+    @endif
+
     <!-- Sets Table -->
     @foreach($order->sets as $setIndex => $set)
         <table class="sets-table">

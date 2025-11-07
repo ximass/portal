@@ -265,6 +265,13 @@
         </div>
     </div>
 
+    <!-- Description -->
+    @if($order->obs)
+    <div class="greeting">
+        {{ $order->obs }}
+    </div>
+    @endif
+
     <!-- Items Table -->
     @foreach($order->sets as $setIndex => $set)
         @foreach($set->setParts as $partIndex => $part)

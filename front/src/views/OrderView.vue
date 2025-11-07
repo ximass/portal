@@ -156,6 +156,21 @@
                 />
               </v-col>
             </v-row>
+            <v-row class="mt-4">
+              <v-col cols="12">
+                <v-textarea
+                  label="Descrição"
+                  placeholder="Digite a descrição do pedido..."
+                  v-model="form.obs"
+                  variant="outlined"
+                  density="comfortable"
+                  rows="3"
+                  auto-grow
+                  prepend-inner-icon="mdi-text-box"
+                  hide-details="auto"
+                />
+              </v-col>
+            </v-row>
             <v-row>
               <v-col cols="12">
                 <v-textarea
@@ -639,6 +654,7 @@ export default defineComponent({
       delivery_date: '',
       estimated_delivery_date: '',
       payment_obs: '',
+      obs: 'Prezados Senhores, atendendo sua solicitação, apresentamos proposta para fornecimento de material do equipamento: ',
     });
 
     const orderTypeOptions = ref<{ title: string; value: OrderType }[]>([
@@ -794,6 +810,7 @@ export default defineComponent({
           form.value.delivery_date = formatDateToInput(data.delivery_date);
           form.value.estimated_delivery_date = data.estimated_delivery_date;
           form.value.payment_obs = data.payment_obs;
+          form.value.obs = data.obs || 'Prezados Senhores, atendendo sua solicitação, apresentamos proposta para fornecimento de material do equipamento: ';
           currentOsFile.value = data.os_file || null;
 
           if (data.sets && data.sets.length) {
@@ -833,6 +850,7 @@ export default defineComponent({
         formData.append('delivery_date', deliveryDateFormatted);
         formData.append('estimated_delivery_date', form.value.estimated_delivery_date || '');
         formData.append('payment_obs', form.value.payment_obs || '');
+        formData.append('obs', form.value.obs || '');
         
         // Add OS file if selected
         if (osFileInput.value) {

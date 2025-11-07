@@ -35,6 +35,7 @@ class Order extends Model
         'delivery_date',
         'estimated_delivery_date',
         'payment_obs',
+        'obs',
         'os_file',
     ];
 

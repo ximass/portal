@@ -39,7 +39,8 @@ class OrderController extends Controller
             'discount'      => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
-            'payment_obs'   => 'nullable|string'
+            'payment_obs'   => 'nullable|string',
+            'obs'           => 'nullable|string'
         ]);
 
         if ($validated['type'] === 'pre_order') {
@@ -77,6 +78,7 @@ class OrderController extends Controller
             'delivery_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string',
+            'obs'           => 'nullable|string',
             'os_file'        => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:10240',
         ]);
 
@@ -168,6 +170,7 @@ class OrderController extends Controller
                 'delivery_date'          => $originalOrder->delivery_date,
                 'estimated_delivery_date'=> $originalOrder->estimated_delivery_date,
                 'payment_obs'            => $originalOrder->payment_obs,
+                'obs'                    => $originalOrder->obs,
             ]);
 
             foreach ($originalOrder->sets as $originalSet) {

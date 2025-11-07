@@ -31,6 +31,7 @@ export interface OrderForm {
   delivery_date: string;
   estimated_delivery_date: string;
   payment_obs: string;
+  obs: string;
   os_file?: File | null;
 }
 
@@ -48,6 +49,7 @@ export interface Order {
   delivery_date: string | null;
   estimated_delivery_date: string | null;
   payment_obs: string | null;
+  obs: string | null;
   os_file?: string | null;
   customer?: Customer;
   sets?: Set[];
