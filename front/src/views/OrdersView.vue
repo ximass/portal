@@ -102,6 +102,20 @@
       <template #item.delivery_date="{ item }">
         {{ formatDateBR(item.delivery_date ?? '') }}
       </template>
+      <template #item.estimated_delivery_date="{ item }">
+        <div class="d-flex align-center gap-2">
+          <span>{{ formatEstimatedDate(item.estimated_delivery_date) }}</span>
+          <v-icon
+            v-if="isDeliveryDateLate(item.delivery_date, item.estimated_delivery_date)"
+            color="warning"
+            size="small"
+            title="Data de entrega maior que a data estimada"
+            class="ml-2"
+          >
+            mdi-alert-circle
+          </v-icon>
+        </div>
+      </template>
       <template #item.actions="{ item }">
         <v-menu offset-y>
           <template #activator="{ props }">
@@ -240,6 +254,7 @@ export default defineComponent({
       { title: 'Status', value: 'status', sortable: true },
       { title: 'Valor do frete', value: 'delivery_value', sortable: true },
       { title: 'Data de entrega', value: 'delivery_date', sortable: true },
+      { title: 'Data estimada', value: 'estimated_delivery_date', sortable: true },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 
@@ -312,6 +327,26 @@ export default defineComponent({
       return customer.state.abbreviation || customer.state.name || '-';
     };
 
+    const formatEstimatedDate = (dateStr: string | null): string => {
+      if (!dateStr) return '-';
+      
+      const datePart = dateStr.split(' ')[0];
+      const [day, month, year] = datePart.split('/');
+      
+      if (!year || !month || !day) return '-';
+      
+      return `${day}/${month}/${year}`;
+    };
+
+    const isDeliveryDateLate = (deliveryDate: string | null, estimatedDate: string | null): boolean => {
+      if (!deliveryDate || !estimatedDate) return false;
+      
+      const delivery = new Date(deliveryDate);
+      const estimated = new Date(estimatedDate);
+      
+      return delivery > estimated;
+    };
+
     const clearFilters = () => {
       filters.value = {
         search: '',
@@ -339,6 +374,8 @@ export default defineComponent({
       formatCustomerDocument,
       formatAddress,
       formatCustomerState,
+      formatEstimatedDate,
+      isDeliveryDateLate,
       isConfirmDialogOpen,
       confirmTitle,
       confirmMessage,

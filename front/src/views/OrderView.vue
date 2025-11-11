@@ -139,6 +139,9 @@
                   density="comfortable"
                   prepend-inner-icon="mdi-calendar-clock"
                   hide-details="auto"
+                  placeholder="DD/MM/AAAA"
+                  maxlength="10"
+                  @input="(event: Event) => applyDateMask(event, 'estimated_delivery_date')"
                 />
               </v-col>
               <v-col cols="12" md="4" sm="6">
@@ -152,7 +155,7 @@
                   hide-details="auto"
                   placeholder="DD/MM/AAAA"
                   maxlength="10"
-                  @input="applyDateMask"
+                  @input="(event: Event) => applyDateMask(event, 'delivery_date')"
                 />
               </v-col>
             </v-row>
@@ -1187,7 +1190,7 @@ export default defineComponent({
       }
     };
 
-    const applyDateMask = (event: Event) => {
+    const applyDateMask = (event: Event, fieldName: 'delivery_date' | 'estimated_delivery_date' = 'delivery_date') => {
       const input = event.target as HTMLInputElement;
       let value = input.value.replace(/\D/g, '');
       
@@ -1208,7 +1211,7 @@ export default defineComponent({
         maskedValue += '/' + value.substring(4, 8);
       }
       
-      form.value.delivery_date = maskedValue;
+      form.value[fieldName] = maskedValue;
     };
 
     // OS File methods
