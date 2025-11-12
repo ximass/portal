@@ -105,15 +105,6 @@
       <template #item.estimated_delivery_date="{ item }">
         <div class="d-flex align-center gap-2">
           <span>{{ formatEstimatedDate(item.estimated_delivery_date) }}</span>
-          <v-icon
-            v-if="isDeliveryDateLate(item.delivery_date, item.estimated_delivery_date)"
-            color="warning"
-            size="small"
-            title="Data de entrega maior que a data estimada"
-            class="ml-2"
-          >
-            mdi-alert-circle
-          </v-icon>
         </div>
       </template>
       <template #item.actions="{ item }">
@@ -338,15 +329,6 @@ export default defineComponent({
       return `${day}/${month}/${year}`;
     };
 
-    const isDeliveryDateLate = (deliveryDate: string | null, estimatedDate: string | null): boolean => {
-      if (!deliveryDate || !estimatedDate) return false;
-      
-      const delivery = new Date(deliveryDate);
-      const estimated = new Date(estimatedDate);
-      
-      return delivery > estimated;
-    };
-
     const clearFilters = () => {
       filters.value = {
         search: '',
@@ -375,7 +357,6 @@ export default defineComponent({
       formatAddress,
       formatCustomerState,
       formatEstimatedDate,
-      isDeliveryDateLate,
       isConfirmDialogOpen,
       confirmTitle,
       confirmMessage,
