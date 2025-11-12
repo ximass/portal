@@ -148,17 +148,25 @@ class OrderController extends Controller
         return response()->json(['message' => 'Partes recalculadas com sucesso']);
     }
 
-    public function duplicate(Order $order)
+    public function duplicate(Request $request, Order $order)
     {
-        $newOrder = DB::transaction(function () use ($order) {
+        $newOrder = DB::transaction(function () use ($request, $order) {
             $originalOrder = Order::with(['sets.setParts.processes'])->findOrFail($order->id);
 
-            $status = $originalOrder->type === 'pre_order' 
-                ? Order::STATUS_IN_PROGRESS 
-                : Order::STATUS_WAITING_RELEASE;
+            $convertToPreOrder = $request->input('convert_to_pre_order', false);
+
+            if ($convertToPreOrder && $originalOrder->type === 'order') {
+                $type = 'pre_order';
+                $status = Order::STATUS_IN_PROGRESS;
+            } else {
+                $type = $originalOrder->type;
+                $status = $originalOrder->type === 'pre_order' 
+                    ? Order::STATUS_IN_PROGRESS 
+                    : Order::STATUS_WAITING_RELEASE;
+            }
 
             $newOrder = Order::create([
-                'type'                   => $originalOrder->type,
+                'type'                   => $type,
                 'status'                 => $status,
                 'customer_id'            => $originalOrder->customer_id,
                 'markup'                 => $originalOrder->markup,
