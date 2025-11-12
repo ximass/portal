@@ -148,6 +148,33 @@
       @confirm="handleConfirm"
       @cancel="closeConfirm"
     />
+
+    <!-- Duplicate Dialog -->
+    <v-dialog v-model="showDuplicateDialog" max-width="500">
+      <v-card>
+        <v-card-title>Duplicar {{ orderToDuplicate?.type === 'order' ? 'pedido' : 'orçamento' }}</v-card-title>
+        <v-card-text>
+          <p class="mb-4">Tem certeza que deseja duplicar este {{ orderToDuplicate?.type === 'order' ? 'pedido' : 'orçamento' }}?</p>
+          
+          <v-checkbox
+            v-if="orderToDuplicate?.type === 'order'"
+            v-model="convertToPreOrder"
+            label="Converter para orçamento"
+            color="primary"
+            hide-details
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="grey" variant="text" @click="closeDuplicateDialog">
+            Cancelar
+          </v-btn>
+          <v-btn color="primary" variant="flat" @click="confirmDuplicate">
+            Duplicar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 <script lang="ts">
@@ -197,6 +224,10 @@ export default defineComponent({
     ]);
 
     const allStatuses = getAllStatuses();
+
+    const showDuplicateDialog = ref(false);
+    const orderToDuplicate = ref<Order | null>(null);
+    const convertToPreOrder = ref(false);
 
     const filteredOrders = computed(() => {
       let filtered = orders.value;
@@ -266,21 +297,48 @@ export default defineComponent({
       router.push({ name: 'OrderView', params: { id: order.id } });
     };
 
-    const duplicateOrder = async (order: Order) => {
-      openConfirm(
-        'Tem certeza que deseja duplicar este orçamento?',
-        async () => {
-          try {
-            const response = await axios.post(`/api/orders/${order.id}/duplicate`);
-            fetchOrders();
-            showToast('Orçamento duplicado com sucesso!', 'success');
-            router.push({ name: 'OrderView', params: { id: response.data.id } });
-          } catch (error) {
-            showToast('Erro ao duplicar orçamento');
-          }
-        },
-        'Duplicar orçamento'
-      );
+    const duplicateOrder = (order: Order) => {
+      orderToDuplicate.value = order;
+      convertToPreOrder.value = false;
+      showDuplicateDialog.value = true;
+    };
+
+    const closeDuplicateDialog = () => {
+      showDuplicateDialog.value = false;
+      orderToDuplicate.value = null;
+      convertToPreOrder.value = false;
+    };
+
+    const confirmDuplicate = async () => {
+      if (!orderToDuplicate.value) return;
+
+      try {
+        const payload: any = {};
+
+        if (convertToPreOrder.value) {
+          payload.convert_to_pre_order = true;
+        }
+
+        const wasConvertedToPreOrder = convertToPreOrder.value;
+        const originalType = orderToDuplicate.value.type;
+
+        const response = await axios.post(
+          `/api/orders/${orderToDuplicate.value.id}/duplicate`,
+          payload
+        );
+        
+        fetchOrders();
+        closeDuplicateDialog();
+        
+        const itemType = wasConvertedToPreOrder ? 'orçamento' : 
+          (originalType === 'order' ? 'pedido' : 'orçamento');
+
+        showToast(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} duplicado com sucesso!`, 'success');
+        
+        router.push({ name: 'OrderView', params: { id: response.data.id } });
+      } catch (error) {
+        showToast('Erro ao duplicar');
+      }
     };
 
     const deleteOrder = async (orderId: number) => {
@@ -371,6 +429,11 @@ export default defineComponent({
       canDeleteOrder,
       getStatusLabel,
       getStatusColor,
+      showDuplicateDialog,
+      orderToDuplicate,
+      convertToPreOrder,
+      closeDuplicateDialog,
+      confirmDuplicate,
     };
   },
 });
