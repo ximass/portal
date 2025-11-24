@@ -139,9 +139,6 @@
                   density="comfortable"
                   prepend-inner-icon="mdi-calendar-clock"
                   hide-details="auto"
-                  placeholder="DD/MM/AAAA"
-                  maxlength="10"
-                  @input="(event: Event) => applyDateMask(event, 'estimated_delivery_date')"
                 />
               </v-col>
               <v-col cols="12" md="4" sm="6">

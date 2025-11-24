@@ -104,7 +104,7 @@
       </template>
       <template #item.estimated_delivery_date="{ item }">
         <div class="d-flex align-center gap-2">
-          <span>{{ formatEstimatedDate(item.estimated_delivery_date) }}</span>
+          <span>{{item.estimated_delivery_date }}</span>
         </div>
       </template>
       <template #item.actions="{ item }">
