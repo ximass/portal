@@ -29,6 +29,7 @@
                   <th>Título</th>
                   <th class="text-center">Qtd</th>
                   <th v-if="canViewValues" class="text-end">Valor unit.</th>
+                  <th v-if="canViewValues" class="text-center">IPI (%)</th>
                   <th v-if="canViewValues" class="text-end">Valor total</th>
                   <th class="text-end">Peso bruto</th>
                   <th class="text-end">Peso líquido</th>
@@ -46,6 +47,7 @@
                   </td>
                   <td class="text-center">{{ part.quantity }}</td>
                   <td v-if="canViewValues" class="text-end">{{ formatCurrency(part.calculated_unit_value ?? 0) }}</td>
+                  <td v-if="canViewValues" class="text-center">{{ part.ncm?.ipi ?? 0 }}%</td>
                   <td v-if="canViewValues" class="text-end font-weight-medium">
                     {{ formatCurrency(part.calculated_total_value ?? 0) }}
                   </td>
@@ -56,7 +58,9 @@
               <tfoot>
                 <tr class="set-total-row">
                   <td colspan="2" class="text-end font-weight-bold">Subtotal do conjunto:</td>
-                  <td v-if="canViewValues" colspan="2" class="text-end font-weight-bold text-primary">
+                  <td v-if="canViewValues" class="text-end font-weight-bold">{{ formatCurrency(setGroup.totalUnitValues) }}</td>
+                  <td v-if="canViewValues"></td>
+                  <td v-if="canViewValues" class="text-end font-weight-bold text-primary">
                     {{ formatCurrency(setGroup.total) }}
                   </td>
                   <td class="text-end font-weight-bold">{{ formatWeight(setGroup.totalGrossWeight) }}</td>
@@ -140,6 +144,7 @@ interface SetGroup {
   setName: string;
   parts: Part[];
   total: number;
+  totalUnitValues: number;
   totalGrossWeight: number;
   totalNetWeight: number;
   setQuantity?: number;

@@ -13,6 +13,7 @@ interface SetGroup {
   setName: string;
   parts: any[];
   total: number;
+  totalUnitValues: number;
   totalGrossWeight: number;
   totalNetWeight: number;
   setQuantity?: number;
@@ -71,6 +72,7 @@ export function useOrderCalculations() {
           setName,
           parts: [],
           total: 0,
+          totalUnitValues: 0,
           totalGrossWeight: 0,
           totalNetWeight: 0,
           setQuantity: setQuantity,
@@ -94,6 +96,7 @@ export function useOrderCalculations() {
       const netWeight = (Number(part.unit_net_weight) || 0) * (Number(part.quantity) || 0);
 
       group.total += calculations.calculated_total_value;
+      group.totalUnitValues += calculations.calculated_unit_value;
       group.totalGrossWeight += grossWeight;
       group.totalNetWeight += netWeight;
     });
@@ -102,6 +105,7 @@ export function useOrderCalculations() {
     const groupsArray = Array.from(setMap.values());
     groupsArray.forEach(group => {
       group.total *= group.setQuantity;
+      group.totalUnitValues *= group.setQuantity;
       group.totalGrossWeight *= group.setQuantity;
       group.totalNetWeight *= group.setQuantity;
     });
