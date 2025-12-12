@@ -505,10 +505,11 @@
 
     <!-- Tabela de valores -->
     <OrderValuesTable
-      v-if="!isNew && canViewValues"
-      :headers="setPartsHeaders"
+      v-if="!isNew"
       :items="allSetParts"
-      :groupBy="groupByValuesTable"
+      :delivery-value="Number(form.delivery_value) || 0"
+      :service-value="Number(form.service_value) || 0"
+      :discount="Number(form.discount) || 0"
     />
 
     <PartForm
@@ -1030,6 +1031,7 @@ export default defineComponent({
     const addNewPart = async (setIndex: number) => {
       try {
         const setId = sets.value[setIndex].id;
+        const currentSet = sets.value[setIndex];
 
         if (!setId) {
           showToast('Erro: conjunto não encontrado.', 'error');
@@ -1053,6 +1055,7 @@ export default defineComponent({
           loss: null,
           markup: null,
           locked_values: [],
+          ncm_id: currentSet.ncm_id || null,
         };
 
         const { data } = await axios.post(

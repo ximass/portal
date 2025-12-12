@@ -61,6 +61,7 @@ export interface OrderSet {
   quantity?: number | null;
   setParts: Part[];
   fileList: File[] | null;
+  ncm_id?: number | null;
 }
 
 export interface SetPartType {
@@ -72,7 +73,7 @@ export interface Material {
   id: number | null;
   name: string;
   specific_weight: number;
-  price_kg: number;
+  price_kg: number | null;
   ncm_id?: number | null;
   ncm?: MercosurCommonNomenclature;
 }
@@ -85,6 +86,7 @@ export interface Sheet {
   thickness: number;
   width: number;
   length: number;
+  price_kg: number | null;
 }
 
 export interface SheetForm {
@@ -94,6 +96,7 @@ export interface SheetForm {
   thickness: number;
   width: number;
   length: number;
+  price_kg: number | null;
 }
 
 // Campos específicos de uma barra
@@ -153,7 +156,9 @@ export interface Part {
   net_weight: number;
   gross_weight: number;
   unit_value: number;
+  calculated_unit_value?: number;
   final_value: number;
+  calculated_total_value?: number;
   unit_ipi_value: number;
   total_ipi_value: number;
   unit_icms_value: number;

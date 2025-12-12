@@ -31,18 +31,21 @@
             "
           />
           <v-text-field
-            label="Preço por kilo"
+            label="Preço por kilo (opcional)"
             v-model="formData.price_kg"
             :rules="[
-              v => !!v || 'Preço é obrigatório',
               v =>
+                !v ||
                 /^\d+(\.\d{1,4})?$/.test(String(v)) ||
                 'Máximo 4 casas decimais',
             ]"
             type="number"
-            required
             hint="Em BRL/kg"
-            @blur="formData.price_kg = roundValue(formData.price_kg, 4)"
+            @blur="
+              formData.price_kg = formData.price_kg
+                ? roundValue(formData.price_kg, 4)
+                : null
+            "
           />
           <v-autocomplete
             label="NCM (opcional)"
@@ -98,7 +101,7 @@ export default defineComponent({
       id: null,
       name: '',
       specific_weight: 0,
-      price_kg: 0,
+      price_kg: null,
       ncm_id: null,
     });
 

@@ -105,6 +105,7 @@ export default defineComponent({
       { title: 'Espessura (mm)', value: 'thickness' },
       { title: 'Largura (mm)', value: 'width' },
       { title: 'Comprimento (mm)', value: 'length' },
+      { title: 'Preço/kg (R$)', value: 'price_kg' },
       { title: 'Ações', value: 'actions', sortable: false },
     ];
 
@@ -125,6 +126,7 @@ export default defineComponent({
         thickness: 0,
         width: 0,
         length: 0,
+        price_kg: null,
       };
       isEdit.value = false;
       dialog.value = true;

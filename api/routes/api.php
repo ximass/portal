@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/set-parts/types', [SetPartController::class, 'getPartTypes']);
     Route::get('/sets/{set}/parts', [SetPartController::class, 'getSetParts']);
     Route::get('/permissions', [PermissionController::class, 'index']);
+    Route::get('/orders/{id}/calculate-values', [OrderController::class, 'calculateValues']);
 
     #POST#
     Route::post('/upload-set-part', [SetPartController::class, 'upload'])

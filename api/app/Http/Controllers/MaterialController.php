@@ -19,7 +19,7 @@ class MaterialController extends Controller
         $data = $request->validate([
             'name'            => 'required|string|max:100',
             'specific_weight' => 'required|numeric',
-            'price_kg'        => 'required|numeric',
+            'price_kg'        => 'nullable|numeric',
             'ncm_id'          => 'nullable|exists:mercosur_common_nomenclatures,id'
         ]);
 
@@ -38,7 +38,7 @@ class MaterialController extends Controller
         $data = $request->validate([
             'name'            => 'sometimes|required|string|max:100',
             'specific_weight' => 'sometimes|required|numeric',
-            'price_kg'        => 'sometimes|required|numeric',
+            'price_kg'        => 'nullable|numeric',
             'ncm_id'          => 'nullable|exists:mercosur_common_nomenclatures,id'
         ]);
 

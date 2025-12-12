@@ -26,6 +26,7 @@ class SheetController extends Controller
             'thickness'       => 'required|numeric',
             'width'           => 'required|numeric',
             'length'          => 'required|numeric',
+            'price_kg'        => 'nullable|numeric',
         ]);
 
         $sheet = Sheet::create($data);
@@ -49,6 +50,7 @@ class SheetController extends Controller
             'thickness'       => 'sometimes|required|numeric',
             'width'           => 'sometimes|required|numeric',
             'length'          => 'sometimes|required|numeric',
+            'price_kg'        => 'sometimes|nullable|numeric',
         ]);
 
         $sheet->update($data);

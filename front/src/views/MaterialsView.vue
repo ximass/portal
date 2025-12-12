@@ -102,7 +102,7 @@ export default defineComponent({
       id: null,
       name: '',
       specific_weight: 0,
-      price_kg: 0,
+      price_kg: null,
     });
 
     const headers = [
@@ -131,7 +131,7 @@ export default defineComponent({
         id: null,
         name: '',
         specific_weight: 0,
-        price_kg: 0,
+        price_kg: null,
       };
       isEdit.value = false;
       dialog.value = true;

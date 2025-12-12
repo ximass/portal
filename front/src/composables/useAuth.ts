@@ -4,12 +4,20 @@ import type { User, Permission } from '../types/types';
 
 const currentUser = ref<User | null>(null);
 const userPermissions = ref<Permission[]>([]);
+const isLoading = ref(false);
+const isLoaded = ref(false);
 
 export function useAuth() {
   /**
    * Carrega o usuário atual e suas permissões
    */
   const loadCurrentUser = async () => {
+    if (isLoaded.value || isLoading.value) {
+      return;
+    }
+
+    isLoading.value = true;
+    
     try {
       const response = await axios.get('/api/user');
       currentUser.value = response.data;
@@ -19,10 +27,14 @@ export function useAuth() {
         const permissionsResponse = await axios.get('/api/user/permissions');
         userPermissions.value = permissionsResponse.data;
       }
+      
+      isLoaded.value = true;
     } catch (error) {
       console.error('Erro ao carregar usuário:', error);
       currentUser.value = null;
       userPermissions.value = [];
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -30,8 +42,8 @@ export function useAuth() {
    * Verifica se o usuário tem uma permissão específica
    */
   const hasPermission = (permissionName: string): boolean => {
-    if (!currentUser.value)
-    {
+    // Carrega o usuário se ainda não foi carregado
+    if (!isLoaded.value && !isLoading.value) {
       loadCurrentUser();
     }
 
@@ -134,6 +146,8 @@ export function useAuth() {
   return {
     currentUser,
     userPermissions,
+    isLoading,
+    isLoaded,
     loadCurrentUser,
     hasPermission,
     hasAnyPermission,

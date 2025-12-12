@@ -20,6 +20,7 @@ class Sheet extends Model
         'thickness',
         'width',
         'length',
+        'price_kg',
     ];
 
     public function material()

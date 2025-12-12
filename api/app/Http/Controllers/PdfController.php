@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\SetPart;
+use App\Services\OrderService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PdfController extends Controller
 {
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     public function generateOrderPdf($id)
     {
         $order = Order::with([
@@ -21,27 +29,8 @@ class PdfController extends Controller
             'sets.setParts.ncm'
         ])->findOrFail($id);
 
-        $totalGeral = 0;
-        
-        foreach ($order->sets as $set) {
-            foreach ($set->setParts as $part) {
-                $ipi = ($part->ncm->ipi ?? 0) / 100;
-
-                $unitValueWithIPI = $part->unit_value ?? 0;
-                $baseUnitValue = $ipi !== 0 ? ($unitValueWithIPI / (1 + $ipi)) : $unitValueWithIPI;
-
-                $totalValue = $part->final_value ?? 0;
-
-                $part->calculated_unit_value = $baseUnitValue;
-                $part->calculated_total_value = $totalValue;
-
-                $totalGeral += $totalValue;
-            }
-        }
-
-        $totalGeral += $order->delivery_value ?? 0;
-        $totalGeral += $order->service_value ?? 0;
-        $totalGeral -= $order->discount ?? 0;
+        $calculations = $this->orderService->calculateOrderValues($order);
+        $totalGeral = $calculations['grand_total'];
 
         $data = [
             'order' => $order,
@@ -68,34 +57,8 @@ class PdfController extends Controller
             'sets.ncm'
         ])->findOrFail($id);
 
-        $totalGeral = 0;
-        
-        foreach ($order->sets as $set) {
-            $setUnitWithIpi = 0;
-            $setUnitBase = 0;
-            $setTotalValue = 0;
-
-            foreach ($set->setParts as $part) {
-                $partFinalWithIpi = $part->final_value ?? 0;
-                $ipi = ($part->ncm->ipi ?? 0) / 100;
-
-                $partBaseFinal = $ipi !== 0 ? ($partFinalWithIpi / (1 + $ipi)) : $partFinalWithIpi;
-
-                $setUnitWithIpi += $partFinalWithIpi;
-                $setUnitBase += $partBaseFinal;
-            }
-
-            $setTotalValue = $setUnitWithIpi * ($set->quantity ?? 1);
-
-            $set->calculated_unit_value = $setUnitBase;
-            $set->calculated_total_value = $setTotalValue;
-
-            $totalGeral += $setTotalValue;
-        }
-
-        $totalGeral += $order->delivery_value ?? 0;
-        $totalGeral += $order->service_value ?? 0;
-        $totalGeral -= $order->discount ?? 0;
+        $calculations = $this->orderService->calculateSetValues($order);
+        $totalGeral = $calculations['grand_total'];
 
         $data = [
             'order' => $order,

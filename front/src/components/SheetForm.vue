@@ -62,6 +62,23 @@
             required
             @blur="formData.length = roundValue(formData.length, 2)"
           />
+          <v-text-field
+            label="Preço por kilo (opcional)"
+            v-model="formData.price_kg"
+            type="number"
+            :rules="[
+              v =>
+                !v ||
+                /^\d+(\.\d{1,4})?$/.test(String(v)) ||
+                'Máximo 4 casas decimais',
+            ]"
+            hint="Em BRL/kg. Se não informado, usa o preço do material"
+            @blur="
+              formData.price_kg = formData.price_kg
+                ? roundValue(formData.price_kg, 4)
+                : null
+            "
+          />
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -113,6 +130,7 @@ export default defineComponent({
       thickness: 0,
       width: 0,
       length: 0,
+      price_kg: null,
     });
 
     const materials = ref<Material[]>([]);
@@ -142,6 +160,18 @@ export default defineComponent({
       () => props.dialog,
       newVal => {
         internalDialog.value = newVal;
+      }
+    );
+
+    watch(
+      () => formData.value.material_id,
+      (newMaterialId) => {
+        if (newMaterialId && !props.isEdit) {
+          const selectedMaterial = materials.value.find(m => m.id === newMaterialId);
+          if (selectedMaterial && selectedMaterial.price_kg) {
+            formData.value.price_kg = selectedMaterial.price_kg;
+          }
+        }
       }
     );
 

@@ -7,11 +7,19 @@ use App\Models\Order;
 use App\Models\Set;
 use App\Models\SetPart;
 use App\Http\Controllers\SetPartController;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+    
     public function index()
     {
         $orders = Order::with(
@@ -325,5 +333,16 @@ class OrderController extends Controller
             'status' => $order->status,
             'type' => $order->type,
         ]);
+    }
+
+    public function calculateValues($id)
+    {
+        $order = Order::with([
+            'sets.setParts.ncm'
+        ])->findOrFail($id);
+
+        $calculations = $this->orderService->calculateOrderValues($order);
+
+        return response()->json($calculations);
     }
 }

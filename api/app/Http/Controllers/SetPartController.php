@@ -79,6 +79,16 @@ class SetPartController extends Controller
             'locked_values'    => 'sometimes|nullable|array',
         ]);
 
+        $ncmId = $request->input('ncm_id');
+
+        if (is_null($ncmId)) {
+            $set = \App\Models\Set::find($setId);
+
+            if ($set && $set->ncm_id) {
+                $ncmId = $set->ncm_id;
+            }
+        }
+
         $setPart = SetPart::create([
             'title'            => $request->title,
             'content'          => $request->content,
@@ -92,7 +102,7 @@ class SetPartController extends Controller
             'sheet_id'         => $request->input('sheet_id'),
             'bar_id'           => $request->input('bar_id'),
             'component_id'     => $request->input('component_id'),
-            'ncm_id'           => $request->input('ncm_id'),
+            'ncm_id'           => $ncmId,
             'quantity'         => $request->input('quantity'),
             'unit'             => $request->input('unit'),
             'loss'             => $request->input('loss'),
@@ -128,6 +138,9 @@ class SetPartController extends Controller
 
             $setPart->processes()->sync($syncData);
         }
+
+        // Load relationships before returning
+        $setPart->load(['processes', 'ncm', 'material', 'sheet', 'bar', 'component', 'set.order.customer.state']);
 
         return response()->json($setPart, 201);
     }
@@ -419,12 +432,15 @@ class SetPartController extends Controller
             $material = Material::findOrFail($part->material_id);
             // Para material, precisa ter thickness definida no part
             $thickness = isset($part->thickness) ? $part->thickness : 0;
+            $priceKg = $material->price_kg ?? 0;
         }
         else
         {
             $sheet = Sheet::findOrFail($part->sheet_id);
             $material = $sheet->material;
             $thickness = $sheet->thickness;
+            // Prioriza o price_kg da sheet, se não existir usa o do material
+            $priceKg = $sheet->price_kg ?? $material->price_kg ?? 0;
         }
 
         // Converte medidas de mm para m e aplica arredondamento para width e length se necessário
@@ -471,8 +487,8 @@ class SetPartController extends Controller
             $unitGrossWeight = $grossWeight / $quantity;
         }
 
-        // Valor unitário com base no peso unitário e preço por kg
-        $unitValue  = $unitGrossWeight * $material->price_kg * $markup;
+        // Valor unitário com base no peso unitário e preço por kg (usando priceKg da sheet ou material)
+        $unitValue  = $unitGrossWeight * $priceKg * $markup;
 
         if (in_array('unit_value', $part->locked_values) && isset($part->unit_value)) {
             $unitValue = $part->unit_value;
