@@ -339,8 +339,8 @@
           </v-col>
           <v-col>
             <span class="text-h6">{{ setItem.name }}</span>
-            <div v-if="setItem.setParts.length" class="text-caption text-medium-emphasis">
-              {{ setItem.setParts.length }} {{ setItem.setParts.length === 1 ? 'peça' : 'peças' }}
+            <div v-if="setItem.parts.length" class="text-caption text-medium-emphasis">
+              {{ setItem.parts.length }} {{ setItem.parts.length === 1 ? 'peça' : 'peças' }}
             </div>
           </v-col>
           <v-col cols="auto" class="d-flex justify-end align-center">
@@ -412,7 +412,7 @@
               </div>
             </v-col>
             <v-col
-              v-for="(part, partIndex) in setItem.setParts.slice().reverse()"
+              v-for="(part, partIndex) in setItem.parts.slice().reverse()"
               :key="part.id"
               cols="auto"
               class="pa-2"
@@ -487,7 +487,7 @@
                       </v-list-item>
                       <v-divider></v-divider>
                       <v-list-item
-                        @click.stop="confirmDeletePart(setIndex, setItem.setParts.length - 1 - partIndex)"
+                        @click.stop="confirmDeletePart(setIndex, setItem.parts.length - 1 - partIndex)"
                         prepend-icon="mdi-delete"
                         class="text-error"
                       >
@@ -506,7 +506,7 @@
     <!-- Tabela de valores -->
     <OrderValuesTable
       v-if="!isNew"
-      :items="allSetParts"
+      :sets="sets"
       :delivery-value="Number(form.delivery_value) || 0"
       :service-value="Number(form.service_value) || 0"
       :discount="Number(form.discount) || 0"
@@ -673,15 +673,6 @@ export default defineComponent({
     const selectedPart = ref<Part | null>(null);
     const showSetModal = ref(false);
     const selectedSet = ref<Set | null>(null);
-    const setParts = ref<Part[]>([]);
-    const setPartsHeaders = [
-      { title: 'Peça', value: 'title', sortable: true },
-      { title: 'Valor unitário', value: 'unit_value', sortable: true },
-      { title: 'Qtd.', value: 'quantity', sortable: true },
-      { title: 'Valor total', value: 'final_value', sortable: true },
-      { title: 'Peso bruto', value: 'gross_weight', sortable: true },
-      { title: 'Peso líquido', value: 'net_weight', sortable: true },
-    ];
 
     const uploadingIndex = ref<number | null>(null);
 
@@ -741,11 +732,11 @@ export default defineComponent({
 
     const updatePartInList = (updatedPart: Part) => {
       sets.value.forEach(set => {
-        const index = set.setParts.findIndex(
+        const index = set.parts.findIndex(
           part => part.id === updatedPart.id
         );
         if (index !== -1) {
-          set.setParts[index] = updatedPart;
+          set.parts[index] = updatedPart;
         }
       });
 
@@ -818,12 +809,12 @@ export default defineComponent({
             sets.value = data.sets.map((s: any) => ({
               ...s,
               fileList: null,
-              setParts: [] as Part[],
+              parts: [] as Part[],
             }));
 
             for (const set of sets.value) {
               const { data } = await axios.get(`/api/sets/${set.id}/parts`);
-              set.setParts = data;
+              set.parts = data;
             }
           }
         } catch (error: any) {
@@ -898,7 +889,7 @@ export default defineComponent({
           ...data,
           status: data.status || 'in_production',
           fileList: null,
-          setParts: [] as Part[],
+          parts: [] as Part[],
         });
       } catch (error: any) {
         const message = error.response?.data?.message || error.message || 'Erro ao criar conjunto';
@@ -950,9 +941,9 @@ export default defineComponent({
             const data = response.data;
 
             if (Array.isArray(data)) {
-              data.forEach(part => currentSet.setParts.push(part));
+              data.forEach(part => currentSet.parts.push(part));
             } else {
-              currentSet.setParts.push(data);
+              currentSet.parts.push(data);
             }
           } catch (error: any) {
             const message = error.response?.data?.message || error.message || 'Erro ao fazer upload de arquivo';
@@ -976,12 +967,12 @@ export default defineComponent({
 
     const deletePart = async (setIndex: number, partIndex: number) => {
       try {
-        const part = sets.value[setIndex].setParts[partIndex];
+        const part = sets.value[setIndex].parts[partIndex];
 
         if (part.id) {
           await axios.delete(`/api/set-parts/${part.id}`);
 
-          sets.value[setIndex].setParts.splice(partIndex, 1);
+          sets.value[setIndex].parts.splice(partIndex, 1);
 
           showToast('Peça excluída com sucesso.', 'success');
         }
@@ -1015,9 +1006,9 @@ export default defineComponent({
         });
         // Atualiza o status na lista local
         sets.value.forEach(set => {
-          const index = set.setParts.findIndex(p => p.id === part.id);
+          const index = set.parts.findIndex(p => p.id === part.id);
           if (index !== -1) {
-            set.setParts[index].status = data.status;
+            set.parts[index].status = data.status;
           }
         });
         const statusText = newStatus === 'finished' ? 'finalizado' : 'em produção';
@@ -1063,7 +1054,7 @@ export default defineComponent({
           newPartData
         );
 
-        sets.value[setIndex].setParts.push(data);
+        sets.value[setIndex].parts.push(data);
 
         showToast('Nova peça adicionada com sucesso.', 'success');
       } catch (error: any) {
@@ -1072,17 +1063,10 @@ export default defineComponent({
       }
     };
 
-    // Propriedade computada para "achatar" as set_parts incluindo o nome do set para agrupamento
-    const allSetParts = computed(() => {
-      return sets.value.flatMap(set => {
-        return set.setParts.map(part => ({ ...part, setName: set.name, setQuantity: set.quantity || 1 }));
-      });
-    });
-
     const allPartsInDisplayOrder = computed(() => {
       const parts: Part[] = [];
       sets.value.forEach(set => {
-        const reversedParts = set.setParts.slice().reverse();
+        const reversedParts = set.parts.slice().reverse();
         parts.push(...reversedParts);
       });
       return parts;
@@ -1125,7 +1109,7 @@ export default defineComponent({
           for (const set of sets.value) {
             if (set.id) {
               const { data } = await axios.get(`/api/sets/${set.id}/parts`);
-              set.setParts = data;
+              set.parts = data;
             }
           }
 
@@ -1330,9 +1314,6 @@ export default defineComponent({
       uploadingIndex,
       showPartModal,
       selectedPart,
-      setParts,
-      setPartsHeaders,
-      allSetParts,
       groupByValuesTable,
       allPartsInDisplayOrder,
       currentPartIndex,

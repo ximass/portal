@@ -55,13 +55,12 @@ export interface Order {
   sets?: Set[];
 }
 
-export interface OrderSet {
+export interface OrderSet extends Omit<Set, 'id' | 'name' | 'quantity' | 'ncm_id'> {
   id?: number;
   name?: string;
   quantity?: number | null;
-  setParts: Part[];
-  fileList: File[] | null;
   ncm_id?: number | null;
+  fileList: File[] | null;
 }
 
 export interface SetPartType {

@@ -136,7 +136,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, onMounted } from 'vue';
-import type { Part } from '../types/types';
+import type { Part, Set, OrderSet } from '../types/types';
 import { useAuth } from '../composables/useAuth';
 import { useOrderCalculations } from '../composables/useOrderCalculations';
 
@@ -153,8 +153,8 @@ interface SetGroup {
 export default defineComponent({
   name: 'OrderValuesTable',
   props: {
-    items: {
-      type: Array as () => Part[],
+    sets: {
+      type: Array as () => (Set | OrderSet)[],
       required: true,
     },
     deliveryValue: {
@@ -184,7 +184,7 @@ export default defineComponent({
     const canViewValues = computed(() => canViewMonetaryValues());
 
     const groupedSets = computed<SetGroup[]>(() => {
-      return groupPartsBySet(props.items);
+      return groupPartsBySet(props.sets);
     });
 
     const subtotalParts = computed(() => {
@@ -202,7 +202,7 @@ export default defineComponent({
     });
 
     const totalParts = computed(() => {
-      return props.items.length;
+      return props.sets.reduce((total, set) => total + set.parts.length, 0);
     });
 
     const weights = computed(() => {

@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import axios from 'axios';
+import type { Part, Set, OrderSet } from '../types/types';
 
 interface OrderCalculations {
   subtotal_parts: number;
@@ -11,7 +12,7 @@ interface OrderCalculations {
 
 interface SetGroup {
   setName: string;
-  parts: any[];
+  parts: Part[];
   total: number;
   totalUnitValues: number;
   totalGrossWeight: number;
@@ -45,7 +46,7 @@ export function useOrderCalculations() {
   /**
    * Calculate part values locally (for display purposes)
    */
-  const calculatePartValues = (part: any) => {
+  const calculatePartValues = (part: Part) => {
     const ipi = (part.ncm?.ipi ?? 0) / 100;
     const unitValueWithIPI = Number(part.unit_value) || 0;
     const baseUnitValue = ipi !== 0 ? (unitValueWithIPI / (1 + ipi)) : unitValueWithIPI;
@@ -60,57 +61,45 @@ export function useOrderCalculations() {
   /**
    * Group parts by set with calculated values
    */
-  const groupPartsBySet = (parts: any[]): SetGroup[] => {
-    const setMap = new Map<string, SetGroup & { setQuantity: number }>();
-
-    parts.forEach((part: any) => {
-      const setName = part.setName || 'Sem conjunto';
-      const setQuantity = Number(part.setQuantity) || 1;
-
-      if (!setMap.has(setName)) {
-        setMap.set(setName, {
-          setName,
-          parts: [],
-          total: 0,
-          totalUnitValues: 0,
-          totalGrossWeight: 0,
-          totalNetWeight: 0,
-          setQuantity: setQuantity,
-        });
-      }
-
-      const group = setMap.get(setName)!;
-
-      // Calculate values
-      const calculations = calculatePartValues(part);
-
-      // Add calculated values to part
-      const partWithCalculations = {
-        ...part,
-        ...calculations,
+  const groupPartsBySet = (sets: (Set | OrderSet)[]): SetGroup[] => {
+    return sets.map(set => {
+      const setQuantity = Number(set.quantity) || 1;
+      
+      let total = 0;
+      let totalUnitValues = 0;
+      let totalGrossWeight = 0;
+      let totalNetWeight = 0;
+      
+      const partsWithCalculations = set.parts.map(part => {
+        // Calculate values
+        const calculations = calculatePartValues(part);
+        
+        // Calculate weights
+        const grossWeight = (Number(part.unit_gross_weight) || 0) * (Number(part.quantity) || 0);
+        const netWeight = (Number(part.unit_net_weight) || 0) * (Number(part.quantity) || 0);
+        
+        total += calculations.calculated_total_value;
+        // totalUnitValues is the sum of unit values (without IPI) times quantity
+        totalUnitValues += calculations.calculated_unit_value * (Number(part.quantity) || 0);
+        totalGrossWeight += grossWeight;
+        totalNetWeight += netWeight;
+        
+        return {
+          ...part,
+          ...calculations,
+        };
+      });
+      
+      return {
+        setName: set.name || 'Sem nome',
+        parts: partsWithCalculations,
+        total: total * setQuantity,
+        totalUnitValues: totalUnitValues * setQuantity,
+        totalGrossWeight: totalGrossWeight * setQuantity,
+        totalNetWeight: totalNetWeight * setQuantity,
+        setQuantity,
       };
-
-      group.parts.push(partWithCalculations);
-
-      const grossWeight = (Number(part.unit_gross_weight) || 0) * (Number(part.quantity) || 0);
-      const netWeight = (Number(part.unit_net_weight) || 0) * (Number(part.quantity) || 0);
-
-      group.total += calculations.calculated_total_value;
-      group.totalUnitValues += calculations.calculated_unit_value;
-      group.totalGrossWeight += grossWeight;
-      group.totalNetWeight += netWeight;
     });
-
-    // Multiply set totals by set quantity
-    const groupsArray = Array.from(setMap.values());
-    groupsArray.forEach(group => {
-      group.total *= group.setQuantity;
-      group.totalUnitValues *= group.setQuantity;
-      group.totalGrossWeight *= group.setQuantity;
-      group.totalNetWeight *= group.setQuantity;
-    });
-
-    return groupsArray;
   };
 
   /**
