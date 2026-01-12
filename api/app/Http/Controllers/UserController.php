@@ -38,16 +38,23 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'password' => 'nullable|string|min:6',
             'admin' => 'required|boolean',
             'enabled' => 'required|boolean'
         ]);
 
-        $user->update([
+        $updateData = [
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'admin' => $request->input('admin'),
             'enabled' => $request->input('enabled')
-        ]);
+        ];
+
+        if ($request->filled('password')) {
+            $updateData['password'] = \Hash::make($request->input('password'));
+        }
+
+        $user->update($updateData);
 
         return response()->json($user);
     }

@@ -27,6 +27,17 @@
             </v-col>
           </v-row>
           <v-row dense>
+            <v-col cols="12">
+              <v-text-field
+                label="Nova senha"
+                v-model="user.password"
+                type="password"
+                hint="Deixe em branco para manter a senha atual"
+                persistent-hint
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row dense>
             <v-col cols="6">
               <v-switch v-model="user.admin" label="Administrador"></v-switch>
             </v-col>
@@ -63,6 +74,7 @@ export default defineComponent({
       id: 0,
       name: '',
       email: '',
+      password: '',
       admin: false,
       enabled: false,
     });
@@ -98,7 +110,19 @@ export default defineComponent({
       }
 
       try {
-        await axios.put(`/api/users/${user.value.id}`, user.value);
+        const payload: any = {
+          name: user.value.name,
+          email: user.value.email,
+          admin: user.value.admin,
+          enabled: user.value.enabled,
+        };
+        
+        // Only include password if it was provided
+        if (user.value.password) {
+          payload.password = user.value.password;
+        }
+        
+        await axios.put(`/api/users/${user.value.id}`, payload);
         emit('saved');
         showToast('Usuário atualizado com sucesso!', 'success');
       } catch (error) {
