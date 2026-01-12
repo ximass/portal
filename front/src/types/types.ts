@@ -23,6 +23,8 @@ export interface OrderForm {
   type: OrderType;
   status?: AllOrderStatus;
   customer_id: string;
+  order_number: string;
+  nf_number: string;
   delivery_type: string;
   delivery_value: string;
   service_value: string;
@@ -40,6 +42,8 @@ export interface Order {
   type: OrderType;
   status: AllOrderStatus;
   customer_id: number | null;
+  order_number: string | null;
+  nf_number: string | null;
   final_value: number | null;
   delivery_type: string | null;
   delivery_value: number | null;

@@ -15,7 +15,7 @@
       <v-col cols="12" md="4">
         <v-text-field
           v-model="filters.search"
-          label="Pesquisar por código ou cliente"
+          label="Pesquisar por código, cliente, número do pedido ou NF"
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
           clearable
@@ -238,7 +238,11 @@ export default defineComponent({
           order =>
             order.id.toString().includes(searchTerm) ||
             (order.customer?.name &&
-              order.customer.name.toLowerCase().includes(searchTerm))
+              order.customer.name.toLowerCase().includes(searchTerm)) ||
+            (order.order_number &&
+              order.order_number.toLowerCase().includes(searchTerm)) ||
+            (order.nf_number &&
+              order.nf_number.toLowerCase().includes(searchTerm))
         );
       }
 

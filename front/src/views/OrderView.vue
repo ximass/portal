@@ -42,6 +42,30 @@
                   persistent-hint
                 />
               </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Número do pedido"
+                  v-model="form.order_number"
+                  type="text"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-file-document"
+                  clearable
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
+                  label="Número da nota fiscal"
+                  v-model="form.nf_number"
+                  type="text"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-receipt"
+                  clearable
+                  hide-details="auto"
+                />
+              </v-col>
             </v-row>
           </div>
 
@@ -647,6 +671,8 @@ export default defineComponent({
     const form = ref<OrderForm>({
       type: 'pre_order',
       customer_id: '',
+      order_number: '',
+      nf_number: '',
       delivery_type: '',
       delivery_value: '',
       service_value: '',
@@ -794,6 +820,8 @@ export default defineComponent({
 
           form.value.type = data.type;
           form.value.customer_id = data.customer_id;
+          form.value.order_number = data.order_number || '';
+          form.value.nf_number = data.nf_number || '';
           form.value.delivery_type = data.delivery_type;
           form.value.delivery_value = data.delivery_value;
           form.value.service_value = data.service_value;
@@ -828,6 +856,9 @@ export default defineComponent({
       try {
         const formData = new FormData();
         formData.append('type', form.value.type);
+        formData.append('order_number', form.value.order_number || '');
+        formData.append('nf_number', form.value.nf_number || '');
+
         if (form.value.customer_id) formData.append('customer_id', form.value.customer_id.toString());
         if (form.value.delivery_type) formData.append('delivery_type', form.value.delivery_type);
         if (form.value.delivery_value) formData.append('delivery_value', form.value.delivery_value);

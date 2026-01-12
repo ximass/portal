@@ -26,6 +26,8 @@ class Order extends Model
         'customer_id',
         'type',
         'status',
+        'order_number',
+        'nf_number',
         'markup',
         'final_value',
         'delivery_type',
