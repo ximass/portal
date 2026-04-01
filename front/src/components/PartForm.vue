@@ -251,6 +251,7 @@
                     :items="[
                       { title: 'Peça', value: 'piece' },
                       { title: 'KG', value: 'kg' },
+                      { title: 'Metro', value: 'meter' },
                       { title: 'Nenhuma', value: null }
                     ]"
                     item-title="title"
@@ -484,9 +485,10 @@
                     required
                     density="compact"
                     hide-details
+                    :step="localPart.unit === 'meter' || localPart.unit === 'kg' ? '0.001' : '1'"
                     @change="calculateProperties"
                     @blur="
-                      localPart.quantity = roundValue(localPart.quantity, 0)
+                      localPart.quantity = roundValue(localPart.quantity, localPart.unit === 'meter' || localPart.unit === 'kg' ? 3 : 0)
                     "
                   />
                 </v-col>
@@ -729,7 +731,7 @@ export default defineComponent({
           part.markup !== null && part.markup !== undefined
             ? roundValue(part.markup, 3)
             : null,
-        quantity: Math.round(part.quantity),
+        quantity: roundValue(part.quantity, part.unit === 'meter' || part.unit === 'kg' ? 3 : 0),
       };
     }
 

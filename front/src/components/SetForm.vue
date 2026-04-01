@@ -179,6 +179,7 @@
                     density="compact"
                     hide-details="auto"
                     min="0"
+                    :step="formData.unit === 'meter' || formData.unit === 'kg' ? '0.001' : '1'"
                   />
                 </v-col>
               </v-row>
@@ -241,6 +242,7 @@ export default defineComponent({
     const unitOptions = ref([
       { title: 'Peça', value: 'piece' },
       { title: 'Kg', value: 'kg' },
+      { title: 'Metro', value: 'meter' },
     ]);
 
     const internalDialog = computed({
