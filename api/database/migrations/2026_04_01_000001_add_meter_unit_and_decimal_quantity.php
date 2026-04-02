@@ -12,10 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::getConnection()->getDriverName() === 'pgsql') {
-            DB::statement("ALTER TYPE set_unit ADD VALUE IF NOT EXISTS 'meter'");
-            DB::statement("ALTER TYPE set_part_unit ADD VALUE IF NOT EXISTS 'meter'");
-        }
+        DB::statement("ALTER TYPE set_unit ADD VALUE IF NOT EXISTS 'meter'");
+        DB::statement("ALTER TYPE set_part_unit ADD VALUE IF NOT EXISTS 'meter'");
 
         Schema::table('sets', function (Blueprint $table) {
             $table->decimal('quantity', 10, 3)->nullable()->change();
