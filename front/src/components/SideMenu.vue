@@ -1,11 +1,11 @@
 <template>
   <v-navigation-drawer
     app
-    :value="drawerOpen"
-    :mini-variant="!drawerOpen"
-    expand-on-hover
-    :rail="rail"
-    permanent
+    v-model="internalDrawer"
+    :expand-on-hover="!smAndDown"
+    :rail="!smAndDown && rail"
+    :permanent="!smAndDown"
+    :temporary="smAndDown"
   >
     <v-list-item
       :prepend-avatar="props.user?.avatar || 'mdi-account'"
@@ -29,14 +29,14 @@
         :prepend-icon="homeMenuItem.icon"
         :title="homeMenuItem.title"
         :value="homeMenuItem.route"
-        @click="$router.push(homeMenuItem.route)"
+        @click="navigateTo(homeMenuItem.route)"
       ></v-list-item>
       <v-list-item
         v-if="orderMenuItem"
         :prepend-icon="orderMenuItem.icon"
         :title="orderMenuItem.title"
         :value="orderMenuItem.route"
-        @click="$router.push(orderMenuItem.route)"
+        @click="navigateTo(orderMenuItem.route)"
       ></v-list-item>
 
       <v-list-group value="Cadastros" prepend-icon="mdi-folder">
@@ -49,7 +49,7 @@
           :prepend-icon="item.icon"
           :title="item.title"
           :value="item.route"
-          @click="$router.push(item.route)"
+          @click="navigateTo(item.route)"
         ></v-list-item>
       </v-list-group>
 
@@ -67,7 +67,7 @@
           :prepend-icon="item.icon"
           :title="item.title"
           :value="item.route"
-          @click="$router.push(item.route)"
+          @click="navigateTo(item.route)"
         ></v-list-item>
       </v-list-group>
     </v-list>
@@ -75,7 +75,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, computed, ref, watch } from 'vue';
+import { useDisplay } from 'vuetify';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'SideMenu',
@@ -89,8 +91,23 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  emits: ['update:drawerOpen'],
+  setup(props, { emit }) {
+    const { smAndDown } = useDisplay();
+    const router = useRouter();
     const rail = ref(true);
+
+    const internalDrawer = computed({
+      get: () => props.drawerOpen,
+      set: (value: boolean) => emit('update:drawerOpen', value),
+    });
+
+    const navigateTo = (route: string) => {
+      router.push(route);
+      if (smAndDown.value) {
+        emit('update:drawerOpen', false);
+      }
+    };
 
     const menuItems = [
       // { title: 'Tela inicial', route: '/home', admin: false, icon: 'mdi-home' },
@@ -188,6 +205,9 @@ export default defineComponent({
       adminMenuItems,
       rail,
       props,
+      smAndDown,
+      internalDrawer,
+      navigateTo,
     };
   },
 });

@@ -7,9 +7,9 @@
       <v-expansion-panels variant="accordion" multiple>
         <v-expansion-panel v-for="setGroup in groupedSets" :key="setGroup.setName">
           <v-expansion-panel-title>
-            <div class="d-flex justify-space-between align-center w-100 pe-4">
+            <div class="d-flex justify-space-between align-center w-100 pe-4 flex-wrap gap-2">
               <span class="text-subtitle-1 font-weight-medium">{{ setGroup.setName }}</span>
-              <div class="d-flex gap-4 align-center">
+              <div class="d-flex gap-2 align-center flex-wrap">
                 <v-chip size="small" color="secondary" variant="tonal">
                   {{ setGroup.parts.length }} {{ setGroup.parts.length === 1 ? 'peça' : 'peças' }}
                 </v-chip>
@@ -23,6 +23,7 @@
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
+            <div class="table-scroll-wrapper">
             <v-table density="compact" class="set-table">
               <thead>
                 <tr>
@@ -68,6 +69,7 @@
                 </tr>
               </tfoot>
             </v-table>
+            </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -244,9 +246,15 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .set-table {
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   border-radius: 4px;
+  min-width: 480px;
 }
 
 .set-total-row {
@@ -268,5 +276,19 @@ export default defineComponent({
 
 :deep(.v-expansion-panel-title) {
   padding: 16px 20px;
+}
+
+@media (max-width: 600px) {
+  :deep(.v-expansion-panel-title) {
+    padding: 12px;
+  }
+
+  :deep(.v-expansion-panel-text__wrapper) {
+    padding: 8px;
+  }
+
+  .gap-4 {
+    gap: 8px;
+  }
 }
 </style>

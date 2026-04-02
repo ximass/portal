@@ -1,8 +1,9 @@
 <template>
-  <v-dialog 
-    v-model="internalDialog" 
-    width="70vw"
-    height="90vh"
+  <v-dialog
+    v-model="internalDialog"
+    :width="mobile ? undefined : '70vw'"
+    :height="mobile ? undefined : '90vh'"
+    :fullscreen="mobile"
   >
     <v-card>
       <v-card-title class="d-flex align-center justify-space-between">
@@ -38,11 +39,11 @@
       <v-card-text>
         <v-row>
           <!-- Left: Image panel -->
-          <v-col cols="6">
+          <v-col cols="12" sm="6">
             <v-responsive
               max-height="60vh"
-              max-width="40vw"
-              min-height="50vh"
+              :max-width="mobile ? '100%' : '40vw'"
+              :min-height="mobile ? '30vh' : '50vh'"
             >
               <!-- Prioriza a imagem selecionada para upload -->
               <template v-if="imagePreview && imagePreview !== 'PDF_FILE'">
@@ -100,7 +101,7 @@
           </v-col>
 
           <!-- Right: Form panel -->
-          <v-col cols="6">
+          <v-col cols="12" sm="6">
             <v-form ref="form" @submit.prevent="submitForm">
               <v-row dense style="margin-top: -40px">
                 <v-col cols="12">
@@ -189,10 +190,9 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="outlined" @click="closeDialog">Cancelar</v-btn>
+        <v-btn variant="text" @click="closeDialog">Cancelar</v-btn>
         <v-btn
           color="primary"
-          variant="flat"
           :loading="loading"
           @click="submitForm"
         >
@@ -205,6 +205,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, computed, onMounted } from 'vue';
+import { useDisplay } from 'vuetify';
 import { useToast } from '../composables/useToast';
 import axios from 'axios';
 import type { Set, SetForm, MercosurCommonNomenclature } from '../types/types';
@@ -223,6 +224,7 @@ export default defineComponent({
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
+    const { mobile } = useDisplay();
     const { showToast } = useToast();
     const form = ref<any>(null);
     const loading = ref(false);
@@ -413,6 +415,7 @@ export default defineComponent({
     });
 
     return {
+      mobile,
       form,
       formData,
       loading,

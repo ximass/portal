@@ -1,14 +1,14 @@
 <template>
-  <v-container style="padding: 50px">
+  <v-container class="pa-4 pa-sm-8 pa-md-12">
     <v-row
       justify="space-between"
       align="center"
-      class="mb-4"
+      class="mb-4 flex-wrap ga-2"
       style="margin: 0"
     >
       <h2>Usuários</h2>
     </v-row>
-    <v-data-table :items="users" :headers="headers" class="elevation-1">
+    <v-data-table :items="users" :headers="headers" mobile-breakpoint="sm" class="elevation-1">
       <template #item.admin="{ item }">
         {{ item.admin ? 'Sim' : 'Não' }}
       </template>
@@ -163,8 +163,3 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.v-container {
-  padding-top: 50px;
-}
-</style>

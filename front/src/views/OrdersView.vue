@@ -1,6 +1,6 @@
 <template>
-  <v-container style="padding: 50px">
-    <v-row justify="space-between" align="center" style="margin: 0">
+  <v-container class="pa-4 pa-sm-8 pa-md-12">
+    <v-row justify="space-between" align="center" class="flex-wrap ga-2 mb-4" style="margin: 0">
       <h2>Orçamentos</h2>
       <div>
         <v-btn color="secondary" @click="clearFilters" class="mr-2">
@@ -72,6 +72,7 @@
     <v-data-table
       :items="filteredOrders"
       :headers="headers"
+      mobile-breakpoint="sm"
       class="elevation-1"
     >
       <template #item.status="{ item }">
@@ -443,8 +444,3 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.v-container {
-  padding-top: 50px;
-}
-</style>

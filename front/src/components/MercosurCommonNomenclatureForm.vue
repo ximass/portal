@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="internalDialog" max-width="600px">
+  <v-dialog v-model="internalDialog" max-width="600px" :fullscreen="mobile">
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ isEdit ? 'Editar NCM' : 'Nova NCM' }}</span>
@@ -31,10 +31,11 @@
           />
         </v-form>
       </v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn variant="flat" @click="closeDialog">Cancelar</v-btn>
-        <v-btn variant="flat" color="primary" @click="submitForm">
-          Salvar
+      <v-card-actions>
+        <v-spacer />
+        <v-btn variant="text" @click="closeDialog">Cancelar</v-btn>
+        <v-btn color="primary" @click="submitForm">
+          {{ isEdit ? 'Atualizar' : 'Salvar' }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -43,6 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, type PropType } from 'vue';
+import { useDisplay } from 'vuetify';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
@@ -60,6 +62,7 @@ export default defineComponent({
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
+    const { mobile } = useDisplay();
     const internalDialog = ref(props.dialog);
     const { showToast } = useToast();
     const { roundValue } = useMisc();
@@ -117,6 +120,7 @@ export default defineComponent({
     };
 
     return {
+      mobile,
       internalDialog,
       form,
       formData,

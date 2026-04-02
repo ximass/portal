@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="600px">
+  <v-dialog v-model="dialog" max-width="600px" :fullscreen="mobile">
     <v-card>
       <v-card-title>
         <span class="text-h5">{{
@@ -55,9 +55,11 @@
             </template>
           </v-autocomplete>
           <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn variant="outlined" @click="close">Cancelar</v-btn>
-            <v-btn variant="flat" color="primary" type="submit">Salvar</v-btn>
+            <v-spacer />
+            <v-btn variant="text" @click="close">Cancelar</v-btn>
+            <v-btn color="primary" type="submit">
+              {{ isEdit ? 'Atualizar' : 'Salvar' }}
+            </v-btn>
           </v-card-actions>
         </v-form>
       </v-card-text>
@@ -67,6 +69,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
+import { useDisplay } from 'vuetify';
 import type { VForm } from 'vuetify/components';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
@@ -87,6 +90,7 @@ export default defineComponent({
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
+    const { mobile } = useDisplay();
     const form = ref<VForm | null>(null);
     const group = ref<{ name: string; user_ids: number[]; permission_ids: number[] }>({
       name: '',
@@ -225,6 +229,7 @@ export default defineComponent({
     fetchPermissions();
 
     return {
+      mobile,
       form,
       group,
       users,

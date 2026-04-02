@@ -6,7 +6,6 @@
           <!-- Seção: Informações Gerais -->
           <div class="mb-6">
             <h3 class="text-subtitle-1 mb-3 font-weight-bold">
-              <v-icon class="me-2" size="small">mdi-information</v-icon>
               Informações gerais
             </h3>
             <v-row>
@@ -72,7 +71,6 @@
           <!-- Seção: Valores e Custos -->
           <div class="mb-6">
             <h3 class="text-subtitle-1 mb-3 font-weight-bold">
-              <v-icon class="me-2" size="small">mdi-currency-usd</v-icon>
               Valores e custos
             </h3>
             <v-row>
@@ -136,7 +134,6 @@
           <!-- Seção: Informações adicionais -->
           <div class="mb-6">
             <h3 class="text-subtitle-1 mb-3 font-weight-bold">
-              <v-icon class="me-2" size="small">mdi-truck</v-icon>
               Informações adicionais
             </h3>
             <v-row>
@@ -356,47 +353,41 @@
         color="primary"
         height="4"
       />
-      <v-card-title>
-        <v-row class="d-flex flex-row align-center">
-          <v-col cols="auto">
-            <v-icon size="large">mdi-package-variant</v-icon>
-          </v-col>
-          <v-col>
-            <span class="text-h6">{{ setItem.name }}</span>
-            <div v-if="setItem.parts.length" class="text-caption text-medium-emphasis">
-              {{ setItem.parts.length }} {{ setItem.parts.length === 1 ? 'peça' : 'peças' }}
-            </div>
-          </v-col>
-          <v-col cols="auto" class="d-flex justify-end align-center">
-            <v-menu offset-y>
-              <template #activator="{ props }">
-                <v-btn
-                  variant="text"
-                  :ripple="false"
-                  v-bind="props"
-                  class="menu-actions"
-                  size="large"
-                  title="Ações do conjunto"
-                  icon
-                >
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list density="compact">
-                <v-list-item @click.stop="editSet(setIndex)" prepend-icon="mdi-pencil">
-                  <v-list-item-title>Editar</v-list-item-title>
-                </v-list-item>
-                <v-list-item 
-                  @click.stop="confirmDeleteSet(setIndex)" 
-                  prepend-icon="mdi-delete"
-                  class="text-error"
-                >
-                  <v-list-item-title>Excluir</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-col>
-        </v-row>
+      <v-card-title class="d-flex align-center">
+        <v-icon size="large" class="me-3 flex-shrink-0">mdi-package-variant</v-icon>
+        <div class="flex-grow-1 min-width-0">
+          <span class="text-h6 d-block text-truncate">{{ setItem.name }}</span>
+          <div v-if="setItem.parts.length" class="text-caption text-medium-emphasis">
+            {{ setItem.parts.length }} {{ setItem.parts.length === 1 ? 'peça' : 'peças' }}
+          </div>
+        </div>
+        <v-menu offset-y>
+          <template #activator="{ props }">
+            <v-btn
+              variant="text"
+              :ripple="false"
+              v-bind="props"
+              class="menu-actions flex-shrink-0"
+              size="large"
+              title="Ações do conjunto"
+              icon
+            >
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item @click.stop="editSet(setIndex)" prepend-icon="mdi-pencil">
+              <v-list-item-title>Editar</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click.stop="confirmDeleteSet(setIndex)"
+              prepend-icon="mdi-delete"
+              class="text-error"
+            >
+              <v-list-item-title>Excluir</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-card-title>
       <v-card-text>
         <v-file-input
@@ -409,8 +400,8 @@
           counter
         />
         <div class="setParts-container">
-          <v-row class="d-flex flex-row" dense>
-            <v-col cols="auto" class="pa-2">
+          <v-row dense>
+            <v-col cols="6" sm="auto" class="pa-2">
               <div
                 class="image-preview add-part-button"
                 @click="addNewPart(setIndex)"
@@ -438,7 +429,8 @@
             <v-col
               v-for="(part, partIndex) in setItem.parts.slice().reverse()"
               :key="part.id"
-              cols="auto"
+              cols="6"
+              sm="auto"
               class="pa-2"
             >
               <div setPart class="image-preview">
@@ -581,52 +573,55 @@
     </v-dialog>
 
     <!-- Rodapé com ações -->
-    <div class="mt-4 d-flex justify-end align-center flex-wrap gap-2">
-      <v-menu
-        v-if="!isNew && availableDocuments.length > 0"
-        v-model="showDocumentsMenu"
-        location="bottom"
-        transition="scale-transition"
-      >
-        <template v-slot:activator="{ props }">
-          <v-btn
-            color="success"
-            v-bind="props"
-            :disabled="loadingDocument"
-            prepend-icon="mdi-file-document"
-          >
-            Documentos
-          </v-btn>
-        </template>
-        <v-card min-width="250">
-          <v-divider></v-divider>
-          <v-list density="compact">
-            <v-list-item
-              v-for="document in availableDocuments"
-              :key="document.value"
-              @click="generateDocument(document.value)"
+    <div class="mt-4 actions-footer">
+      <div class="actions-row-secondary">
+        <v-menu
+          v-if="!isNew && availableDocuments.length > 0"
+          v-model="showDocumentsMenu"
+          location="bottom"
+          transition="scale-transition"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              color="success"
+              v-bind="props"
               :disabled="loadingDocument"
+              prepend-icon="mdi-file-document"
             >
-              <v-list-item-title>{{ document.title }}</v-list-item-title>
-              <template v-slot:prepend>
-                <v-icon>{{ document.icon }}</v-icon>
-              </template>
-            </v-list-item>
-          </v-list>
-        </v-card>
-      </v-menu>
+              Documentos
+            </v-btn>
+          </template>
+          <v-card min-width="250">
+            <v-divider></v-divider>
+            <v-list density="compact">
+              <v-list-item
+                v-for="document in availableDocuments"
+                :key="document.value"
+                @click="generateDocument(document.value)"
+                :disabled="loadingDocument"
+              >
+                <v-list-item-title>{{ document.title }}</v-list-item-title>
+                <template v-slot:prepend>
+                  <v-icon>{{ document.icon }}</v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-menu>
+        <v-btn
+          v-if="!isNew"
+          color="secondary"
+          @click="printAllParts"
+          prepend-icon="mdi-printer"
+        >
+          Imprimir peças
+        </v-btn>
+      </div>
       <v-btn
-        v-if="!isNew"
-        color="secondary"
-        @click="printAllParts"
-        prepend-icon="mdi-printer"
-      >
-        Imprimir peças
-      </v-btn>
-      <v-btn 
-        color="primary" 
+        color="primary"
         @click="saveOrder"
         prepend-icon="mdi-content-save"
+        class="actions-save-btn"
       >
         Salvar
       </v-btn>
@@ -1564,27 +1559,83 @@ h3.text-subtitle-1 {
   padding-left: 12px;
 }
 
+/* Footer de ações */
+.actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.actions-row-secondary {
+  display: flex;
+  gap: 8px;
+}
+
 /* Melhorias de responsividade */
 @media (max-width: 960px) {
   .setParts-container {
-    max-height: calc(150px * 2 + 32px);
+    max-height: none;
   }
 }
 
 @media (max-width: 600px) {
   .image-preview {
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
-  
+
+  :deep(.image-preview .v-img),
+  :deep(.image-preview .v-responsive) {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+  }
+
+  .image-error-placeholder {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+  }
+
   .setParts-container {
-    max-height: calc(120px * 2 + 32px);
+    max-height: none;
+  }
+
+  .actions-footer {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .actions-row-secondary {
+    flex: 1 1 100%;
+  }
+
+  .actions-row-secondary .v-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .actions-row-secondary :deep(.v-btn__content) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .actions-save-btn {
+    flex: 1 1 100%;
   }
 }
 
 /* Espaçamento entre gaps */
 .gap-2 {
   gap: 8px;
+}
+
+.min-width-0 {
+  min-width: 0;
 }
 
 /* Estilos para a seção de OS */

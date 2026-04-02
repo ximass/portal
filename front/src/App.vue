@@ -9,6 +9,7 @@
       v-if="isAuthenticated && !isPrintRoute"
       :user="user"
       :drawerOpen="drawerOpen"
+      @update:drawerOpen="drawerOpen = $event"
     />
     <v-main>
       <router-view />

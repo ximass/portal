@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid style="padding: 50px">
-    <v-row justify="space-between" align="center" class="mb-4">
+  <v-container fluid class="pa-4 pa-sm-8 pa-md-12">
+    <v-row justify="space-between" align="center" class="mb-4 flex-wrap ga-2">
       <v-col>
         <h2>Logs de erros</h2>
       </v-col>
@@ -122,6 +122,7 @@
       :items="errorLogs"
       :loading="loading"
       :items-per-page="itemsPerPage"
+      mobile-breakpoint="sm"
       class="elevation-1"
       @click:row="showLogDetails"
     >
@@ -136,7 +137,7 @@
       </template>
 
       <template #item.message="{ item }">
-        <div class="text-truncate" style="max-width: 400px">
+        <div class="text-truncate" style="max-width: min(400px, 100%)">
           {{ item.message }}
         </div>
       </template>

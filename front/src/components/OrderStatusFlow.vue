@@ -5,8 +5,10 @@
       Status do {{ orderType === 'pre_order' ? 'orçamento' : 'pedido' }}
     </v-card-title>
     <v-card-text>
-      <v-stepper 
-        :model-value="currentStepIndex + 1" 
+      <!-- Stepper: desktop -->
+      <v-stepper
+        v-if="!mobile"
+        :model-value="currentStepIndex + 1"
         alt-labels
         hide-actions
         class="elevation-0"
@@ -27,6 +29,24 @@
         </v-stepper-header>
       </v-stepper>
 
+      <!-- Stepper: mobile — chips sequenciais -->
+      <div v-else class="mobile-steps">
+        <template v-for="(step, index) in statusSteps" :key="step.value">
+          <v-chip
+            :color="getStepColor(index)"
+            :variant="index === currentStepIndex ? 'elevated' : 'tonal'"
+            size="small"
+            :prepend-icon="getStepIcon(index) || (index < currentStepIndex ? 'mdi-check' : undefined)"
+            class="flex-shrink-0"
+          >
+            {{ step.title }}
+          </v-chip>
+          <v-icon v-if="index < statusSteps.length - 1" size="14" color="grey" class="flex-shrink-0">
+            mdi-chevron-right
+          </v-icon>
+        </template>
+      </div>
+
       <!-- Ações de transição -->
       <v-divider class="my-4" />
       
@@ -35,13 +55,14 @@
           <p class="text-subtitle-2 mb-2">Status atual: <strong>{{ currentStatusLabel }}</strong></p>
         </div>
 
-        <div v-if="availableTransitions.length > 0" class="d-flex flex-wrap gap-2">
+        <div v-if="availableTransitions.length > 0" class="transitions-row">
           <v-btn
             v-for="transition in availableTransitions"
             :key="transition.value"
             :color="transition.color"
             :variant="transition.variant || 'elevated'"
             :prepend-icon="transition.icon"
+            :size="mobile ? 'small' : 'default'"
             @click="confirmTransition(transition)"
             :loading="loading"
           >
@@ -61,7 +82,7 @@
     </v-card-text>
 
     <!-- Dialog de confirmação -->
-    <v-dialog v-model="showConfirmDialog" max-width="500">
+    <v-dialog v-model="showConfirmDialog" max-width="500" :fullscreen="mobile">
       <v-card>
         <v-card-title class="text-h6">
           Confirmar mudança de status
@@ -112,6 +133,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref, type PropType } from 'vue';
+import { useDisplay } from 'vuetify';
 import type { OrderType, AllOrderStatus } from '../types/types';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
@@ -149,6 +171,7 @@ export default defineComponent({
   },
   emits: ['status-updated'],
   setup(props, { emit }) {
+    const { mobile } = useDisplay();
     const { showToast } = useToast();
     const { hasPermission } = useAuth();
     const loading = ref(false);
@@ -301,6 +324,7 @@ export default defineComponent({
     };
 
     return {
+      mobile,
       loading,
       showConfirmDialog,
       pendingTransition,
@@ -327,6 +351,21 @@ export default defineComponent({
 
 .gap-3 {
   gap: 12px;
+}
+
+.transitions-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.mobile-steps {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 0;
 }
 
 :deep(.v-stepper-item) {

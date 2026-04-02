@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="internalDialog" max-width="500px">
+  <v-dialog v-model="internalDialog" max-width="500px" :fullscreen="mobile">
     <v-card>
       <v-card-title>
         <span class="text-h5">Editar usuário</span>
@@ -38,10 +38,10 @@
             </v-col>
           </v-row>
           <v-row dense>
-            <v-col cols="6">
+            <v-col cols="12" sm="6">
               <v-switch v-model="user.admin" label="Administrador"></v-switch>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="12" sm="6">
               <v-switch v-model="user.enabled" label="Habilitado"></v-switch>
             </v-col>
           </v-row>
@@ -58,6 +58,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
+import { useDisplay } from 'vuetify';
 import axios from '../plugins/axios';
 import { useToast } from '../composables/useToast';
 
@@ -69,6 +70,7 @@ export default defineComponent({
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
+    const { mobile } = useDisplay();
     const { showToast } = useToast();
     const user = ref({
       id: 0,
@@ -130,7 +132,7 @@ export default defineComponent({
       }
     };
 
-    return { internalDialog, user, form, close, submitForm, showToast };
+    return { mobile, internalDialog, user, form, close, submitForm, showToast };
   },
 });
 </script>

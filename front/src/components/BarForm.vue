@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="internalDialog" max-width="600px">
+  <v-dialog v-model="internalDialog" max-width="600px" :fullscreen="mobile">
     <v-card>
       <v-card-title>
         <span class="text-h5">{{
@@ -88,6 +88,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, type PropType, onMounted } from 'vue';
+import { useDisplay } from 'vuetify';
 import axios from 'axios';
 import { useToast } from '../composables/useToast';
 import { useMisc } from '../composables/misc';
@@ -112,6 +113,7 @@ export default defineComponent({
   },
   emits: ['close', 'saved'],
   setup(props, { emit }) {
+    const { mobile } = useDisplay();
     const internalDialog = ref(props.dialog);
     const form = ref();
     const formData = ref<Bar>({
@@ -180,6 +182,7 @@ export default defineComponent({
     };
 
     return {
+      mobile,
       internalDialog,
       form,
       formData,

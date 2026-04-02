@@ -1,12 +1,17 @@
 <template>
-  <v-row align="center" justify="space-between" class="mb-4 pa-4 mt-4">
+  <v-row align="center" justify="space-between" class="mb-2 pa-4 mt-4">
     <h3 class="text-h6">Processos</h3>
     <v-btn small color="primary" @click="addProcess">Adicionar</v-btn>
   </v-row>
   <div class="process-list">
-    <div class="mb-2" v-for="(proc, index) in internalProcesses" :key="index">
-      <v-row dense>
-        <v-col cols="3">
+    <v-card
+      v-for="(proc, index) in internalProcesses"
+      :key="index"
+      variant="outlined"
+      class="mb-3 pa-2"
+    >
+      <v-row dense align="center">
+        <v-col cols="10" sm="3">
           <v-select
             label="Processo"
             :items="processOptions"
@@ -15,26 +20,35 @@
             v-model="proc.id"
             required
             density="compact"
+            hide-details
             @update:model-value="onSelectChange(index)"
           />
         </v-col>
-        <v-col v-if="canViewValues" cols="3">
+        <!-- delete btn on mobile: top-right of card -->
+        <v-col cols="2" class="d-flex d-sm-none justify-end pa-0">
+          <v-btn variant="text" icon color="error" size="small" @click="removeProcess(index)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </v-col>
+
+        <v-col v-if="canViewValues" cols="6" sm="3">
           <v-text-field
             label="Valor por minuto"
             :model-value="getValuePerMinute(proc.id)"
             readonly
             density="compact"
             prefix="R$"
+            hide-details
           />
         </v-col>
-        <v-col cols="2">
+        <v-col :cols="canViewValues ? 6 : 11" sm="2">
           <v-text-field
-            label="Tempo"
+            label="Tempo (min)"
             v-model="proc.pivot.time"
             type="number"
             required
             density="compact"
-            hint="Em minutos"
+            hide-details="auto"
             step="1"
             min="0"
             :rules="[
@@ -43,13 +57,14 @@
             @blur="calculateProcess(index)"
           />
         </v-col>
-        <v-col v-if="canViewValues" cols="3">
+        <v-col v-if="canViewValues" cols="12" sm="3">
           <v-text-field
             label="Valor final"
             v-model="proc.pivot.final_value"
             type="number"
             density="compact"
             prefix="R$"
+            hide-details="auto"
             :rules="[
               v =>
                 /^\d+(\.\d{1,2})?$/.test(String(v)) ||
@@ -58,28 +73,25 @@
             @blur="onFinalValueBlur(index)"
           />
         </v-col>
-        <v-col :cols="canViewValues ? 1 : 4">
-          <v-btn
-            variant="text"
-            small
-            icon
-            color="error"
-            @click="removeProcess(index)"
-          >
-            <v-icon small>mdi-delete</v-icon>
+
+        <!-- delete btn on desktop -->
+        <v-col :cols="canViewValues ? 1 : 1" class="d-none d-sm-flex justify-end">
+          <v-btn variant="text" icon color="error" size="small" @click="removeProcess(index)">
+            <v-icon>mdi-delete</v-icon>
           </v-btn>
         </v-col>
       </v-row>
-    </div>
+    </v-card>
   </div>
 </template>
 
 <style scoped>
 .process-list {
-  min-height: 100px;
+  min-height: 60px;
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 400px;
   overflow-x: hidden;
+  padding: 0 4px;
 }
 </style>
 

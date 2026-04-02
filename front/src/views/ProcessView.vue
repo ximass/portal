@@ -26,7 +26,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="6">
+            <v-col cols="12" sm="6">
               <v-text-field
                 type="number"
                 label="Valor por minuto"

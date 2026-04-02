@@ -1,9 +1,9 @@
 <template>
-  <v-container style="padding: 50px">
+  <v-container class="pa-4 pa-sm-8 pa-md-12">
     <v-row
       justify="space-between"
       align="center"
-      class="mb-4"
+      class="mb-4 flex-wrap ga-2"
       style="margin: 0"
     >
       <h2>Estados</h2>
@@ -21,11 +21,12 @@
       class="mb-4"
     ></v-text-field>
 
-    <v-data-table 
-      :items="states" 
-      :headers="headers" 
+    <v-data-table
+      :items="states"
+      :headers="headers"
       :sort-by="[{ key: 'name', order: 'asc' }]"
       :search="search"
+      mobile-breakpoint="sm"
       class="elevation-1"
     >
       <template #item.actions="{ item }">
