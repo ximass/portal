@@ -153,7 +153,7 @@ export interface Part {
   content: string | null;
   secondary_content?: string | null;
   quantity: number;
-  unit: 'piece' | 'kg' | null;
+  unit: 'piece' | 'kg' | 'meter' | null;
   unit_net_weight: number;
   unit_gross_weight: number;
   net_weight: number;
@@ -182,7 +182,7 @@ export interface Set {
   name: string;
   content?: string | null;
   quantity?: number | null;
-  unit?: 'piece' | 'kg' | null;
+  unit?: 'piece' | 'kg' | 'meter' | null;
   ncm_id?: number | null;
   ncm?: MercosurCommonNomenclature;
   reference?: string | null;
@@ -194,7 +194,7 @@ export interface SetForm {
   name: string;
   content?: string | null;
   quantity?: number | null;
-  unit?: 'piece' | 'kg' | null;
+  unit?: 'piece' | 'kg' | 'meter' | null;
   ncm_id?: number | null;
   reference?: string | null;
   obs?: string | null;

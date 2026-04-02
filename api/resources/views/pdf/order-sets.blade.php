@@ -303,12 +303,20 @@
                             -
                         @endif
                     </td>
-                    <td style="text-align: center;">{{ number_format($set->quantity ?? 1, 0) }}</td>
+                    <td style="text-align: center;">
+                        @if($set->unit === 'meter' || $set->unit === 'kg')
+                            {{ number_format($set->quantity ?? 1, 3, ',', '.') }}
+                        @else
+                            {{ number_format($set->quantity ?? 1, 0) }}
+                        @endif
+                    </td>
                     <td style="text-align: center;">
                         @if($set->unit === 'piece')
                             Peça
                         @elseif($set->unit === 'kg')
                             KG
+                        @elseif($set->unit === 'meter')
+                            Metro
                         @else
                             Peça
                         @endif
