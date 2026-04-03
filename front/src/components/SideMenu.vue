@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, watch } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useRouter } from 'vue-router';
 
