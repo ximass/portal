@@ -35,6 +35,7 @@ class Order extends Model
         'service_value',
         'discount',
         'delivery_date',
+        'expedition_date',
         'estimated_delivery_date',
         'payment_obs',
         'obs',
@@ -48,6 +49,7 @@ class Order extends Model
         'discount' => 'float',
         'markup' => 'float',
         'delivery_date' => 'datetime',
+        'expedition_date' => 'datetime',
     ];
 
     public function customer()

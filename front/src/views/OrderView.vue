@@ -164,6 +164,20 @@
               </v-col>
               <v-col cols="12" md="4" sm="6">
                 <v-text-field
+                  label="Data de expedição"
+                  v-model="form.expedition_date"
+                  type="text"
+                  variant="outlined"
+                  density="comfortable"
+                  prepend-inner-icon="mdi-calendar-export"
+                  hide-details="auto"
+                  placeholder="DD/MM/AAAA"
+                  maxlength="10"
+                  @input="(event: Event) => applyDateMask(event, 'expedition_date')"
+                />
+              </v-col>
+              <v-col cols="12" md="4" sm="6">
+                <v-text-field
                   label="Data de entrega"
                   v-model="form.delivery_date"
                   type="text"
@@ -674,6 +688,7 @@ export default defineComponent({
       discount: '',
       markup: '',
       delivery_date: '',
+      expedition_date: '',
       estimated_delivery_date: '',
       payment_obs: '',
       obs: 'Prezados Senhores, atendendo sua solicitação, apresentamos proposta para fornecimento de material do equipamento: ',
@@ -823,6 +838,7 @@ export default defineComponent({
           form.value.discount = data.discount;
           form.value.markup = data.markup;
           form.value.delivery_date = formatDateToInput(data.delivery_date);
+          form.value.expedition_date = formatDateToInput(data.expedition_date);
           form.value.estimated_delivery_date = data.estimated_delivery_date;
           form.value.payment_obs = data.payment_obs;
           form.value.obs = data.obs || 'Prezados Senhores, atendendo sua solicitação, apresentamos proposta para fornecimento de material do equipamento: ';
@@ -866,6 +882,12 @@ export default defineComponent({
           ? formatDateFromInput(form.value.delivery_date)
           : '';
         formData.append('delivery_date', deliveryDateFormatted);
+
+        const expeditionDateFormatted = form.value.expedition_date 
+          ? formatDateFromInput(form.value.expedition_date)
+          : '';
+        formData.append('expedition_date', expeditionDateFormatted);
+
         formData.append('estimated_delivery_date', form.value.estimated_delivery_date || '');
         formData.append('payment_obs', form.value.payment_obs || '');
         formData.append('obs', form.value.obs || '');
@@ -1200,7 +1222,7 @@ export default defineComponent({
       }
     };
 
-    const applyDateMask = (event: Event, fieldName: 'delivery_date' | 'estimated_delivery_date' = 'delivery_date') => {
+    const applyDateMask = (event: Event, fieldName: 'delivery_date' | 'expedition_date' | 'estimated_delivery_date' = 'delivery_date') => {
       const input = event.target as HTMLInputElement;
       let value = input.value.replace(/\D/g, '');
       

@@ -48,6 +48,7 @@ class OrderController extends Controller
             'service_value'  => 'nullable|numeric',
             'discount'      => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
+            'expedition_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string',
             'obs'           => 'nullable|string'
@@ -88,6 +89,7 @@ class OrderController extends Controller
             'service_value'  => 'nullable|numeric',
             'discount'      => 'nullable|numeric',
             'delivery_date' => 'nullable|date',
+            'expedition_date' => 'nullable|date',
             'estimated_delivery_date' => 'nullable|string',
             'payment_obs'   => 'nullable|string',
             'obs'           => 'nullable|string',
@@ -96,6 +98,10 @@ class OrderController extends Controller
 
         if (isset($validated['delivery_date']) && $validated['delivery_date'] === '') {
             $validated['delivery_date'] = null;
+        }
+
+        if (isset($validated['expedition_date']) && $validated['expedition_date'] === '') {
+            $validated['expedition_date'] = null;
         }
 
         if (isset($validated['estimated_delivery_date']) && $validated['estimated_delivery_date'] === '') {
@@ -188,6 +194,7 @@ class OrderController extends Controller
                 'service_value'          => $originalOrder->service_value,
                 'discount'               => $originalOrder->discount,
                 'delivery_date'          => $originalOrder->delivery_date,
+                'expedition_date'        => $originalOrder->expedition_date,
                 'estimated_delivery_date'=> $originalOrder->estimated_delivery_date,
                 'payment_obs'            => $originalOrder->payment_obs,
                 'obs'                    => $originalOrder->obs,

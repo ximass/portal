@@ -15,7 +15,7 @@
       <v-col cols="12" md="4">
         <v-text-field
           v-model="filters.search"
-          label="Pesquisar por código, cliente, número do pedido ou NF"
+          label="Pesquisar por código, cliente, CPF/CNPJ, pedido ou NF"
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
           clearable
@@ -235,16 +235,30 @@ export default defineComponent({
 
       if (filters.value.search) {
         const searchTerm = filters.value.search.toLowerCase();
-        filtered = filtered.filter(
-          order =>
-            order.id.toString().includes(searchTerm) ||
-            (order.customer?.name &&
-              order.customer.name.toLowerCase().includes(searchTerm)) ||
-            (order.order_number &&
-              order.order_number.toLowerCase().includes(searchTerm)) ||
-            (order.nf_number &&
-              order.nf_number.toLowerCase().includes(searchTerm))
-        );
+        const searchTermOnlyNumbers = searchTerm.replace(/\D/g, '');
+        
+        filtered = filtered.filter(order => {
+          const idMatch = order.id.toString().includes(searchTerm);
+          const nameMatch = !!order.customer?.name?.toLowerCase().includes(searchTerm);
+          const orderNumberMatch = !!order.order_number?.toLowerCase().includes(searchTerm);
+          const nfNumberMatch = !!order.nf_number?.toLowerCase().includes(searchTerm);
+          
+          const customerCpf = order.customer?.cpf?.toLowerCase() || '';
+          const customerCnpj = order.customer?.cnpj?.toLowerCase() || '';
+          
+          const documentMatch = customerCpf.includes(searchTerm) || 
+                               customerCnpj.includes(searchTerm);
+          
+          let documentNumbersMatch = false;
+          if (searchTermOnlyNumbers) {
+            const cpfNumbers = customerCpf.replace(/\D/g, '');
+            const cnpjNumbers = customerCnpj.replace(/\D/g, '');
+            documentNumbersMatch = (!!cpfNumbers && cpfNumbers.includes(searchTermOnlyNumbers)) || 
+                                   (!!cnpjNumbers && cnpjNumbers.includes(searchTermOnlyNumbers));
+          }
+
+          return idMatch || nameMatch || orderNumberMatch || nfNumberMatch || documentMatch || documentNumbersMatch;
+        });
       }
 
       if (filters.value.type) {

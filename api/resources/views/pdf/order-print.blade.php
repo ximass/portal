@@ -303,6 +303,10 @@
                 <div class="conditions-cell">{{ $order->delivery_type ?? '-' }}</div>
             </div>
             <div class="conditions-row">
+                <div class="conditions-cell conditions-label">Data de expedição:</div>
+                <div class="conditions-cell">{{ $order->expedition_date ? $order->expedition_date->format('d/m/Y') : '-' }}</div>
+            </div>
+            <div class="conditions-row">
                 <div class="conditions-cell conditions-label">Prazo de entrega:</div>
                 <div class="conditions-cell">{{ $order->estimated_delivery_date ? $order->estimated_delivery_date : '-' }}</div>
             </div>

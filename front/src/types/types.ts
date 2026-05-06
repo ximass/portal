@@ -31,6 +31,7 @@ export interface OrderForm {
   discount: string;
   markup: string;
   delivery_date: string;
+  expedition_date: string;
   estimated_delivery_date: string;
   payment_obs: string;
   obs: string;
@@ -51,6 +52,7 @@ export interface Order {
   discount: number | null;
   markup: number | null;
   delivery_date: string | null;
+  expedition_date: string | null;
   estimated_delivery_date: string | null;
   payment_obs: string | null;
   obs: string | null;
